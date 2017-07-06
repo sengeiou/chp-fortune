@@ -1,0 +1,1186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.deduct.dao.DeductApplyDao">
+
+	  <insert id="insert" parameterType="com.creditharmony.fortune.deduct.entity.DeductPool" >
+	    insert into t_tz_deduct_pool (deduct_apply_id, batch_id, customer_code, lend_code, dict_deduct_status, 
+            actual_deduct_money, confirm_id, confirm_day, confirm_result, 
+            confirm_opinion, create_by, create_time, modify_by, modify_time,fail_money,dict_apply_deduct_type,day_deduct_flag,loan_money,deal_time,fail_reason,no_deduct_money,
+            send_email_status,make_flie_status)
+	    values (#{deductApplyId,jdbcType=VARCHAR}, #{batchId,jdbcType=VARCHAR}, #{custCode,jdbcType=VARCHAR}, #{applyCode,jdbcType=VARCHAR},
+	      #{dictDeductStatus,jdbcType=NUMERIC},cast(#{actualDeductMoney} as decimal(18,2)), #{confirmId,jdbcType=VARCHAR}, 
+	      #{confirmDate,jdbcType=DATE}, #{confirmResult,jdbcType=VARCHAR}, #{confirmOpinion,jdbcType=VARCHAR}, 
+	      #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR},#{modifyTime,jdbcType=TIMESTAMP}
+	      ,cast(#{failMoney} as decimal(18,2)),#{dictApplyDeductType,jdbcType=VARCHAR},#{dayDeductFlag,jdbcType=VARCHAR},cast(#{loanMoney} as decimal(18,2)),to_timestamp(#{dealTime},'YYYY-MM-DD HH24:mi:ss'),#{failReason,jdbcType=VARCHAR},cast(#{noDeductMoney} as decimal(18,2))
+	      ,#{sendEmailStatus,jdbcType=VARCHAR},#{makeFlieStatus,jdbcType=VARCHAR})
+	  </insert>
+
+	<!-- 查询划扣申请表 -->
+	<select id="get" parameterType="com.creditharmony.fortune.deduct.entity.DeductPool"  resultType="com.creditharmony.fortune.deduct.entity.DeductPool">
+		SELECT 
+			deduct_apply_id as deductApplyId,
+		 	batch_id as batchId, 
+		 	customer_code as custCode, 
+		 	lend_code as applyCode, 
+		 	dict_deduct_status, 
+       		actual_deduct_money, 
+       		confirm_id, 
+       		confirm_day, 
+       		confirm_result, 
+       		confirm_opinion, 
+       		create_by, 
+       		create_time, 
+       		modify_by, 
+       		modify_time,
+       		fail_money,
+       		dict_apply_deduct_type,
+       		day_deduct_flag,
+       		loan_money,
+       		deal_time,
+       		fail_reason,
+       		no_deduct_money,
+       		send_email_status,
+       		make_flie_status,
+       		extract(epoch from modify_time) as "verTime"
+  		FROM t_tz_deduct_pool
+			<where>
+	  			<if test="applyCode != null and applyCode !='' ">
+	  				and lend_code=#{applyCode}
+	  			</if>
+	  			<if test="deductApplyId != null and deductApplyId !='' ">
+	  				and deduct_apply_id=#{deductApplyId}
+	  			</if>
+	  			<if test="batchId != null and batchId !='' ">
+	  				and batch_id=#{batchId}
+	  			</if>
+		  		<if test="verTime != null and verTime != ''">
+		      		and extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+		      	</if>
+  			</where>
+	</select>
+
+	<!-- 划扣申请列表    带分页 -->
+	<select id="findList"
+		resultType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx"
+		parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx">
+		SELECT 
+			p.deduct_apply_id, 
+			p.customer_code as cust_code, 
+			p.lend_code as apply_code, 
+			p.dict_deduct_status,
+			p.actual_deduct_money,
+			P.fail_money,
+			P.fail_reason as confirmOpinion,
+			a.lend_code,
+			c.customer_name as cust_name,
+			glp.product_name,
+			mc.dict_matching_filesend_status,
+			a.apply_pay,
+			a.dict_apply_deduct_type,
+			ca.account_bank,
+			ca.account_no,
+			a.apply_lend_day as apply_lend_date,
+			a.apply_deduct_day as apply_deduct_date,
+			a.apply_lend_money,
+			a.apply_deduct_money,
+			c.trusteeship_no as goldAccounName,
+<!-- 			<if test="failFlag != null and failFlag != ''"> -->
+<!-- 				deduct.deduct_fail_money, -->
+<!-- 			</if> -->
+			a.apply_expire_day as apply_expire_date,
+			p.day_deduct_flag,
+			p.deal_time,
+			glp.product_name,
+			p.no_deduct_money,
+			o.name as orgName,
+			bk.bespoke_date,
+			send_email_status,
+       		make_flie_status,
+            extract(epoch from p.modify_time) as "verTime"		                           
+<!-- 		FROM tz.t_tz_deduct_pool p -->
+<!--   		LEFT JOIN tz.t_tz_loan_apply a -->
+<!--   			ON p.lend_code=a.lend_code -->
+<!-- 			<if test="goldAccountFlag != null and goldAccountFlag ==4"> -->
+<!--   				and a.apply_pay = '4' -->
+<!--   			</if> -->
+<!--   			<if test="goldAccountFlag != null and goldAccountFlag ==1"> -->
+<!--   				and a.apply_pay != '4' -->
+<!--   			</if> -->
+<!--   		LEFT JOIN tz.t_tz_customer c -->
+<!--   			ON c.customer_code=p.customer_code -->
+<!--   		LEFT JOIN tz.t_tz_customer_account ca -->
+<!--   			ON a.customer_code=ca.customer_code  -->
+<!--   			AND a.repay_id=ca.id -->
+<!--   		LEFT JOIN tz.t_gl_tz_product glp -->
+<!--   			ON a.product_code=glp.product_code -->
+<!--   		LEFT JOIN tz.t_tz_matching_creditor mc -->
+<!--   			ON mc.lend_code=a.lend_code -->
+<!--   		left join tz.t_gl_org o on a.store_org_id = o.id -->
+		<include refid="leftJoin" />
+			LEFT JOIN t_tz_deduct_bespoke bk
+				ON bk.lend_code=p.lend_code and bk.dict_deduct_status='14'
+ 		<include refid="sqlWhere" />
+ 		<!-- 营业部 -->
+<!-- 	    <if test="checkNodeList != null and checkNodeList.size() > 0" > -->
+<!-- 	        and o.id in -->
+<!-- 	        <foreach collection="checkNodeList" item="item" index="index" open="(" separator="," close=")"> -->
+<!-- 	    			'${item}' -->
+<!-- 	    	</foreach> -->
+<!-- 	    </if> -->
+ 		
+	</select>
+	
+	<!-- 划扣审批导出列表 -->
+	<select id="getDeductPoolExportModel"
+		resultType="com.creditharmony.fortune.template.entity.DeductPoolExportModel"
+		parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx">
+		SELECT 
+						p.customer_code as cust_code, 
+			p.lend_code as apply_code, 
+			c.customer_name as cust_name,
+			a.apply_lend_day as apply_lend_date,
+			a.apply_deduct_day as apply_deduct_date,
+			a.apply_lend_money,
+			a.apply_deduct_money,
+			a.lend_code as applyCode,
+			glp.product_name as productCode,
+			u.name as managerName,
+			o.name as checkNode,
+			ca.account_bank as accountBank,
+			a.apply_pay as applyPay,
+			a.dict_apply_deduct_type as dictApplyDeductType,
+			o1.name as fortuneCenter                         
+  		<include refid="leftJoin" />			
+			left join t_gl_user u on u.id=c.manager_code
+		  	left join tz.t_gl_org o1 on ','||o.parent_ids like '%,'||o1.id||',%' and o1.type='6400000007'
+ 		<include refid="sqlWhere" />
+	</select>
+	
+	<sql id="leftJoin">
+		FROM tz.t_tz_deduct_pool p
+  		LEFT JOIN tz.t_tz_loan_apply a
+  			ON p.lend_code=a.lend_code 
+  			<if test="goldAccountFlag != null and goldAccountFlag ==4">
+  				and a.apply_pay = '4'
+  			</if>
+  			<if test="goldAccountFlag != null and goldAccountFlag ==1">
+  				and a.apply_pay != '4'
+  			</if>
+  		LEFT JOIN tz.t_tz_customer c
+  			ON c.customer_code=p.customer_code
+  		LEFT JOIN tz.t_tz_customer_account ca
+  			ON a.customer_code=ca.customer_code 
+  			AND a.repay_id=ca.id
+  		LEFT JOIN tz.t_gl_tz_product glp
+  			ON a.product_code=glp.product_code
+  		LEFT JOIN tz.t_tz_matching_creditor mc
+  			ON mc.lend_code=a.lend_code and mc.matching_now='1'
+  		left join tz.t_gl_org o on a.store_org_id = o.id
+	</sql>
+	
+	<sql id="sqlWhere">
+		<where>
+			<if test="dataFlag != null and dataFlag !='' ">
+				and p.data_flag is null
+			</if>
+  			<if test="applyCode != null and applyCode !='' ">
+  				and a.lend_code=#{applyCode}
+  			</if>
+  			<if test="applyCodes != null and applyCodes.size() > 0 ">
+  				and p.lend_code in 
+		    	<foreach collection="applyCodes" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+  			</if>
+<!--   			<if test="lendCodes != null and applyCodes.size() > 0 "> -->
+<!-- 	  			and p.lend_code in  -->
+<!-- 		    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")"> -->
+<!-- 		    			'${item}' -->
+<!-- 		    	</foreach> -->
+<!-- 	    	</if> -->
+  			<if test="custName != null and custName !='' ">
+  				and c.customer_name like '%${custName}%'
+  			</if>
+  		  	<if test="dictMatchingFilesendStatus != null and dictMatchingFilesendStatus !='' ">
+  				<![CDATA[and mc.dict_matching_filesend_status=#{dictMatchingFilesendStatus}]]>
+  			</if>
+  			<if test="matchingFirstdayFlag != null and matchingFirstdayFlag !='' ">
+  				and mc.matching_firstday_flag=#{matchingFirstdayFlag}
+  			</if>
+  			<if test="applyLendDateStart != null and applyLendDateStart !='' ">
+  				<![CDATA[and a.apply_lend_day >=to_timestamp(#{applyLendDateStart},'YYYY-MM-DD')]]>
+  			</if>
+  			<if test="applyLendDateEnd != null and applyLendDateEnd !='' ">
+  				<![CDATA[ and a.apply_lend_day <= to_timestamp(#{applyLendDateEnd},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="applyDeductDateStart != null and applyDeductDateStart !='' ">
+  				<![CDATA[ and a.apply_deduct_day >= to_timestamp(#{applyDeductDateStart},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="applyDeductDateEnd != null and applyDeductDateEnd !='' ">
+  				<![CDATA[ and a.apply_deduct_day <= to_timestamp(#{applyDeductDateEnd},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="confirmOpinion != null and confirmOpinion !='' ">
+  				and p.fail_reason LIKE '%'||#{confirmOpinion}||'%'
+  			</if>
+  			<if test="dayDeductFlag != null and dayDeductFlag !='' ">
+  				and p.day_deduct_flag = #{dayDeductFlag}
+  			</if>
+  			<if test="applyLendMoneyStart != null and applyLendMoneyStart !='' ">
+  				<![CDATA[and a.apply_lend_money >= to_number(#{applyLendMoneyStart}) ]]>
+  			</if>
+  			<if test="applyLendMoneyEnd != null and applyLendMoneyEnd !='' ">
+  				<![CDATA[and a.apply_lend_money <= to_number(#{applyLendMoneyEnd}) ]]>
+  			</if>
+  			<if test="applyDeductMoneyStart != null and applyDeductMoneyStart !='' ">
+  				<![CDATA[and a.apply_deduct_money >=to_number(#{applyDeductMoneyStart}) ]]>
+  			</if>
+  			<if test="applyDeductMoneyEnd != null and applyDeductMoneyEnd !='' ">
+  				<![CDATA[and a.apply_deduct_money <= to_number(#{applyDeductMoneyEnd}) ]]>
+  			</if>
+  			<if test="applyExpireDateStart != null and applyExpireDateStart !='' ">
+  				<![CDATA[and a.apply_expire_day >=to_timestamp(#{applyExpireDateStart},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="applyExpireDateEnd != null and applyExpireDateEnd !='' ">
+  				<![CDATA[and a.apply_expire_day <= to_timestamp(#{applyExpireDateEnd},'YYYY-MM-DD') ]]>
+  			</if>
+		    <!-- 状态集合 -->
+		   <if test="deductStatusList != null and deductStatusList.size() > 0" >
+		        and p.dict_deduct_status in
+		        <foreach collection="deductStatusList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 银行集合 -->
+		    <if test="accountBankList != null and accountBankList.size() > 0" >
+		        and ca.account_bank in
+		        <foreach collection="accountBankList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 产品集合 -->
+		    <if test="productCodeList != null and productCodeList.size() > 0" >
+		        and a.product_code in
+		        <foreach collection="productCodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 划扣平台集合 -->
+		    <if test="dictApplyDeductTypeList != null and dictApplyDeductTypeList.size() > 0" >
+		        and a.dict_apply_deduct_type in
+		        <foreach collection="dictApplyDeductTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 支付方式 -->
+		    <if test="applyPayList != null and applyPayList.size() > 0" >
+		        and a.apply_pay in
+		        <foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 营业部 -->
+		    <if test="checkNodeList != null and checkNodeList.size() > 0" >
+		        and o.id in
+		        <foreach collection="checkNodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+	    	</if>
+	    	<if test="bespokeStatus != null and bespokeStatus !='' ">
+  				and bk.dict_deduct_status = #{bespokeStatus}
+  			</if>
+  			<if test="sendEmailStatus != null and sendEmailStatus !='' ">
+  				and p.send_email_status = #{sendEmailStatus}
+  			</if>
+  			<if test="makeFlieStatus != null and makeFlieStatus !='' ">
+  				and p.make_flie_status = #{makeFlieStatus}
+  			</if>
+  			<if test="filterSql != null and filterSql !='' ">
+  				${filterSql}
+  			</if>
+  		</where>
+	</sql>
+	
+	<!-- 划扣申请列表    带分页 -->
+	<select id="getDeductSumMoney"
+		resultType="java.util.Map"
+		parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx">
+		SELECT 
+			coalesce(sum(a.apply_lend_money),0) as applyLendMoney ,
+			coalesce(sum(a.apply_deduct_money),0) as applyDeductMoney,
+			coalesce(sum(p.fail_money),0) as failMoney
+<!--   		FROM tz.t_tz_deduct_pool p -->
+<!--   		LEFT JOIN tz.t_tz_loan_apply a -->
+<!--   			ON p.lend_code=a.lend_code -->
+<!-- 			<if test="goldAccountFlag != null and goldAccountFlag ==4"> -->
+<!--   				and a.apply_pay = '4' -->
+<!--   			</if> -->
+<!--   			<if test="goldAccountFlag != null and goldAccountFlag ==1"> -->
+<!--   				and a.apply_pay != '4' -->
+<!--   			</if> -->
+<!--   		LEFT JOIN tz.t_tz_customer c -->
+<!--   			ON c.customer_code=p.customer_code -->
+<!--   		LEFT JOIN tz.t_tz_customer_account ca -->
+<!--   			ON a.customer_code=ca.customer_code  -->
+<!--   			AND a.repay_id=ca.id -->
+<!--   		LEFT JOIN tz.t_gl_tz_product glp -->
+<!--   			ON a.product_code=glp.product_code -->
+<!--   		LEFT JOIN tz.t_tz_matching_creditor mc -->
+<!--   			ON mc.lend_code=a.lend_code -->
+<!--   		left join tz.t_gl_org o on a.store_org_id = o.id -->
+		<include refid="leftJoin" />
+			LEFT JOIN t_tz_deduct_bespoke bk
+				ON bk.lend_code=p.lend_code and bk.dict_deduct_status='14'
+ 		<include refid="sqlWhere" />
+ 		<!-- 营业部 -->
+<!-- 	    <if test="checkNodeList != null and checkNodeList.size() > 0" > -->
+<!-- 	        and o.id in -->
+<!-- 	        <foreach collection="checkNodeList" item="item" index="index" open="(" separator="," close=")"> -->
+<!-- 	    			'${item}' -->
+<!-- 	    	</foreach> -->
+<!-- 	    </if> -->
+	</select>
+	
+	<!-- 根据code出借编号查询出附件表
+		相应的债权文件信息 -->
+	<select id="getAttachmentEx"  parameterType="java.util.Map" resultType="com.creditharmony.fortune.deduct.entity.ext.AttachmentEx">
+		SELECT 
+			t.atta_id,
+			t.atta_file_owner,
+			t.atta_table_id,
+			t.loan_code,
+			t.atta_filename,
+			t.atta_newfilename,
+			t.atta_filepath,
+			t.dict_atta_flag,
+			a.apply_deduct_day as applyDeductDay,
+			customer.customer_code as cust_code,
+			customer.customer_name as cust_name,
+			customer.customer_email as cust_email,
+<!-- 			customer.add_id, -->
+			mc.dict_matching_file_status as matching_file_status,
+			mc.dict_matching_filesend_status as matching_filesend_status,
+			deduct.make_flie_status as makeFlieStatus,
+			deduct.send_email_status as sendEmailStatus,
+			mc.matching_bill_day as matching_bill_day,
+			email.template_name,
+			email.description as mailTheme,
+			email.template_type,
+			email.template_content,
+			email.id
+		FROM tz.t_tz_deduct_pool deduct
+			LEFT JOIN t_tz_loan_apply a
+				ON a.lend_code = deduct.lend_code
+			LEFT JOIN tz.t_tz_attachment t
+				ON deduct.lend_code=t.loan_code
+			LEFT JOIN tz.t_tz_customer customer
+				ON customer.customer_code=deduct.customer_code
+			LEFT JOIN tz.t_tz_matching_creditor mc
+				ON mc.lend_code=t.loan_code
+				AND mc.matching_firstday_flag=#{matchingFirstdayFlag}
+			LEFT JOIN tz.t_gl_email_template email
+				ON email.template_type=#{emailType} and dict_status='1'
+		WHERE deduct.lend_code=#{applyCode} and dict_atta_flag=#{dictAttaFlag} and atta_file_type=#{attaFileType}
+		    and t.is_discard=#{isDiscard}
+	</select>
+	
+	<!--办理->检索债权价值信息 -->
+	<select id="getDeductPoolExt"  parameterType="java.util.Map"
+	resultType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx">
+		SELECT
+			pool.deduct_apply_id,
+			pool.lend_code as apply_code,
+			pool.confirm_opinion,
+			pool.confirm_result,
+			customer.customer_name as cust_name,
+			product.product_name,
+			creditor.matching_bill_day as matching_bill_date,
+			creditor.matching_firstday_flag,
+			apply.apply_lend_day as apply_lend_date,
+			apply.apply_lend_money,
+			apply.apply_deduct_money,
+			pool.no_deduct_money,
+<!-- 			org.org_name, -->
+			o.name as orgName,
+			apply.apply_expire_day as apply_expire_date,
+			extract(epoch from pool.modify_time) as "verTime"
+		FROM  tz.t_tz_deduct_pool pool
+			LEFT JOIN tz.t_tz_loan_apply apply
+				ON pool.lend_code=apply.lend_code
+			LEFT JOIN tz.t_gl_tz_product product
+				ON apply.product_code=product.product_code
+			LEFT JOIN tz.t_tz_customer customer
+				ON customer.customer_code=apply.customer_code
+			LEFT JOIN tz.t_tz_matching_creditor creditor
+				ON creditor.lend_code=apply.lend_code
+				AND creditor.matching_firstday_flag=#{matchingFirstdayFlag}
+<!-- 			LEFT JOIN tz.t_gl_org org -->
+<!--   				ON org.org_code=apply.org_code -->
+			left join tz.t_gl_org o on apply.store_org_id = o.id
+		WHERE pool.lend_code=#{applyCode}
+	</select>
+	
+	<!--债权交易表  -->
+	<select id="getListOfClaims"  parameterType="java.util.Map" 
+		resultType="com.creditharmony.fortune.deduct.entity.ext.CreditorTradeEx">
+		SELECT 
+			trade_id,
+			matching_id, 
+			lend_code as apply_code, 
+			credit_code,
+			credit_node, 
+			trade_expect_day as tradeExpectDate, 
+	        trade_actual_day as tradeActualDate, 
+	        trade_mate_money,  
+	        dict_trade_credit_status as tradeCreditStatus
+  		FROM tz.t_tz_creditor_trade
+  		WHERE lend_code=#{applyCode}
+  		AND dict_trade_credit_status = '1'
+	</select>
+	
+	<!--根据债权id检索可用债权表  -->
+	<select id="getBorrow"  parameterType="java.util.Map" resultType="com.creditharmony.fortune.deduct.entity.ext.CreditorTradeEx">
+		SELECT 
+			credit_value_id,
+			loan_name as borrower_name, 
+			loan_idcard as borrower_idcard, 
+			loan_job as borrower_job, 
+			loan_purpose as borrow_purpose, 
+	        loan_backmoney_firday as borrow_backmoney_firday, 
+	        loan_months as borrow_months,  
+	        loan_months_surplus as borrow_months_surplus,
+	        loan_product as borrow_product,
+	        loan_value_year as borrowValueYear,
+	        loan_credit_value as borrow_credit_value,
+	        dict_loan_type as borrow_type
+  		FROM tz.t_tz_borrow
+  		WHERE credit_value_id=#{id}
+	</select>
+	<!--根据债权id检索月满盈可用债权池  -->
+	<select id="getBorrowMonthable"  parameterType="java.util.Map" resultType="com.creditharmony.fortune.deduct.entity.ext.CreditorTradeEx">
+		SELECT 
+			credit_monable_id, 
+			credit_mon_id, 
+			loan_id as borrower_id, 
+			loan_name as borrower_name, 
+       		loan_idcard as borrower_idcard, 
+       		loan_job as borrower_job, 
+       		loan_product as borrow_product, 
+       		loan_purpose as borrow_purpose, 
+       		dict_loan_type as borrow_type, 
+       		loan_backmoney_firday as borrow_backmoney_firday, 
+       		loan_credit_day_usable as borrow_credit_date_usable, 
+      	 	loan_day as borrow_days, 
+      	 	loan_available_days as borrow_available_days, 
+      	 	loan_month_rate as borrow_month_rate, 
+       		loan_credit_value as borrow_credit_value,
+       		loan_value_year as borrowValueYear
+  		FROM tz.t_tz_borrow_monthable
+  		WHERE credit_monable_id=#{id}
+	</select>
+	
+	<!-- 获取出借收益 -->
+	<select id="getLoanphase" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT 
+			bill_day as billDay,
+       		coalesce(sum(phase_amount),0) as phaseamount,
+       		coalesce(sum(phase_interest_cur),0) asphaseinterestcur
+	  	FROM t_tz_loanphase 
+		where 	matching_id = #{matchingId} and lend_code = #{lendCode}
+<!-- 		and phase_number=(select max(phase_number) from t_tz_loanphase where matching_id = '1' and lend_code = '003') -->
+		group by lend_code,matching_id ,bill_day
+	</select>
+	
+	<!-- 获取附件文件列表 -->
+	<select id="getAttachment" parameterType="java.util.Map" resultType="com.creditharmony.fortune.common.entity.Attachment">
+	    SELECT atta_id, atta_file_owner, atta_table_id, loan_code, atta_filename, 
+		       atta_newfilename, atta_filepath, dict_atta_flag, create_by, create_time, 
+		       modify_by, modify_time
+  		FROM t_tz_attachment
+	    <where>
+	    	<!-- 附件ID -->
+	    	<if test="attaId != null and attaId != ''">
+		    	atta_id = '${attaId}'
+		    </if>
+		    <!-- 所属表，所属表ID -->
+	    	<if test="attaTableId != null and attaTableId != ''">
+		    	atta_file_owner = '${attaFileOwner}'
+		    	AND atta_table_id = '${attaTableId}'
+		    </if>
+		    <!-- 出借编号 -->
+	    	<if test="loanCode != null and loanCode != ''">
+		    	loan_code in 
+		    	<foreach collection="loanCode" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 文件种类 -->
+		    <if test="attaFlag != null and attaFlag != ''">
+		    	and dict_atta_flag = '${attaFlag}'
+		    </if>
+		    <!-- 文件类型 -->
+		    <if test="attaFileType != null and attaFileType != ''">
+		    	and atta_file_type = '${attaFileType}'
+		    </if>
+		    <if test="isDiscard != null and isDiscard != ''">
+		    	and is_discard = '${isDiscard}'
+		    </if>
+	    </where>
+	  </select>
+	
+	<!-- 更新划扣申请表 -->
+	<update id="update" parameterType="com.creditharmony.fortune.deduct.entity.DeductPool" >
+	    update t_tz_deduct_pool
+	    <set >
+	      <if test="batchId != null and batchId !=''" >
+	        batch_id = #{batchId},
+	      </if>
+	      <if test="custCode != null and custCode !=''" >
+	        customer_code = #{custCode},
+	      </if>
+	      <if test="dictDeductStatus != null and dictDeductStatus !=''" >
+	        dict_deduct_status = #{dictDeductStatus},
+	      </if>
+	      <if test="actualDeductMoney != null and actualDeductMoney !=''" >
+	        actual_deduct_money = cast(#{actualDeductMoney} as decimal(18,2)),
+	      </if>
+	      <if test="confirmId != null and confirmId !=''" >
+	        confirm_id = #{confirmId},
+	      </if>
+	      <if test="confirmDate != null and confirmDate !=''" >
+	        confirm_day = #{confirmDate},
+	      </if>
+	      <if test="confirmResult != null and confirmResult !=''" >
+	        confirm_result = #{confirmResult},
+	      </if>
+	      <if test="confirmOpinion != null and confirmOpinion !=''" >
+	        confirm_opinion = #{confirmOpinion},
+	      </if>
+	      <if test="failMoney != null and failMoney !=''" >
+	        fail_money = cast(#{failMoney} as decimal(18,2)),
+	      </if>
+	      <if test="dictApplyDeductType != null and dictApplyDeductType !=''" >
+	        dict_apply_deduct_type = #{dictApplyDeductType },
+	      </if>
+	      <if test="dayDeductFlag != null and dayDeductFlag !=''" >
+	        day_deduct_flag = #{dayDeductFlag},
+	      </if>
+	      <if test="loanMoney != null and loanMoney !=''" >
+	        loan_money = to_number(#{loanMoney}),
+	      </if>
+	      <if test="dealTime != null and dealTime !=''" >
+	        deal_time =  to_timestamp(#{dealTime},'YYYY-MM-DD HH24:mi:ss'),
+	      </if>	 
+	      <if test="failReason != null and failReason !=''" >
+	        fail_reason = #{failReason},
+	      </if>	
+	      <if test="noDeductMoney != null and noDeductMoney !=''" >
+	        no_deduct_money = to_number(#{noDeductMoney}),
+	      </if>
+	      <if test="modifyBy != null" >
+	        modify_by=#{modifyBy},
+	      </if>
+	      <if test="modifyTime != null" >
+	        modify_time=#{modifyTime},
+	      </if>  
+	      <if test="sendEmailStatus != null" >
+	        send_email_status=#{sendEmailStatus},
+	      </if>
+	      <if test="makeFlieStatus != null" >
+	        make_flie_status=#{makeFlieStatus},
+	      </if>  
+	    </set>
+	    <where>
+	    	<if test="deductApplyId != null and deductApplyId !=''" >
+	        	and deduct_apply_id = #{deductApplyId}
+	      	</if>
+	      	<if test="applyCode != null and applyCode !=''" >
+	        	and lend_code = #{applyCode} 
+	      	</if>
+	      	<if test="verTime != null and verTime != ''">
+	      		and extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+	      	</if>
+	    </where>
+	</update>
+	
+	<!-- 线下导出excel 早期-->
+	<select id="getTemplateExportModel" resultType="com.creditharmony.fortune.deduct.entity.ext.TemplateExportModelEx" 
+		parameterType="java.util.Map">
+		SELECT 
+			account.account_bank,
+			account.account_no,
+			account.account_name,
+			account.account_addrprovince,
+			account.account_addrcity,
+			account.account_branch,
+			<choose>
+				<when test="lendCodes !=null and lendCodes.length > 0">
+					apply.apply_lend_money,
+				</when>
+				<otherwise>
+					dp.actual_deduct_money as apply_lend_money,
+				</otherwise>
+			</choose>
+			
+			apply.lend_code,
+			customer.customer_mobilephone,
+			customer.dict_customer_cert_type,
+			customer.customer_cert_num
+  		FROM tz.t_tz_deduct_pool pool
+  			<if test="deductApplyId !=null and deductApplyId.length > 0">
+  			  	LEFT JOIN t_tz_theday_deduct_pool dp
+  					ON dp.deduct_validity_date > current_date
+  					AND dp.deduct_apply_id=pool.deduct_apply_id
+  			</if>
+  		LEFT JOIN tz.t_tz_loan_apply apply
+  			ON pool.lend_code=apply.lend_code
+  		LEFT JOIN tz.t_tz_customer customer
+  			ON customer.customer_code=pool.customer_code
+  		LEFT JOIN tz.t_tz_customer_account account
+  			ON apply.customer_code=account.customer_code 
+  			AND apply.repay_id=account.id
+		<where>
+			<if test="lendCodes !=null and lendCodes.length > 0">
+				pool.lend_code in 
+		    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <if test="deductApplyId !=null and deductApplyId.length > 0">
+		    	pool.deduct_apply_id in
+		    	<foreach collection="deductApplyId" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		</where>
+	</select>
+	
+	<!-- 线下导出excel 现用(统一)-->
+	<select id="getDeductExportExcel" 
+		resultType="com.creditharmony.fortune.deduct.common.DeductExportExcel" 
+		parameterType="java.util.Map">
+		SELECT 
+			account.customer_code,
+			account.account_bank,
+			account.account_branch,
+			account.account_addrprovince, 
+       		account.account_addrcity,
+       		account.account_addrdistrict,
+       		account.account_card_or_booklet, 
+       		account.account_name,
+       		account.account_no,
+			customer.customer_mobilephone,
+			customer.dict_customer_cert_type,
+			<choose>
+				<when test="id !=null and id.length > 0">
+					dp.actual_deduct_money-coalesce(dp.deduct_succeed_money,0) as deductMoney,
+					dp.id as lendCode,
+				</when>
+				<otherwise>
+					pool.loan_money-coalesce(pool.actual_deduct_money,0) as deductMoney,
+<!-- 					apply.apply_lend_money as deductMoney, -->
+					pool.lend_code as lendCode,
+				</otherwise>
+			</choose>
+			customer.customer_cert_num
+  		FROM tz.t_tz_deduct_pool pool
+  		    <if test="id !=null and id.length > 0">
+  			  	LEFT JOIN t_tz_theday_deduct_pool dp
+<!--   					ON dp.deduct_validity_date > current_date -->
+  					ON dp.deduct_apply_id=pool.deduct_apply_id
+  					<![CDATA[ and dp.deduct_validity_date < to_timestamp(current_date || ' 23:59:59','YYYY-MM-DD HH24:MI:SS')]]>
+  			</if>
+  		LEFT JOIN tz.t_tz_loan_apply apply
+  			ON pool.lend_code=apply.lend_code
+  		LEFT JOIN tz.t_tz_customer customer
+  			ON customer.customer_code=pool.customer_code
+  		LEFT JOIN tz.t_tz_customer_account account
+  			ON apply.repay_id=account.id 
+<!--   			AND apply.repay_id=account.id -->
+		<where>
+			<if test="lendCodes !=null and lendCodes.length > 0">
+				pool.lend_code in 
+		    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		     <if test="id !=null and id.length > 0">
+		    	dp.id in
+		    	<foreach collection="id" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <if test="applyCode != null and applyCode !='' ">
+  				and apply.lend_code=#{applyCode}
+  			</if>
+  			<if test="custName != null and custName !='' ">
+  				and customer.customer_name LIKE '%'||#{custName}||'%'
+  			</if>
+  			<if test="applyLendDateStart != null and applyLendDateStart !='' ">
+  				<![CDATA[and apply.apply_lend_day >=to_timestamp(#{applyLendDateStart},'YYYY-MM-DD')]]>
+  			</if>
+  			<if test="applyLendDateEnd != null and applyLendDateEnd !='' ">
+  				<![CDATA[ and apply.apply_lend_day <= to_timestamp(#{applyLendDateEnd},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="applyDeductDateStart != null and applyDeductDateStart !='' ">
+  				<![CDATA[ and apply.apply_deduct_day >= to_timestamp(#{applyDeductDateStart},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="applyDeductDateEnd != null and applyDeductDateEnd !='' ">
+  				<![CDATA[ and apply.apply_deduct_day <= to_timestamp(#{applyDeductDateEnd},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="checkNode != null and checkNode !='' ">
+<!--   				and org.store_code = #{checkNode} -->
+  			</if>
+  			<if test="applyLendMoneyStart != null and applyLendMoneyStart !='' ">
+  				<![CDATA[and apply.apply_lend_money >= to_number(#{applyLendMoneyStart}) ]]>
+  			</if>
+  			<if test="applyLendMoneyEnd != null and applyLendMoneyEnd !='' ">
+  				<![CDATA[and apply.apply_lend_money <= to_number(#{applyLendMoneyEnd}) ]]>
+  			</if>
+  			<if test="applyDeductMoneyStart != null and applyDeductMoneyStart !='' ">
+  				<![CDATA[and apply.apply_deduct_money >=to_number(#{applyDeductMoneyStart}) ]]>
+  			</if>
+  			<if test="applyDeductMoneyEnd != null and applyDeductMoneyEnd !='' ">
+  				<![CDATA[and apply.apply_deduct_money <= to_number(#{applyDeductMoneyEnd}) ]]>
+  			</if>
+		    <!-- 状态集合 -->
+		   <if test="deductStatusList != null and deductStatusList.size() > 0" >
+		        and pool.dict_deduct_status in
+		        <foreach collection="deductStatusList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 银行集合 -->
+		    <if test="accountBankList != null and accountBankList.size() > 0" >
+		        and account.account_bank in
+		        <foreach collection="accountBankList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 产品集合 -->
+		    <if test="productCodeList != null and productCodeList.size() > 0" >
+		        and apply.product_code in
+		        <foreach collection="productCodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 划扣平台集合 -->
+		    <if test="dictApplyDeductTypeList != null and dictApplyDeductTypeList.size() > 0" >
+		        and apply.dict_apply_deduct_type in
+		        <foreach collection="dictApplyDeductTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 支付方式 -->
+		    <if test="applyPayList != null and applyPayList.size() > 0" >
+		        and apply.apply_pay in
+		        <foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 营业部 -->
+		    <if test="checkNodeList != null and checkNodeList.size() > 0" >
+<!-- 		        and org.store_code in -->
+<!-- 		        <foreach collection="checkNodeList" item="item" index="index" open="(" separator="," close=")"> -->
+<!-- 		    			'${item}' -->
+<!-- 		    	</foreach> -->
+		    </if>
+		</where>
+	</select>
+	
+	<!-- 协议库对接 -->
+	<select id="getProtocolLibraryInfo" resultType="com.creditharmony.adapter.bean.in.thirdpay.ProtocolLibraryInfo" 
+		parameterType="java.util.Map">
+		SELECT 
+			bank.bank_code as bankCode,
+			account.account_name as accountName,
+			customer.customer_mobilephone as mobileNo, 
+			customer.dict_customer_cert_type as credtTp,
+			customer.customer_cert_num as credtNo,
+			account.account_no as  acntNo
+  		FROM tz.t_tz_deduct_pool pool
+  		LEFT JOIN tz.t_tz_loan_apply apply
+  			ON pool.lend_code=apply.lend_code
+  		LEFT JOIN tz.t_tz_customer customer
+  			ON customer.customer_code=pool.customer_code
+  		LEFT JOIN tz.t_tz_customer_account account
+  			ON apply.customer_code=account.customer_code 
+  			AND apply.repay_id=account.id
+  		LEFT JOIN t_tz_fy_bank bank
+  			ON bank.sys_bank_code = account.account_bank
+		<where>
+			<if test="lendCode != null and lendCodes !='' ">
+				and pool.lend_code=#{lendCode}
+			</if>
+			<if test="lendCodes !=null and lendCodes.length > 0">
+		    	and pool.lend_code in 
+		    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <if test="codes !=null and codes.length > 0">
+		    	and pool.deduct_apply_id in 
+		    	<foreach collection="codes" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <if test="dictApplyDeductType != null and dictApplyDeductType != ''">
+		    	and apply.dict_apply_deduct_type = #{dictApplyDeductType}
+		    </if>
+		</where>
+	</select>
+	
+	<!-- 协议库导出模板 -->
+	<select id="getDeductFailProtocolExportModel" 
+		parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx" 
+		resultType="com.creditharmony.fortune.template.entity.DeductFailProtocolExportModel">
+		SELECT 
+			c.customer_name,
+			c.customer_mobilephone,
+			c.dict_customer_cert_type,
+			c.customer_cert_num,
+			ca.account_no,
+			ca.account_card_or_booklet
+  		<include refid="leftJoin" />
+	  		LEFT JOIN t_tz_deduct_bespoke bk
+				ON bk.lend_code=p.lend_code and bk.dict_deduct_status='14'
+			LEFT JOIN t_gl_user user1      
+				ON user1.id=c.manager_code
+  		<include refid="sqlWhere" />
+	</select>
+	
+	<!-- 划扣失败列表导出模板 -->
+	<select id="getDeductFailExportModel" 
+		parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx" 
+		resultType="com.creditharmony.fortune.template.entity.DeductFailExportModel">
+		SELECT 
+			row_number() over() as no, 
+			<!--屏蔽客户姓名/手机号/身份证号 c.customer_name, -->
+			'***' as customer_name,
+			a.apply_lend_money,
+			glp.product_name,
+			p.dict_deduct_status as  dictBackResult,
+			p.fail_reason as dictBackFailResult,
+			ca.account_bank as bankId,
+			ca.account_no,
+			a.dict_apply_deduct_type as dictDeductPlatformId,
+			p.deal_time as deductDate ,
+			p.lend_code,
+			c.customer_mobilephone,
+<!-- 			p.day_deduct_flag, -->
+			CASE
+		        WHEN day_deduct_flag = '0'
+		        THEN '单天划扣' WHEN day_deduct_flag = '1'
+		        THEN '分天划扣'
+			END as day_deduct_flag,
+			a.apply_lend_money as applyLendMoney,
+			p.fail_money as deductFailMoney,
+			p.actual_deduct_money as deductReallyMoney,
+			user1.name as managerName,
+			o.name as orgName
+<!--   	FROM tz.t_tz_deduct_pool   pool -->
+<!-- 	LEFT JOIN t_tz_loan_apply apply      -->
+<!-- 		ON apply.lend_code=pool.lend_code      -->
+<!-- 	LEFT JOIN t_tz_customer customer       -->
+<!-- 		ON customer.customer_code=pool.customer_code    -->
+<!-- 	LEFT JOIN t_tz_customer_account account     -->
+<!-- 		ON account.id=apply.repay_id -->
+<!-- 	LEFT JOIN t_gl_tz_product product       -->
+<!-- 		ON apply.product_code=product.product_code      -->
+<!-- 	LEFT JOIN t_gl_user user1       -->
+<!-- 		ON user1.id=customer.manager_code      -->
+<!-- 	LEFT JOIN t_gl_org org       -->
+<!-- 		ON  apply.store_org_id = org.id  -->
+	<include refid="leftJoin" />
+		LEFT JOIN t_tz_deduct_bespoke bk
+			ON bk.lend_code=p.lend_code and bk.dict_deduct_status='14'
+		LEFT JOIN t_gl_user user1      
+			ON user1.id=c.manager_code
+	<include refid="sqlWhere" />
+<!--   		WHERE pool.lend_code in  -->
+<!-- 	    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")"> -->
+<!-- 	    			'${item}' -->
+<!-- 	    	</foreach>	 -->
+	</select>
+	
+	<!-- 已出借列表导出模板 -->
+	<select id="getDeductSuccessExportModel" 
+		parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx" 
+		resultType="com.creditharmony.fortune.template.entity.DeductSuccessExportModel">
+		SELECT 
+			row_number() over() as no, 
+			/** c.customer_name,*/ /** 屏蔽客户姓名/手机号/身份证号 */
+			'***' as customer_name,
+			a.apply_lend_money,
+			glp.product_name,
+			ca.account_bank as bankId,
+			ca.account_no,
+			a.dict_apply_deduct_type as dictDeductPlatformId,
+			p.deal_time,
+			p.lend_code,
+			c.customer_mobilephone,
+			p.actual_deduct_money as deductMoney,
+			p.deal_time as deductDate,
+			p.dict_deduct_status as dictBackResult,
+			p.fail_reason as dictBackFailResult,
+			user1.name as managerName,
+			o.name as orgName
+	<include refid="leftJoin" />
+		LEFT JOIN t_tz_deduct_bespoke bk
+			ON bk.lend_code=p.lend_code and bk.dict_deduct_status='14'
+		LEFT JOIN t_gl_user user1      
+			ON user1.id=c.manager_code  
+	<include refid="sqlWhere" />
+<!--   	FROM tz.t_tz_deduct_pool   pool -->
+<!-- 	LEFT JOIN t_tz_loan_apply apply      -->
+<!-- 		ON apply.lend_code=pool.lend_code      -->
+<!-- 	LEFT JOIN t_tz_customer customer       -->
+<!-- 		ON customer.customer_code=pool.customer_code    -->
+<!-- 	LEFT JOIN t_tz_customer_account account     -->
+<!-- 		ON account.id=apply.repay_id -->
+<!-- 	LEFT JOIN t_gl_tz_product product       -->
+<!-- 		ON apply.product_code=product.product_code      -->
+<!-- 	LEFT JOIN t_gl_user user1       -->
+<!-- 		ON user1.id=customer.manager_code      -->
+<!-- 	LEFT JOIN t_gl_org org       -->
+<!-- 		ON org.id=user1.department_id      -->
+<!--   		WHERE pool.lend_code in  -->
+<!-- 	    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")"> -->
+<!-- 	    			'${item}' -->
+<!-- 	    	</foreach>	 -->
+	</select>
+	
+	<!-- 已出借列表导出金帐户  -->
+	<select id="getDeductSuccessExportGoldModel" 
+		parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx" 
+		resultType="com.creditharmony.fortune.template.entity.DeductSuccessExportGoldModel">
+		SELECT 
+			row_number() over() as no, 
+			/** c.customer_name,*/ /** 屏蔽客户姓名/手机号/身份证号 */
+			'***' as customer_name,
+			a.apply_lend_money,
+			c.trusteeship_no as goldAccountName,
+			glp.product_name,
+			ca.account_bank as bankId,
+			ca.account_no,
+			a.dict_apply_deduct_type as dictDeductPlatformId,
+			p.deal_time,
+			p.lend_code,
+			c.customer_mobilephone,
+			p.actual_deduct_money as deductMoney,
+			p.fail_reason as dictBackFailResult,
+			p.dict_deduct_status as dictBackResult,
+			p.deal_time as deductDate,
+			user1.name as managerName,
+			o.name as orgName
+	<include refid="leftJoin" />
+		LEFT JOIN t_tz_deduct_bespoke bk
+			ON bk.lend_code=p.lend_code and bk.dict_deduct_status='14'
+		LEFT JOIN t_gl_user user1      
+			ON user1.id=c.manager_code  
+	<include refid="sqlWhere" />
+<!--   	FROM tz.t_tz_deduct_pool   pool -->
+<!-- 	LEFT JOIN t_tz_loan_apply apply      -->
+<!-- 		ON apply.lend_code=pool.lend_code      -->
+<!-- 	LEFT JOIN t_tz_customer customer       -->
+<!-- 		ON customer.customer_code=pool.customer_code    -->
+<!-- 	LEFT JOIN t_tz_customer_account account     -->
+<!-- 		ON account.id=apply.repay_id -->
+<!-- 	LEFT JOIN t_gl_tz_product product       -->
+<!-- 		ON apply.product_code=product.product_code      -->
+<!-- 	LEFT JOIN t_gl_user user1       -->
+<!-- 		ON user1.id=customer.manager_code      -->
+<!-- 	LEFT JOIN t_gl_org org       -->
+<!-- 		ON org.id=user1.department_id      -->
+<!--   		WHERE pool.lend_code in  -->
+<!-- 	    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")"> -->
+<!-- 	    			'${item}' -->
+<!-- 	    	</foreach>	 -->
+	</select>
+	<!-- 客户姓名	性别	身份证号码	电子邮箱	电话	出借方式	出借金额	划扣日期	出借日期	产品到期日期	理财经理	团队经理	门店
+	-->
+	<select id="getDeductSuccessPayExportModel" 
+		parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx" 
+		resultType="com.creditharmony.fortune.template.entity.DeductSuccessPayExportModel">
+		SELECT 
+			<!-- 屏蔽客户姓名/手机号/身份证号 c.customer_name, -->
+			'***' as customer_name,
+			c.dict_customer_sex,
+			<!-- 屏蔽客户姓名/手机号/身份证号 c.customer_cert_num, -->
+			'******' as customer_cert_num,
+			c.customer_email,
+			<!-- 屏蔽客户姓名/手机号/身份证号 c.customer_mobilephone as customerTel, -->
+			'*******' as customerTel,
+			a.apply_pay as productName,
+			a.apply_lend_money,
+			a.apply_deduct_day,
+			a.apply_lend_day,
+			a.apply_expire_day,
+			user1.id as managerId,
+			user1.name as managerName,
+			o.name as orgName
+	<include refid="leftJoin" />
+		LEFT JOIN t_tz_deduct_bespoke bk
+			ON bk.lend_code=p.lend_code and bk.dict_deduct_status='14'
+		LEFT JOIN t_gl_user user1      
+			ON user1.id=c.manager_code  
+	<include refid="sqlWhere" />
+<!-- 		FROM tz.t_tz_deduct_pool   pool -->
+<!-- 			LEFT JOIN t_tz_loan_apply apply      -->
+<!-- 				ON apply.lend_code=pool.lend_code      -->
+<!-- 			LEFT JOIN t_tz_customer customer       -->
+<!-- 				ON customer.customer_code=pool.customer_code    -->
+<!-- 			LEFT JOIN t_tz_customer_account account     -->
+<!-- 				ON account.id=apply.repay_id -->
+<!-- 			LEFT JOIN t_gl_tz_product product       -->
+<!-- 				ON apply.product_code=product.product_code -->
+<!-- 			LEFT JOIN t_gl_user user1       -->
+<!-- 				ON user1.id=customer.manager_code      -->
+<!-- 			LEFT JOIN t_gl_org o       -->
+<!-- 				ON o.id=user1.department_id  -->
+<!-- 		   WHERE pool.lend_code in  -->
+<!-- 	    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")"> -->
+<!-- 	    			'${item}' -->
+<!-- 	    	</foreach>	 -->
+	</select>
+	
+	<!-- 金帐户导出 -->
+	<select id="getGoldAccounExportModel" parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx" 
+		resultType="com.creditharmony.fortune.template.entity.GoldAccounExportModel">
+		SELECT 
+			row_number() over() as index, 
+<!-- 			p.loan_money as apply_lend_money transactionMoney, -->
+			coalesce(a.apply_lend_money-p.actual_deduct_money,0) as  transactionMoney,
+			p.lend_code as remarks,
+			c.trusteeship_no as loginName,
+			/** c.customer_name as payChineseName **/ /** 屏蔽客户姓名/手机号/身份证号 */
+			'***' as payChineseName
+<!-- 			#{payeeChineseName} as payeeChineseName, -->
+<!-- 			#{payeeLoginName} as payeeLoginName, -->
+<!-- 			#{paymentFreezing} as paymentFreezing, -->
+<!-- 			#{frozenAfterPayment} as frozenAfterPayment -->
+		FROM tz.t_tz_deduct_pool   p
+		LEFT JOIN tz.t_tz_loan_apply a
+  			ON p.lend_code=a.lend_code
+  		LEFT JOIN tz.t_tz_customer c
+  			ON c.customer_code=p.customer_code
+  		LEFT JOIN tz.t_tz_customer_account ca
+  			ON a.customer_code=ca.customer_code 
+  			AND a.repay_id=ca.id
+  		LEFT JOIN tz.t_gl_tz_product glp
+  			ON a.product_code=glp.product_code
+  		LEFT JOIN tz.t_tz_matching_creditor mc
+  			ON mc.lend_code=a.lend_code
+		<include refid="sqlWhere" />
+	</select>
+	
+	<!-- 划扣结算、划扣失败线上划扣 -->
+	<select id="getBaseExportModel" parameterType="java.util.Map" 
+		resultType="com.creditharmony.fortune.deduct.entity.ext.BaseExportModel">
+		SELECT 	
+			p.lend_code,
+			ca.customer_code,
+			ca.account_bank, 
+			ca.account_branch, 
+			ca.account_addrprovince, 
+       		ca.account_addrcity, 
+       		ca.account_addrdistrict, 
+       		ca.account_card_or_booklet, 
+       		ca.account_name, 
+       		ca.account_no, 
+			c.dict_customer_cert_type,
+			c.customer_cert_num,
+			c.customer_mobilephone,
+			a.apply_lend_money as deductMoney       		
+		FROM tz.t_tz_deduct_pool   p
+		LEFT JOIN tz.t_tz_loan_apply a
+  			ON p.lend_code=a.lend_code
+  		LEFT JOIN tz.t_tz_customer c
+  			ON c.customer_code=p.customer_code
+  		LEFT JOIN tz.t_tz_customer_account ca
+  			ON a.customer_code=ca.customer_code 
+  			AND a.repay_id=ca.id
+  		WHERE p.lend_code=#{lendCode}
+	</select>
+	<!-- 获取客户姓名 营业部 -->
+	<select id="getByLendCode" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT 
+			o.name as orgName,
+			c.customer_name
+		FROM tz.t_tz_deduct_pool p
+  		LEFT JOIN tz.t_tz_loan_apply a
+  			ON p.lend_code=a.lend_code
+  		LEFT JOIN tz.t_tz_customer c
+  			ON c.customer_code=p.customer_code
+  		LEFT JOIN tz.t_gl_tz_product glp
+  			ON a.product_code=glp.product_code
+  		left join tz.t_gl_org o 
+  			ON a.store_org_id = o.id
+  		where p.lend_code = #{lendCode}
+	</select>
+	<!--办理->检索债权价值信息 -->
+	<select id="getMoneyAccountInfo"  parameterType="java.util.Map"
+	resultType="com.creditharmony.core.moneyaccount.entity.MoneyAccountInfo">
+		SELECT
+			apply.apply_lend_money as amt,
+			customer.trusteeship_no as outCustNo
+		FROM  tz.t_tz_deduct_pool pool
+		LEFT JOIN t_tz_loan_apply apply
+				ON apply.lend_code=pool.lend_code
+		LEFT JOIN tz.t_tz_customer customer
+				ON customer.customer_code=pool.customer_code
+		WHERE pool.lend_code=#{lendCode}
+	</select>
+	<!--更据出借编号获取客户编号 -->
+	<select id="getCustCodeByApplyCode"  parameterType="java.lang.String"
+	resultType="com.creditharmony.fortune.customer.entity.LoanApply">
+		SELECT    customer.customer_code custCode,
+				  apply.apply_pay as payType
+		FROM t_tz_loan_apply apply
+		LEFT JOIN tz.t_tz_customer customer
+				ON customer.customer_code=apply.customer_code
+		WHERE apply.lend_code=#{applyCode}
+	</select>
+	
+	<!-- 排它查询 -->
+	<select id="getForUpdate" parameterType="com.creditharmony.fortune.deduct.entity.DeductPool"  resultType="com.creditharmony.fortune.deduct.entity.DeductPool">
+		SELECT 
+			deduct_apply_id as deductApplyId,
+		 	batch_id as batchId, 
+		 	customer_code as custCode, 
+		 	lend_code as applyCode, 
+		 	dict_deduct_status, 
+       		actual_deduct_money, 
+       		confirm_id, 
+       		confirm_day, 
+       		confirm_result, 
+       		confirm_opinion, 
+       		create_by, 
+       		create_time, 
+       		modify_by, 
+       		modify_time,
+       		fail_money,
+       		dict_apply_deduct_type,
+       		day_deduct_flag,
+       		loan_money,
+       		deal_time,
+       		fail_reason,
+       		no_deduct_money,
+       		extract(epoch from modify_time) as "verTime"
+  		FROM t_tz_deduct_pool
+			<where>
+	  			<if test="applyCode != null and applyCode !='' ">
+	  				and lend_code=#{applyCode}
+	  			</if>
+	  			<if test="deductApplyId != null and deductApplyId !='' ">
+	  				and deduct_apply_id=#{deductApplyId}
+	  			</if>
+	  			<if test="batchId != null and batchId !='' ">
+	  				and batch_id=#{batchId}
+	  			</if>
+		  		<if test="verTime != null and verTime != ''">
+		      		and extract(epoch from modify_time)  = cast ( COALESCE(#{verTime},'0') as numeric)
+		      	</if>
+  			</where>
+  		for update
+	</select>
+</mapper>

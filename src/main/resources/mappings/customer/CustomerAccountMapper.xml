@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.customer.dao.CustomerAccountDao">
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.customer.entity.CustomerAccount">
+    <result column="id" jdbcType="VARCHAR" property="id" />
+    <result column="customer_code" jdbcType="VARCHAR" property="customerCode" />
+    <result column="account_bank" jdbcType="VARCHAR" property="accountBankId" />
+    <result column="account_branch" jdbcType="VARCHAR" property="accountBranch" />
+    <result column="account_addrprovince" jdbcType="VARCHAR" property="accountAddrProvince" />
+    <result column="account_addrcity" jdbcType="VARCHAR" property="accountAddrCity" />
+    <result column="account_addrdistrict" jdbcType="VARCHAR" property="accountAddrDistrict" />
+    <result column="account_card_or_booklet" jdbcType="VARCHAR" property="accountCardOrBooklet" />
+    <result column="account_name" jdbcType="VARCHAR" property="accountName" />
+    <result column="account_no" jdbcType="VARCHAR" property="accountNo" />
+    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_by" jdbcType="VARCHAR" property="modifyBy" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="lend_code" jdbcType="VARCHAR" property="lendCode" />
+    <result column="is_del" jdbcType="VARCHAR" property="isDel" />
+    
+  </resultMap>
+  
+  <select id="get" parameterType="java.lang.String" resultMap="BaseResultMap">
+  	  select  * from tz.t_tz_customer_account
+  	  where id = #{id,jdbcType=VARCHAR}  and is_del = '0'
+  	  
+  </select>
+  
+  <select id="countStatus" resultType="java.lang.Integer">
+  	  select count(1) from tz.t_tz_loan_apply
+  	  <where>
+  	  	  <if test="bankId != null and bankId != ''">
+      		  (repay_id = #{bankId} or receiving_id = #{bankId})
+      	  </if>
+      	  <if test="status != null and status != ''">
+      		  and dict_apply_end_state = #{status}
+      	  </if>
+  	  </where>
+  </select>
+  
+  <!-- 根据客户、卡号，查询是否已存在此卡信息  -->
+  <select id="getCardNoCunt" resultType="java.lang.Integer" parameterType="java.util.Map">
+  	  select  count(id) 
+  	  from t_tz_customer_account 
+  	  where account_no = #{accountNo}
+  	      and customer_code = #{customerCode}
+  	      and is_del = '0'
+  </select>
+  
+  <!-- 根据卡号，获取卡信息  -->
+   <select id="getAccountByCardNo" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	  select  *
+  	  from t_tz_customer_account 
+  	  where account_no = #{accountNo}
+  	      and customer_code = #{customerCode}
+  	      and is_del = '0'
+  </select>
+  
+  <delete id="delete" parameterType="com.creditharmony.fortune.customer.entity.CustomerAccount">
+  	  delete tz.t_tz_customer_account
+  	  where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- 逻辑删除银行账户  --> 
+  <update id="logicDelete"  parameterType="java.util.Map">
+  		update tz.t_tz_customer_account
+  		    set is_del = #{isDel}
+  	  where id = #{bankId,jdbcType=VARCHAR}
+  </update>
+  
+  
+  <select id="findList" parameterType="com.creditharmony.fortune.customer.entity.CustomerAccount" resultMap="BaseResultMap">
+  	  select * from tz.t_tz_customer_account
+  	  where customer_code = #{customerCode,jdbcType=VARCHAR}
+  	  	and is_del = '0'
+  	  order by create_time desc
+  </select>
+  
+  <!-- 查询具有能否修改的标记 -->
+  <select id="findListByCustomerCode" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	 SELECT acco.*,
+		    CASE
+		        WHEN tto.can_modify <![CDATA[ > ]]> 0
+		        THEN 1
+		        WHEN tto.can_modify = 0 then 0
+		        WHEN tto.can_modify <![CDATA[ < ]]> 0 then -1
+		    END can_modify
+		FROM (select * from t_tz_customer_account where is_del = #{isDel, jdbcType=VARCHAR}) acco
+		LEFT JOIN
+		    ( SELECT acct.id, SUM(
+		     CASE 
+		     <foreach collection="notModList"  item="item">
+		     	WHEN app.lend_status = #{item, jdbcType=VARCHAR} 		    THEN 1
+		     </foreach>
+		     <foreach collection="canModList"  item="item">
+		     	WHEN app.lend_status = #{item, jdbcType=VARCHAR} 		    THEN 0
+		     </foreach>
+				    WHEN app.lend_status is null then -1
+		  end ) can_modify
+		from (select * from tz.t_tz_customer_account where customer_code = #{customerCode} and is_del = #{isDel, jdbcType=VARCHAR} ) acct
+		    left  join tz.t_tz_loan_apply app  on app.repay_id = acct.id
+		group by acct.id 
+		) tto   on  acco.id = tto.id
+		where acco.customer_code = #{customerCode}
+		order by acco.create_time desc
+  </select>
+  
+  <insert id="insert" parameterType="com.creditharmony.fortune.customer.entity.CustomerAccount">
+    insert into tz.t_tz_customer_account (id, customer_code, 
+      account_bank, account_branch, account_addrprovince, 
+      account_addrcity, account_addrdistrict, account_card_or_booklet, 
+      account_name, account_no, create_by, 
+      create_time, modify_by, modify_time,lend_code
+      )
+    values (#{id,jdbcType=VARCHAR}, #{customerCode,jdbcType=VARCHAR},
+      #{accountBankId,jdbcType=VARCHAR}, #{accountBranch,jdbcType=VARCHAR}, #{accountAddrProvince,jdbcType=VARCHAR}, 
+      #{accountAddrCity,jdbcType=VARCHAR}, #{accountAddrDistrict,jdbcType=VARCHAR}, #{accountCardOrBooklet,jdbcType=VARCHAR}, 
+      #{accountName,jdbcType=VARCHAR}, #{accountNo,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP},#{lendCode,jdbcType=VARCHAR}
+      )
+  </insert>
+  
+  <update id="update" parameterType="com.creditharmony.fortune.customer.entity.CustomerAccount">
+  	  update tz.t_tz_customer_account 
+  	  set
+	  	  account_bank=#{accountBankId,jdbcType=VARCHAR},
+	  	  account_branch= #{accountBranch,jdbcType=VARCHAR},
+	  	  account_addrprovince=#{accountAddrProvince,jdbcType=VARCHAR},
+	  	  account_addrcity=#{accountAddrCity,jdbcType=VARCHAR},
+	  	  account_addrdistrict=#{accountAddrDistrict,jdbcType=VARCHAR},
+	  	  account_card_or_booklet=#{accountCardOrBooklet,jdbcType=VARCHAR},
+	  	  account_name=#{accountName,jdbcType=VARCHAR},
+	  	  account_no=#{accountNo,jdbcType=VARCHAR},
+	  	  modify_by=#{modifyBy,jdbcType=VARCHAR},
+	  	  modify_time=#{modifyTime,jdbcType=TIMESTAMP},
+	  	  lend_code=#{lendCode,jdbcType=VARCHAR}
+  	  <where>
+      	<if test="id != null and id != ''">
+      		id = #{id}
+      	</if>
+      	<if test="customerCode != null and customerCode != ''">
+      		and customer_code = #{customerCode}
+      	</if>
+      </where>
+  </update>
+</mapper>

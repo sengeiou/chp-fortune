@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.common.dao.RoleOrgDao">
+  <select id="findRoleOrg" resultType="com.creditharmony.fortune.common.entity.UserRoleOrgEx" parameterType="java.util.Map">
+    select distinct
+		org.id as org_id
+		,org.type as org_type
+		,org.name as org_name
+		,org.parent_id as org_parent_id
+		<if test="role_ids != null">
+		,gluser.id as user_id
+		,gluser.user_code
+		,gluser.name as user_name
+		,userRoleOrg.role_id
+		</if>
+	from t_gl_org org
+	inner join t_gl_org org_ogl 
+		<if test="finddown != null">
+			on ','||org.parent_ids like '%,${org_id},%' and org_ogl.id = org.id
+		</if>
+		<if test="findup != null">
+			on
+				org_ogl.id ='${org_id}' 
+				and '||',org_ogl.parent_ids like '%,'||org.id||',%'
+		</if>
+		<if test="org_types != null">
+			and org.type in 
+			<foreach collection="org_types" item="item" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+		</if>
+	left join t_gl_user_role_org userRoleOrg 
+		on org.id = userRoleOrg.org_id 
+	<if test="role_ids != null">
+	inner join t_gl_user gluser 
+		on gluser.id = userRoleOrg.user_id
+		and userRoleOrg.role_id in 
+		<foreach collection="role_ids" item="item" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</if>
+	where org.del_flag='0';
+  </select>
+  <select id="findRoleOrgRange" resultType="com.creditharmony.fortune.common.entity.UserRoleOrgEx" parameterType="java.util.Map">
+   	<if test="all!=null and all!= '' ">
+   			select distinct
+			org.id as org_id,
+			org.type as org_type,
+			org.name as org_name,
+			org.parent_id as org_parent_id
+			from t_gl_org org
+			where 
+			 org.type in 
+					<foreach collection="typeList" item="item" open="(" separator="," close=")">
+						#{item,jdbcType=VARCHAR}
+					</foreach>
+			and org.del_flag='0'
+   	</if>
+    <if test="findequal != null">
+	    select distinct
+			org.id as org_id
+			,org.type as org_type
+			,org.name as org_name
+			,org.parent_id as org_parent_id
+			<if test="role_ids != null">
+			,gluser.id as user_id
+			,gluser.user_code
+			,gluser.name as user_name
+			,userRoleOrg.role_id
+			</if>
+		from t_gl_org org
+		left join t_gl_user_role_org userRoleOrg 
+			on org.id = userRoleOrg.org_id 
+		<if test="role_ids != null">
+			inner join t_gl_user gluser 
+				on gluser.id = userRoleOrg.user_id
+				and userRoleOrg.role_id in 
+				<foreach collection="role_ids" item="item" open="(" separator="," close=")">
+					#{item,jdbcType=VARCHAR}
+				</foreach>
+		</if>
+		where org.id = '${org_id}' and org.del_flag='0'
+	</if>
+	<if test="finddown != null">
+		<if test="findequal != null">
+			union all
+		</if>
+		select distinct
+			org.id as org_id
+			,org.type as org_type
+			,org.name as org_name
+			,org.parent_id as org_parent_id
+			<if test="role_ids != null">
+				,gluser.id as user_id
+				,gluser.user_code
+				,gluser.name as user_name
+				,userRoleOrg.role_id
+			</if>
+		from t_gl_org org
+		inner join t_gl_org org_ogl 
+			on ','||org.parent_ids like '%,${org_id},%' and org_ogl.id = org.id
+			and org.type in 
+			<foreach collection="finddown" item="item" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+		left join t_gl_user_role_org userRoleOrg 
+			on org.id = userRoleOrg.org_id 
+		<if test="role_ids != null">
+		inner join t_gl_user gluser 
+			on gluser.id = userRoleOrg.user_id
+			and userRoleOrg.role_id in 
+			<foreach collection="role_ids" item="item" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+		</if>
+		where org.del_flag='0'
+	</if>
+	<if test="findup != null">
+		<if test="findequal != null or finddown != null">
+		union all
+		</if>
+		select distinct
+			org.id as org_id
+			,org.type as org_type
+			,org.name as org_name
+			,org.parent_id as org_parent_id
+			<if test="role_ids != null">
+				,gluser.id as user_id
+				,gluser.user_code
+				,gluser.name as user_name
+				,userRoleOrg.role_id
+			</if>
+		from t_gl_org org
+		inner join t_gl_org org_ogl 
+				on
+					org_ogl.id ='${org_id}' 
+					and ','||org_ogl.parent_ids like '%,'||org.id||',%'
+					and org.type in 
+					<foreach collection="findup" item="item" open="(" separator="," close=")">
+						#{item,jdbcType=VARCHAR}
+					</foreach>
+		left join t_gl_user_role_org userRoleOrg 
+			on org.id = userRoleOrg.org_id 
+		<if test="role_ids != null">
+		inner join t_gl_user gluser 
+			on gluser.id = userRoleOrg.user_id
+			and userRoleOrg.role_id in 
+			<foreach collection="role_ids" item="item" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+		</if>
+		where org.del_flag='0'
+	</if>
+  </select>
+  <select id="getRoleTypeByUserAndRole" resultType="com.creditharmony.fortune.common.entity.Org" parameterType="java.util.Map">
+  		select org.*
+		from t_gl_user_role_org uro 
+		left join t_gl_org org on org.id = uro.org_id
+		where 
+			uro.role_id = #{role_id,jdbcType=VARCHAR}
+			and uro.user_id = #{user_id,jdbcType=VARCHAR}
+			and org.del_flag='0'
+		limit 1		
+  
+  </select>
+</mapper>

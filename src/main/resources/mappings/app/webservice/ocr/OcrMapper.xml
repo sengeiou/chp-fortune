@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.app.webservice.ocr.dao.OcrDao" >
+
+  <resultMap id="DictResultMap" type="com.creditharmony.fortune.app.webservice.ocr.entity.Dictionary">
+	<result column="value"	property="code"	jdbcType="VARCHAR"/>
+	<result column="label"	property="name"	jdbcType="VARCHAR"/>
+  </resultMap>
+  
+  <resultMap id="BankResultMap" type="com.creditharmony.fortune.app.webservice.ocr.entity.LoanAccountBank">
+  	<result column="value"	property="bankNo"	jdbcType="VARCHAR"/>
+	<result column="label"	property="bankName"	jdbcType="VARCHAR"/>
+  </resultMap>
+  
+  <!-- 王俊杰start -->
+  <select id="getAccountBankList" parameterType="java.lang.String" resultMap="BankResultMap">
+  	select value,label from t_gl_dict where type = #{value}
+  </select>
+  
+  <select id="selectRoleIdList" parameterType="java.lang.String" resultType="java.lang.String">
+  	select r.id from t_gl_user_role_org rg 
+  		left join t_gl_role r on rg.role_id = r.id
+	where rg.user_id = #{value}
+  </select>
+  
+  <select id="selectNameAndOrg" parameterType="java.lang.String" resultType="java.util.Map">
+  	select u.name userName,
+  		og.name store 
+  	from t_gl_user u 
+		left join t_gl_org o on u.department_id = o.id
+		left join t_gl_org og on o.parent_id = og.id
+	where u.id = #{value};
+  </select>
+  
+  <select id="saveFileId2Attachment" parameterType="java.util.Map">
+  	insert into t_tz_attachment (
+  		atta_id,
+  		atta_file_owner,
+  		atta_table_id,
+  		atta_filepath,
+  		dict_atta_flag,
+  		atta_filename,
+  		atta_newfilename,
+  		create_by
+  	) values (
+  		#{id},
+  		#{tableName},
+  		#{tableId},
+  		#{fileId},
+  		#{fileFlag},
+  		'ocr没有传文件名',
+  		'ocr没有传文件名',
+  		'ocr没有传创建人'
+  	)
+  </select>
+  <!-- 王俊杰end -->
+  
+  <!-- 张虎start -->
+  	<!--查询身份证信息 需要手机号码 -->
+	<resultMap type="com.creditharmony.fortune.app.webservice.ocr.entity.OcrCustomerInfo" id="OcrCustomerMap">
+		<result column="customer_code" property="customerId" />
+		<result column="customer_cert_num" property="certNum" />
+		<result column="birthday" property="birthday" />
+		<result column="customer_cert_org" property="certOrg" />
+		<result column="customer_cert_issueday" property="idStartDate" />
+		<result column="customer_cert_failuredate" property="idEndDate" />
+		<result column="bankId" property="bankId" />
+		<result column="account_bank" property="accountBank" />
+		<result column="account_branch" property="branch" />
+		<result column="account_no" property="accountid" />
+		<result column="lend_status" property="state" />
+		<result column="customer_mobilephone" property="mobilephone" />
+	</resultMap>
+	
+	<select id="getCustomerByMobile" resultMap="OcrCustomerMap" parameterType="com.creditharmony.fortune.app.webservice.ocr.entity.CertInfoBean">
+		select 
+		    c.customer_code, c.customer_cert_num,
+		    to_char(c.customer_birthday,'yyyy.mm.dd') birthday, 
+		    c.customer_cert_org,
+		    to_char(c.customer_cert_issueday,'yyyy.mm.dd') customer_cert_issueday,
+		    to_char(c.customer_cert_failuredate,'yyyy.mm.dd') customer_cert_failuredate,
+		    ab.id as bankId, ab.account_bank, ab.account_branch, ab.account_no,  
+		    l.lend_status,
+		    c.customer_mobilephone
+		from t_tz_customer c 
+		
+		left join 
+		(
+		    select a.id, a.account_bank, a.account_branch, a.account_no, a.customer_code 
+		    from t_tz_customer_account a 
+		    where not  exists
+			(select * 
+		         from t_tz_customer_account b 
+		         where b.customer_code = a.customer_code 
+		         and b.create_time > a.create_time )
+		) ab
+		on c.id = ab.customer_code
+		
+		left join t_tz_loan_apply l 
+		on l.customer_code = c.customer_code
+		
+		where c.customer_mobilephone = #{mobilephone } 
+		and l.manager_code = #{userId } 
+		and c.customer_name = #{name }
+	</select>
+	
+	<!-- 更新身份证信息 -->
+	<update id="updateCustomerCert" parameterType="com.creditharmony.fortune.app.webservice.ocr.entity.OcrCustomerInfo">
+		update t_tz_customer set 
+			customer_birthday = to_date(#{birthday},'yyyy.mm.dd'),
+			customer_cert_org = #{certOrg },
+			customer_cert_issueday = to_date(#{idStartDate },'yyyy.mm.dd'),
+			<if test="idEndDate != null">
+				customer_cert_failuredate = to_date(#{idEndDate },'yyyy.mm.dd'),
+			</if>
+			<if test="idEndDate == null">
+				customer_cert_failuredate = null,
+			</if>
+			customer_cert_num = #{certNum }
+			<!-- , ocrimg_cert = #{picPath,jdbcType=VARCHAR } -->
+		where customer_code = #{customerId }
+	</update>
+	
+	<resultMap type="com.creditharmony.fortune.app.webservice.ocr.entity.OcrCustomerInfo" id="OcrCustomerBankInfoMap">
+		<result column="customer_code" property="customerId" />
+		<result column="customer_cert_num" property="certNum" />
+		<result column="birthday" property="birthday" />
+		<result column="customer_cert_org" property="certOrg" />
+		<result column="customer_cert_issueday" property="idStartDate" />
+		<result column="customer_cert_failuredate" property="idEndDate" />
+		<result column="bankId" property="bankId" />
+		<result column="account_bank" property="accountBank" />
+		<result column="account_branch" property="branch" />
+		<result column="account_no" property="accountid" />
+		<result column="bankProvince" property="bankProvince" />
+		<result column="bankCity" property="bankCity" />
+		<result column="bankDistrict" property="bankDistrict" />
+		<result column="lend_status" property="state" />
+		<result column="customer_mobilephone" property="mobilephone" />
+	</resultMap>
+	
+	<select id="getCustomerByCert" resultMap="OcrCustomerBankInfoMap" parameterType="com.creditharmony.fortune.app.webservice.ocr.entity.BankInfoBean">
+		select c.customer_code, c.customer_cert_num,
+		    to_char(c.customer_birthday,'yyyy.mm.dd') customer_birthday,
+		    c.customer_cert_org,
+		    to_char(c.customer_cert_issueday,'yyyy.mm.dd') customer_cert_issueday,
+		    to_char(c.customer_cert_failuredate,'yyyy.mm.dd') customer_cert_failuredate,
+		    ab.account_bank, ab.account_branch, ab.account_no, ab.id as bankId,
+		    ab.bankProvince, ab.bankCity, ab.bankDistrict,
+		    l.lend_status, 
+		    c.customer_mobilephone
+		from t_tz_customer c 
+		
+		left join 
+		(
+		    select a.id, a.account_bank, a.account_branch, a.account_no, a.customer_code, 
+		        pc1.area_name bankProvince, pc2.area_name bankCity, pc3.area_name bankDistrict 
+		    from t_tz_customer_account a
+		    left join (select * from t_gl_province_city where area_type = '1') pc1 on pc1.area_code = a.account_addrprovince
+		    left join (select * from t_gl_province_city where area_type = '2') pc2 on pc2.area_code = a.account_addrcity
+		    left join (select * from t_gl_province_city where area_type = '3') pc3 on pc3.area_code = a.account_addrdistrict
+		    where not  exists
+				(
+				    select * from t_tz_customer_account b 
+				    where b.customer_code = a.customer_code 
+		                    and b.create_time > a.create_time
+		                )
+		) ab
+		on c.customer_code = ab.customer_code
+		
+		left join t_tz_loan_apply l 
+		on l.customer_code = c.customer_code
+		
+		where c.customer_cert_num = #{certNum} 
+		and l.manager_code = #{userId } 
+		and c.customer_name = #{name }
+	</select>
+  
+  <!-- 张虎end -->
+  
+  <!-- 周怀富 start -->
+    <!-- 查询字典数据 -->
+	<select id="getDictionaryByCode" resultType="com.creditharmony.fortune.app.webservice.ocr.entity.Dictionary" parameterType="String">
+		SELECT value AS code,
+		       create_by AS createBy,
+		       label AS name,
+		       create_time AS createTime,
+		       id AS id,
+		       type AS typeCode,
+		       description AS typeName,
+		       modify_by AS lastModifyBy ,
+		       modify_time AS lastModifyTime
+		FROM tz.t_gl_dict
+		      where type=#{typeCode}
+	</select>
+	
+	<!-- 根据省份 城市名称查询城市下的区县名称列表 -->
+	<select id="getBankDistrictList" parameterType="java.util.Map" resultType="java.lang.String">
+		select area_name from tz.t_gl_province_city  where area_type = #{areaType } and parent_id = 
+		(
+			select id from tz.t_gl_province_city  where area_name = #{areaName } and area_type =to_char(to_number(#{areaType})-1)
+            and parent_id = (select id from tz.t_gl_province_city  where area_name=#{parentName } and area_type =to_char(to_number(#{areaType})-2))
+    	)
+	</select>
+	
+	<!-- 根据国家，省份名称 查询下级地区名称列表 -->
+	<select id="getBankAddressList" parameterType="java.util.Map" resultType="java.lang.String">
+		select area_name from  tz.t_gl_province_city where area_type = #{areaType } and parent_id = 
+		(select id from  tz.t_gl_province_city where area_name = #{areaName } and area_type = to_char(to_number(#{areaType})-1))
+	</select>
+	
+	<!-- 检索手机号是否被占用 -->
+	<select id="getCustomerListByMobile" resultType="com.creditharmony.fortune.customer.entity.Customer" parameterType="String">
+		select * from tz.t_tz_customer t where t.customer_mobilephone = #{mobilephone}
+	</select>
+	
+	<!-- 检索身份证是否被占用 -->
+	<select id="getCustomerListByCert" resultType="com.creditharmony.fortune.customer.entity.Customer" parameterType="String">
+		select * from tz.t_tz_customer  t where t.customer_cert_num = #{certNum}
+	</select>
+	
+	<!-- 获取区域代码 需要父节点id -->
+	<select id="getAreaCodeByName" resultType="java.lang.String" parameterType="java.util.Map">
+		select area_code from tz.t_gl_province_city where area_name = #{area_name } and area_type = #{area_type } and parent_id = #{parent_id }
+	</select>
+	
+	<!--查询手机是否被三网中其它人占用的机构  -->
+	<select id="getOtherOrgByPhone" parameterType="java.util.Map" resultType="java.lang.String">
+		select  ip.os_type,ip.phone  from tz.int_phone ip
+        where 
+        	ip.phone = #{phone} 
+	</select>
+  <!-- 周怀富 end -->
+</mapper>

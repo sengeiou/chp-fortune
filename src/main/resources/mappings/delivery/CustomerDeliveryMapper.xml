@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.delivery.dao.CustomerDeliveryDao">
+  <select id="findList" resultType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+          select 
+               c.customer_name as "custName",
+               c.customer_code as "custCode",
+               temp.fManagerId as "fManagerId",
+               temp.fManagerCode as "fManagerCode",
+               temp.fManagerName as "fManagerName",
+               temp.teamManagerCode as "teamManagerCode",
+               temp.teamManagerName as "teamManagerName",
+               temp.orgName as "orgName",
+               temp.orgId,
+               temp1.del_date as "delDate",
+               temp1.dict_del_status as "dictDelStatus",
+               temp2.nfManagerId as "nfManagerId",
+               temp2.nfManagerCode as "nfManagerCode",
+               temp2.nfManagerName as "nfManagerName",
+               temp2.nTeamManagerCode as "nTeamManagerCode",
+               temp2.nTeamManagerName as "nTeamManagerName",
+               temp2.nOrgName as "nOrgName",
+               temp3.del_id as "delId",
+               u3.user_code as "createBy",
+               u3.name as "createByName"
+         from tz.t_tz_customer c
+         left join (
+                      SELECT 
+                          d.customer_code,
+                          d.del_date,
+                          d.nfmanager_code,
+                          d.dict_del_status 
+                    FROM tz.t_tz_delivery d
+                    WHERE NOT exists(
+                                     SELECT 1 
+                                     FROM tz.t_tz_delivery 
+                                     WHERE d.customer_code = customer_code AND d.del_date &lt; del_date
+                                     )
+                     ) temp1 on temp1.customer_code = c.customer_code
+           left join (
+                      SELECT 
+                          d.del_id,
+                          d.customer_code,
+                          d.del_date,
+                          d.nfmanager_code,
+                          d.dict_del_status 
+                      FROM tz.t_tz_delivery d
+                     ) temp3 on temp3.customer_code = c.customer_code and temp3.dict_del_status = '0'
+           left join (
+                       select
+                           uro.user_id,
+				 	       u.id as fManagerId,
+						   u.login_name as loginName,
+						   u.name as fManagerName,
+						   u.user_code as fManagerCode,
+						   u1.name as teamManagerName,
+						   u1.user_code as teamManagerCode,
+						   org_ogl.name as teamName,
+						   org.name as orgName,
+						   org.id as orgId
+					   from tz.t_gl_user_role_org uro
+					   left join tz.t_gl_user u on u.id = uro.user_id and u.del_flag = '0'
+					   inner join t_gl_org org_ogl on org_ogl.id = uro.org_id and org_ogl.del_flag='0'
+					   left join  tz.t_gl_org org on ','||org_ogl.parent_ids like '%,'||org.id||',%'
+		               and org.type = #{orgType} and org.del_flag = '0'
+			           left join tz.t_gl_user_role_org uro2 on uro.org_id = uro2.org_id and uro2.role_id = #{teamManagerRole}
+			           left join tz.t_gl_user u1 on u1.id = uro2.user_id and u1.del_flag = '0'
+			           where
+			                uro.role_id = #{managerRole}
+			          ) temp on temp.user_id = c.manager_code
+           left join (
+                        select
+                            uro.user_id,
+	 	                    u.id as nfManagerId,
+						    u.login_name as loginName,
+						    u.name as nfManagerName,
+						    u.user_code as nfManagerCode,
+						    u1.name as nTeamManagerName,
+						    u1.user_code as nTeamManagerCode,
+						    org_ogl.name as teamName,
+						    org.name as nOrgName,
+						    org.id as nOrgId
+						from tz.t_gl_user_role_org uro
+						left join tz.t_gl_user u on u.id = uro.user_id and u.del_flag = '0'
+						inner join t_gl_org org_ogl on org_ogl.id = uro.org_id and org_ogl.del_flag='0'
+						left join  tz.t_gl_org org on ','||org_ogl.parent_ids like '%,'||org.id||',%'
+			            and org.type = #{orgType} and org.del_flag = '0'
+			            left join tz.t_gl_user_role_org uro2 on uro.org_id = uro2.org_id and uro2.role_id = #{teamManagerRole}
+			            left join tz.t_gl_user u1 on u1.id = uro2.user_id and u1.del_flag = '0'
+			            where
+			                uro.role_id = #{managerRole}
+			           )temp2 on temp2.user_id = temp3.nfmanager_code 
+           left join tz.t_gl_user u3 on u3.id = c.modify_by and u3.del_flag = '0'
+        <where>
+          <if test="code != null and code != ''">
+              c.customer_code in 
+              <foreach collection="code" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+              </foreach>
+          </if>
+          <if test="custName != null and custName != ''">
+	            and	c.customer_name LIKE '%'||#{custName}||'%'
+	      </if>
+	      <if test="custCode != null and custCode != ''">
+	            and	c.customer_code = #{custCode}
+	      </if>
+	      <if test="fManagerCode != null and fManagerCode != ''">
+	            and	temp.fManagerCode = #{fManagerCode}
+	      </if>
+	      <if test="fManagerName != null and fManagerName != ''">
+	            and	 temp.fManagerName LIKE '%'||#{fManagerName}||'%'
+	      </if>
+	      <if test="teamManagerCode != null and teamManagerCode != ''">
+	            and	temp.teamManagerCode = #{teamManagerCode}
+	      </if>
+	      <if test="teamManagerName != null and teamManagerName != ''">
+	            and	temp.teamManagerName LIKE '%'||#{teamManagerName}||'%'
+	      </if>
+	      <if test="createBy != null and createBy != ''">
+	            and	u3.user_code = #{createBy}
+	      </if>
+	      <if test="createByName != null and createByName != ''">
+	            and	u3.name LIKE '%'||#{createByName}||'%'
+	      </if>
+	      <if test="startTime != null and startTime != '' and endTime != null and endTime != '' ">
+                and temp1.del_date &gt;= #{startTime}  
+                and temp1.del_date &lt;= #{endTime}
+          </if>
+          <if test="orgId != null and orgId != ''">
+                and temp.orgId in 
+                <foreach collection="orgId" item="item"  index="index" open="(" separator="," close=")">  
+                     '${item}' 
+                </foreach>
+          </if>
+       </where>
+    </select>
+  <select id="deliveryRemindList" resultType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+         select 
+		    c.customer_name as "custName",
+		    d.customer_code as "custCode",
+		    temp.fManagerId as "fManagerId",
+            temp.fManagerCode as "fManagerCode",
+	        temp.fManagerName as "fManagerName",
+	        temp.teamManagerCode as "teamManagerCode",
+	        temp.teamManagerName as "teamManagerName",
+	        temp.orgName as "orgName",
+	        temp.orgId,
+			d.del_date as "delDate",
+			d.dict_del_status as "dictDelStatus",
+			temp2.nfManagerId as "nfManagerId",
+	        temp2.nfManagerCode as "nfManagerCode",
+	        temp2.nfManagerName as "nfManagerName",
+	        temp2.nTeamManagerCode as "nTeamManagerCode",
+	        temp2.nTeamManagerName as "nTeamManagerName",
+		    temp2.nOrgName as "nOrgName",
+			d.del_id as "delId",
+			u.user_code as "createBy",
+			u.name as "createByName"
+		from tz.t_tz_delivery d
+		left join tz.t_tz_customer c on c.customer_code = d.customer_code
+        left join tz.t_gl_user u on u.id =c.modify_by and u.del_flag = '0'  		
+		left join (
+				    select
+						uro.user_id,
+						u.id as fManagerId,
+						u.login_name as loginName,
+						u.name as fManagerName,
+						u.user_code as fManagerCode,
+						u1.name as teamManagerName,
+						u1.user_code as teamManagerCode,
+						org_ogl.name as teamName,
+						org.name as orgName,
+						org.id as orgId
+				    from tz.t_gl_user_role_org uro
+				    left join tz.t_gl_user u on u.id = uro.user_id and u.del_flag = '0'
+				    inner join t_gl_org org_ogl on org_ogl.id = uro.org_id and org_ogl.del_flag='0'
+				    left join  tz.t_gl_org org on ','||org_ogl.parent_ids like '%,'||org.id||',%'
+				    and org.type = #{orgType} and org.del_flag = '0'
+				    left join tz.t_gl_user_role_org uro2 on uro.org_id = uro2.org_id and uro2.role_id = #{teamManagerRole}
+				    left join tz.t_gl_user u1 on u1.id = uro2.user_id and u1.del_flag = '0'
+				    where
+					    uro.role_id = #{managerRole}
+			  )temp on temp.user_id = d.fmanager_code
+		left join (
+				    select
+						uro.user_id,
+						u.id as nfManagerId,
+						u.login_name as loginName,
+						u.name as nfManagerName,
+						u.user_code as nfManagerCode,
+						u1.name as nTeamManagerName,
+						u1.user_code as nTeamManagerCode,
+						org_ogl.name as teamName,
+						org.name as nOrgName,
+						org.id as nOrgId
+				    from tz.t_gl_user_role_org uro
+				    left join tz.t_gl_user u on u.id = uro.user_id and u.del_flag = '0'
+				    inner join t_gl_org org_ogl on org_ogl.id = uro.org_id and org_ogl.del_flag='0'
+				    left join  tz.t_gl_org org on ','||org_ogl.parent_ids like '%,'||org.id||',%'
+				    and org.type = #{orgType} and org.del_flag = '0'
+				    left join tz.t_gl_user_role_org uro2 on uro.org_id = uro2.org_id and uro2.role_id = #{teamManagerRole}
+				    left join tz.t_gl_user u1 on u1.id = uro2.user_id and u1.del_flag = '0'
+				    where
+					    uro.role_id = #{managerRole}
+			  )temp2 on temp2.user_id = d.nfmanager_code 
+        <where>
+          d.dict_del_status ='0'
+          <if test="custName != null and custName != ''">
+	            and	c.customer_name LIKE '%'||#{custName}||'%'
+	      </if>
+	      <if test="custCode != null and custCode != ''">
+	            and	d.customer_code = #{custCode}
+	      </if>
+	      <if test="fManagerCode != null and fManagerCode != ''">
+	            and	temp.fManagerCode = #{fManagerCode}
+	      </if>
+	      <if test="fManagerName != null and fManagerName != ''">
+	            and	temp.fManagerName LIKE '%'||#{fManagerName}||'%'
+	      </if>
+	      <if test="teamManagerCode != null and teamManagerCode != ''">
+	            and	 temp.teamManagerCode = #{teamManagerCode}
+	      </if>
+	      <if test="teamManagerName != null and teamManagerName != ''">
+	            and	temp.teamManagerName LIKE '%'||#{teamManagerName}||'%'
+	      </if>
+	      <if test="createBy != null and createBy != ''">
+	            and	u.user_code = #{createBy}
+	      </if>
+	      <if test="createByName != null and createByName != ''">
+	            and	u.name LIKE '%'||#{createByName}||'%'
+	      </if>
+	      <if test="startTime != null and startTime != '' and endTime != null and endTime != '' ">
+                and d.del_date &gt;= #{startTime}  
+                and d.del_date &lt;= #{endTime}
+          </if>
+          <if test="orgId != null and orgId != ''">
+                and temp.orgId in 
+                <foreach collection="orgId" item="item"  index="index" open="(" separator="," close=")">  
+                     '${item}' 
+                </foreach>
+          </if>
+       </where>
+    </select>
+  <insert id="insertDelivery" parameterType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx" >
+   insert into t_tz_delivery
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="delId != null and delId != ''" >
+          del_id,
+      </if>
+      <if test="delType != null and delType != ''" >
+          dict_del_type,
+      </if>
+      <if test="custCode != null and custCode != ''"  >
+          customer_code,
+      </if>
+      <if test="lendCode != null and lendCode != ''">
+          lend_code,
+      </if>
+      <if test="fManagerCode != null and fManagerCode != ''" >
+          fmanager_code,
+      </if>
+      <if test="nfManagerCode != null and nfManagerCode != ''"  >
+          nfmanager_code,
+      </if>
+      <if test="delDate != null and delDate != '' "  >
+          del_date,
+      </if>
+      <if test="dictDelStatus != null and dictDelStatus != ''">
+          dict_del_status,
+      </if>
+      <if test="teamManagerCode != null and teamManagerCode != ''">
+          team_manager_code,
+      </if>
+      <if test="cityManagerCode != null and cityManagerCode != ''">
+          city_manager_code,
+      </if>
+      <if test="storeManagerCode != null and storeManagerCode != ''">
+          store_manager_code,
+      </if>
+      <if test="orgCode != null and orgCode != ''">
+          org_code,
+      </if>
+      <if test="nTeamManagerCode != null and nTeamManagerCode != ''">
+          n_team_manager_code,
+      </if>
+      <if test="nCityManagerCode != null and nCityManagerCode != ''">
+          n_city_manager_code,
+      </if>
+      <if test="nStoreManagerCode != null and nStoreManagerCode != ''">
+          n_store_manager_code,
+      </if>
+      <if test="nOrgCode != null and nOrgCode != ''">
+          n_org_code,
+      </if>
+      <if test="createBy != null and createBy != ''" >
+          create_by,
+      </if>
+      <if test="createTime != null and createTime != ''" >
+          create_time,
+      </if>
+      <if test="modifyBy != null and modifyBy != ''" >
+          modify_by,
+      </if>
+      <if test="modifyTime != null and modifyTime != ''">
+          modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="delId != null and delId != ''" >
+          #{delId,jdbcType=VARCHAR},
+      </if>
+      <if test="delType != null" >
+          #{delType,jdbcType=VARCHAR},
+      </if>
+      <if test="custCode != null and custCode != ''" >
+          #{custCode,jdbcType=VARCHAR},
+      </if>
+      <if test="lendCode != null and lendCode != ''">
+          #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fManagerCode != null and fManagerCode != ''" >
+          #{fManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="nfManagerCode != null and nfManagerCode != ''" >
+          #{nfManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="delDate != null and delDate != '' " >
+          #{delDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dictDelStatus != null and dictDelStatus != ''">
+          #{dictDelStatus,jdbcType=VARCHAR},
+      </if>
+       <if test="teamManagerCode != null and teamManagerCode != ''">
+          #{teamManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityManagerCode != null and cityManagerCode != ''">
+          #{cityManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="storeManagerCode != null and storeManagerCode != ''">
+          #{storeManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="orgCode != null and orgCode != ''">
+          #{orgCode,jdbcType=VARCHAR},
+      </if>
+      <if test="nTeamManagerCode != null and nTeamManagerCode != ''">
+          #{nTeamManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="nCityManagerCode != null and nCityManagerCode != ''">
+          #{nCityManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="nStoreManagerCode != null and nStoreManagerCode != ''" >
+          #{nStoreManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="nOrgCode != null and nOrgCode != ''">
+          #{nOrgCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null and createBy != ''" >
+          #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null and createTime != ''">
+          #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null and modifyBy != ''" >
+          #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null and modifyTime != ''" >
+          #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert> 
+  
+  <update id="updateCustomer" parameterType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+      update tz.t_tz_customer 
+      <trim prefix="SET" suffixOverrides=",">
+          <if test="isDelivery != null ">is_delivery = #{isDelivery,jdbcType=VARCHAR},</if>
+          <if test="nfManagerCode != null">manager_code = #{nfManagerCode,jdbcType=VARCHAR},</if>
+          <if test="modifyBy != null">modify_by = #{modifyBy,jdbcType=VARCHAR},</if>
+          <if test="modifyTime != null">modify_time = #{modifyTime,jdbcType=TIMESTAMP},</if>
+      </trim>
+      where 
+          customer_code = #{custCode,jdbcType=VARCHAR}
+  </update>
+  <update id="updateCustomerIsDelivery" parameterType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+      update tz.t_tz_customer 
+      <trim prefix="SET" suffixOverrides=",">
+          <if test="isDelivery != null ">is_delivery = #{isDelivery,jdbcType=VARCHAR},</if>
+          <if test="modifyBy != null">modify_by = #{modifyBy,jdbcType=VARCHAR},</if>
+          <if test="modifyTime != null">modify_time = #{modifyTime,jdbcType=TIMESTAMP},</if>
+      </trim>
+      where 
+          customer_code = #{custCode,jdbcType=VARCHAR}
+  </update>
+  <update id="updateDelivery">
+      update tz.t_tz_delivery
+      <trim prefix="SET" suffixOverrides=","> 
+         <if test="nfManagerCode != null ">nfmanager_code = #{nfManagerCode,jdbcType=VARCHAR},</if>
+         <if test="delDate != null ">del_date = #{delDate,jdbcType=TIMESTAMP},</if>
+         <if test="dictDelStatus != null ">dict_del_status = #{dictDelStatus,jdbcType=VARCHAR},</if>
+         <if test="modifyBy != null ">modify_by = #{modifyBy,jdbcType=VARCHAR},</if>
+         <if test="modifyTime != null ">modify_time = #{modifyTime,jdbcType=TIMESTAMP},</if>
+       </trim>
+      where 
+         del_id = #{delId,jdbcType=VARCHAR}
+  </update>
+  <select id="findInfoByCode"  parameterType="java.util.Map" resultType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+     select
+	 	 u.id as "nfManagerId",
+	 	 u.login_name as "loginName",
+	     u.name as "nfManagerName",
+	     u.user_code as "nfManagerCode",
+	     u1.name as "nTeamManagerName",
+	     u1.user_code as "nTeamManagerCode",
+	     org_ogl.name as "teamName",
+	     org.name as "nOrgName"
+	 from tz.t_gl_user_role_org uro
+	 left join tz.t_gl_user u on u.id = uro.user_id 
+	 inner join t_gl_org org_ogl on org_ogl.id = uro.org_id
+	 left join  tz.t_gl_org org on ','||org_ogl.parent_ids like '%,'||org.id||',%'
+	 and org.type = #{orgType}
+	 left join tz.t_gl_user_role_org uro2 on uro.org_id = uro2.org_id and uro2.role_id = #{teamManagerRole}
+	 left join tz.t_gl_user u1 on u1.id = uro2.user_id 
+	 where 
+	     u.user_code = #{code} 
+	 and uro.role_id =#{managerRole}
+  </select>
+   <select id="countCustomer" resultType="Integer">
+        select count(1)
+        from tz.t_tz_customer cust
+        where
+          cust.customer_code = #{customerCode,jdbcType=VARCHAR}  
+   </select>
+</mapper>

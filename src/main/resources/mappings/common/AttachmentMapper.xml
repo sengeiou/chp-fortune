@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.common.dao.AttachmentDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.common.entity.Attachment" >
+    <id column="atta_id" property="attaId" jdbcType="VARCHAR" />
+    <result column="atta_file_owner" property="attaFileOwner" jdbcType="VARCHAR" />
+    <result column="atta_table_id" property="attaTableId" jdbcType="VARCHAR" />
+    <result column="loan_code" property="loanCode" jdbcType="VARCHAR" />
+    <result column="atta_filename" property="attaFilename" jdbcType="VARCHAR" />
+    <result column="atta_newfilename" property="attaNewfilename" jdbcType="VARCHAR" />
+    <result column="atta_filepath" property="attaFilepath" jdbcType="VARCHAR" />
+    <result column="dict_atta_flag" property="dictAttaFlag" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="atta_file_type" property="attaFileType" jdbcType="VARCHAR" />
+     <result column="is_discard" property="isDiscard" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    atta_id, atta_file_owner, atta_table_id, loan_code, atta_filename, atta_newfilename, 
+    atta_filepath, dict_atta_flag, create_by, create_time, modify_by, modify_time, atta_file_type,is_discard
+  </sql>
+  <select id="get" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.common.entity.Attachment" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_attachment
+    where atta_id = #{attaId,jdbcType=VARCHAR}  and is_discard = '1' <!-- 只查有效的附件 -->
+  </select>
+  <delete id="deleteByIds" parameterType="java.util.Map" >
+    delete from t_tz_attachment
+    where atta_id in (
+    	<foreach item="id" index="index" collection="ids"  
+           separator=","> #{id,jdbcType=VARCHAR} 
+     	</foreach>
+     	)
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.common.entity.Attachment" >
+    insert into t_tz_attachment (atta_id, atta_file_owner, atta_table_id, 
+      loan_code, atta_filename, atta_newfilename, 
+      atta_filepath, dict_atta_flag, create_by, 
+      create_time, modify_by, modify_time, 
+      atta_file_type,is_discard)
+    values (#{attaId,jdbcType=VARCHAR}, #{attaFileOwner,jdbcType=VARCHAR}, #{attaTableId,jdbcType=VARCHAR}, 
+      #{loanCode,jdbcType=VARCHAR}, #{attaFilename,jdbcType=VARCHAR}, #{attaNewfilename,jdbcType=VARCHAR}, 
+      #{attaFilepath,jdbcType=VARCHAR}, #{dictAttaFlag,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP}, 
+      #{attaFileType,jdbcType=VARCHAR},#{isDiscard,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateSelectiveByIds" parameterType="java.util.Map" >
+    update t_tz_attachment
+    <set >
+      <if test="attaFileOwner != null" >
+        atta_file_owner = #{attaFileOwner,jdbcType=VARCHAR},
+      </if>
+      <if test="attaTableId != null" >
+        atta_table_id = #{attaTableId,jdbcType=VARCHAR},
+      </if>
+      <if test="loanCode != null" >
+        loan_code = #{loanCode,jdbcType=VARCHAR},
+      </if>
+      <if test="attaFilename != null" >
+        atta_filename = #{attaFilename,jdbcType=VARCHAR},
+      </if>
+      <if test="attaNewfilename != null" >
+        atta_newfilename = #{attaNewfilename,jdbcType=VARCHAR},
+      </if>
+      <if test="attaFilepath != null" >
+        atta_filepath = #{attaFilepath,jdbcType=VARCHAR},
+      </if>
+      <if test="dictAttaFlag != null" >
+        dict_atta_flag = #{dictAttaFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="attaFileType != null" >
+        atta_file_type = #{attaFileType,jdbcType=VARCHAR},
+      </if>
+      <if test="isDiscard != null" >
+        is_discard = #{isDiscard,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <where>
+    		<if test="ids != null and ids != ''">
+		    	atta_id in 
+		    	<foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <if test="lendCode != null and lendCode != ''" >
+        		and loan_code = #{lendCode} 
+       		</if> 
+		    <if test="attaFlag != null and attaFlag != ''" >
+        		and dict_atta_flag = #{attaFlag}
+      		</if>
+		    <if test="discard != null and discard != ''" >
+		        and is_discard = #{discard}
+		    </if>
+    </where>
+
+  </update>
+  <!-- 更新附件 attaFilepath-->
+  <update id="updateAttachment" parameterType="com.creditharmony.fortune.common.entity.Attachment" >
+    update t_tz_attachment
+    <set >
+        atta_filepath = #{attaFilepath,jdbcType=VARCHAR},
+        <if test="modifyBy != null" >
+	        modify_by = #{modifyBy,jdbcType=VARCHAR},
+	    </if>
+	    <if test="modifyTime != null" >
+	       modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+	    </if>
+    </set>
+    <where>
+       		and atta_id = #{attaId} 
+    </where>
+  </update> 
+  
+  <select id="findList" parameterType="com.creditharmony.fortune.common.entity.Attachment" resultMap="BaseResultMap">
+	    select * from t_tz_attachment
+	    <where>
+	    	is_discard = '1'   <!-- 只查有效的附件 -->
+	    	<!-- 附件ID -->
+	    	<if test="attaId != null and attaId != ''">
+		    	and atta_id = '${attaId}'
+		    </if>
+		    <!-- 所属表ID -->
+		    <if test="attaTableId != null and attaTableId != ''">
+		    	AND atta_table_id = '${attaTableId}'
+		    </if>
+		    <!-- 所属表 -->
+		    <if test="attaFileOwner != null and attaFileOwner != ''">
+		    	AND atta_file_owner = '${attaFileOwner}'
+		    </if>	 	    
+		    <!-- 出借编号/客户编号/合同编号 -->
+	    	<if test="loanCode != null and loanCode != ''">
+		    	and loan_code = '${loanCode}'
+		    </if>
+		    <!-- 附件类型 -->
+		    <if test="dictAttaFlag != null and dictAttaFlag != ''">
+		    	and dict_atta_flag = '${dictAttaFlag}'
+		    </if>
+		    <if test="isDiscard != null and isDiscard != ''">
+		    	and is_discard = '${isDiscard}'
+		    </if>
+		     <if test="attaFileType != null and attaFileType != ''">
+		    	and atta_file_type = '${attaFileType}'
+		    </if>
+		    
+	    </where>
+</select>
+
+  <update id="updateLendCode">
+  	   update tz.t_tz_attachment set loan_code=#{newLendCode} where loan_code=#{oldLendCode}
+  </update>
+  
+  <select id="getAttachmentDJR" parameterType="java.lang.String" resultType="com.creditharmony.adapter.bean.in.dirswitch.DjrSwitchSendFileBean">
+		select
+			atta_filepath fileDocId,
+			atta_filename fileName
+		from t_tz_attachment
+		<where>
+			is_discard = '1'
+			and atta_file_owner='to_djr'
+			<if test="_parameter != null and _parameter != ''">
+				and loan_code = #{_parameter}
+			</if>
+		</where>
+	</select>
+	<delete id="deleteAttachmentDJR" parameterType="java.lang.String">
+		delete
+		from t_tz_attachment
+		<where>
+			is_discard = '1'
+			and atta_file_owner='to_djr'
+			<if test="_parameter != null and _parameter != ''">
+				and loan_code = #{_parameter}
+			</if>
+		</where>
+	</delete>
+</mapper>

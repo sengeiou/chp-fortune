@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.maintenance.settles.dao.CreditorHisForMtMapper" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.maintenance.settles.entity.CreditorHisInfo" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="dict_check_node" property="dictCheckNode" jdbcType="VARCHAR" />
+    <result column="node_id" property="nodeId" jdbcType="VARCHAR" />
+    <result column="operator" property="operator" jdbcType="VARCHAR" />
+    <result column="operate_type" property="operateType" jdbcType="VARCHAR" />
+    <result column="matching_id" property="matchingId" jdbcType="VARCHAR" />
+    <result column="befor_money" property="beforMoney" jdbcType="NUMERIC" />
+    <result column="operate_money" property="operateMoney" jdbcType="NUMERIC" />
+    <result column="after_money" property="afterMoney" jdbcType="NUMERIC" />
+    <result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+    <result column="mac" property="mac" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+	<sql id="Base_Column_List" >
+	    id, 
+	    dict_check_node, 
+	    node_id, 
+	    operator, 
+	    operate_type, 
+	    matching_id, 
+	    befor_money, 
+	    operate_money, 
+	    after_money, 
+	    operate_time, 
+	    mac, 
+	    ip, 
+	    create_by, 
+	    create_time, 
+	    modify_by, 
+	    modify_time
+	</sql>
+  
+    <!-- 添加债权管理记录 -->
+	<update id="insCreditorHis" parameterType="com.creditharmony.fortune.maintenance.settles.entity.CreditorHisInfo" >
+    	insert into tz.t_tz_creditor_his (
+    		<include refid="Base_Column_List"/>
+    	) values (
+    		#{id},
+    		#{dictCheckNode},
+    		#{nodeId},
+    		#{operator},
+    		#{operateType},
+    		#{matchingId},
+    		#{beforMoney},
+    		#{operateMoney},
+    		#{afterMoney},
+    		#{operateTime},
+    		#{mac},
+    		#{ip},
+    		#{createBy},
+    		#{createTime},
+    		#{modifyBy},
+    		#{modifyTime}
+    	)
+  	</update>
+  	
+</mapper>

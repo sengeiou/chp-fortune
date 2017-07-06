@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.contract.dao.ContractApplyDao">
+<!--合同申请审核  -->
+  <select id="findAllList" parameterType="com.creditharmony.fortune.contract.entity.ContractApply" resultType="com.creditharmony.fortune.contract.entity.ContractApply">
+  	SELECT
+  		t.contract_id,
+  		t.cont_stores_id,
+  		c.name as org_name,
+  		t.apply_alreadyuse,
+  		t.apply_inventory,
+  		t.apply_no,
+  		p.dist_contract_no,
+  		t.cont_version,
+  		t.apply_day,
+  		t.apply_status
+  	FROM t_tz_contract_apply t
+  	LEFT JOIN t_gl_org c ON c.id = t.cont_stores_id
+  	LEFT JOIN t_tz_contract_distribute p ON p.contract_id = t.contract_id
+  	<where>
+  		<if test="contStoresId != null and contStoresId != ''">
+  			and t.cont_stores_id=#{contStoresId}
+  		</if>
+  		<if test="orgName != null and orgName != ''">
+  			and c.org_name=#{orgName}
+  		</if>
+  		<if test="applyDay != null and applyDay != ''">
+  			and t.apply_day=#{applyDay}
+  		</if>
+  		<if test="contVersion != null and contVersion != ''">
+  			and t.cont_version=#{contVersion}
+  		</if>
+  		<if test="applyStatus != null and applyStatus != ''">
+  			and t.apply_status=#{applyStatus}
+  		</if>
+  	</where>
+  </select>
+  <!--审核查一条  -->
+  <select id="getContractApply" parameterType="java.lang.String" resultType="com.creditharmony.fortune.contract.entity.ContractApply">
+  	SELECT
+  		t.contract_id,
+  		t.cont_stores_id,
+  		c.name as org_name,
+  		t.apply_no,
+  		t.apply_dist_no,
+  		t.cont_version,
+  		t.apply_inventory,
+  		t.apply_status,
+  		t.apply_by,
+  		t.apply_contacts,
+  		t.apply_tel,
+  		t.apply_shipping_addr,
+  		t.apply_explain,
+  		t.apply_check_desc,
+  		t.apply_check_result,
+  		t.dict_apply_refuse_demo
+  	FROM t_tz_contract_apply t
+  	LEFT JOIN t_gl_org c ON c.id = t.cont_stores_id
+  	where t.contract_id=#{contractId}
+  </select>
+   <!--审核添加  -->
+  <insert id="applyAdd" parameterType="com.creditharmony.fortune.contract.entity.ContractApply"> 
+		insert into t_tz_contract_apply (apply_check_desc, apply_check_result) 
+		values (#{apply_check_desc}, #{apply_check_result}) 
+  </insert>
+  <!--申请已办  -->
+  <select id="findSee" parameterType="com.creditharmony.fortune.contract.entity.ContractApply" resultType="com.creditharmony.fortune.contract.entity.ContractApply">
+  	SELECT
+  		t.contract_id,
+  		t.cont_stores_id,
+  		c.name as org_name,
+  		t.apply_alreadyuse,
+  		t.apply_inventory,
+  		t.apply_no,
+  		P.dist_contract_no,
+  		t.cont_version,
+  		t.apply_day,
+  		t.apply_check_date,
+  		p.dist_date,
+  		t.apply_status
+  	FROM t_tz_contract_apply t
+  	LEFT JOIN t_gl_org c ON c.id = t.cont_stores_id
+  	LEFT JOIN t_tz_contract_distribute p ON p.contract_id = t.contract_id
+  	<where>
+  		<if test="contStoresId != null and contStoresId != ''">
+  			and t.cont_stores_id=#{contStoresId}
+  		</if>
+  		<if test="orgName != null and orgName != ''">
+  			and c.org_name=#{orgName}
+  		</if>
+  		<if test="applyCheckDate != null and applyCheckDate != ''">
+  			and t.apply_check_date=#{applyCheckDate}
+  		</if>
+  		<if test="contVersion != null and contVersion != ''">
+  			and t.cont_version=#{contVersion}
+  		</if>
+  		<if test="applyDay != null and applyDay != ''">
+  			and t.apply_day=#{applyDay}
+  		</if>
+  		<if test="distDate != null and distDate != ''">
+  			and t.dist_date=#{distDate}
+  		</if>
+  		<if test="applyStatus != null and applyStatus != ''">
+  			and t.apply_status=#{applyStatus}
+  		</if>
+  	</where>
+  </select>
+  <!-- 查询门店合同上月的使用数量 -->
+  <select id="getCountOfUsedContract" parameterType="java.util.Map" resultType="java.lang.String">
+	SELECT
+	    count(cont_code) as count
+	FROM
+		t_tz_contract t
+	WHERE t.dict_cont_status = #{dict_cont_status} and t.cont_stores_id = #{cont_stores_id}
+	<if test="cont_version != null">
+	   and t.cont_version= #{cont_version,jdbcType=VARCHAR}
+	</if>
+	<if test="start != null">
+	   and t.cont_use_day &gt;= #{start,jdbcType=DATE}
+	</if>
+	<if test="end != null">
+	   and t.cont_use_day &lt;=#{end,jdbcType=DATE}  
+	</if>
+</select>
+
+  <!-- 查询门店合同库存数量 -->
+  <select id="getCountOfStoredContract" parameterType="java.util.Map" resultType="java.lang.String">
+	SELECT
+	    count(cont_code) as count
+	FROM
+		t_tz_contract t
+	WHERE t.dict_cont_status = #{dict_cont_status} and t.cont_stores_id = #{cont_stores_id} 
+	<if test="cont_version != null">
+	   and t.cont_version= #{cont_version,jdbcType=VARCHAR}
+	</if>
+</select>
+
+<!-- 添加合同申请 -->
+<insert id="addContractApply" parameterType="com.creditharmony.fortune.contract.entity.ContractApply" >
+   insert into t_tz_contract_apply
+   <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="contractId != null" >
+          contract_id,
+      </if>
+        <if test="contStoresId != null" >
+          cont_stores_id,
+      </if>
+        <if test="applyNo != null" >
+          apply_no,
+      </if>
+        <if test="applyDistNo != null" >
+          apply_dist_no,
+      </if>
+        <if test="contVersion != null" >
+          cont_version,
+      </if>
+        <if test="applyAlreadyuse != null" >
+          apply_alreadyuse,
+      </if>
+        <if test="applyInventory != null" >
+          apply_inventory,
+      </if>
+        <if test="applyBy != null" >
+          apply_by,
+      </if>
+        <if test="applyContacts != null" >
+          apply_contacts,
+      </if>
+       <if test="applyTel != null" >
+          apply_tel,
+      </if>
+        <if test="applyShippingAddr != null" >
+          apply_shipping_addr,
+      </if>
+      <if test="applyExplain != null" >
+          apply_explain,
+      </if>
+      <if test="applyDay != null" >
+          apply_day,
+      </if>
+      <if test="applyStatus != null" >
+          apply_status,
+      </if>
+      <if test="createBy != null" >
+          create_by,
+      </if>
+      <if test="createTime != null" >
+          create_time,
+      </if>
+      <if test="modifyBy != null" >
+          modify_by,
+      </if>
+      <if test="modifyTime != null" >
+          modify_time
+      </if>
+   </trim>
+   <trim prefix=" values (" suffix=")" suffixOverrides="," >
+      <if test="contractId != null" >
+           #{contractId,jdbcType=VARCHAR},
+      </if>
+        <if test="contStoresId != null" >
+          #{contStoresId,jdbcType=VARCHAR},
+      </if>
+        <if test="applyNo != null" >
+        #{applyNo,jdbcType=INTEGER},
+      </if>
+        <if test="applyDistNo != null" >
+        #{applyDistNo,jdbcType=INTEGER},
+      </if>
+        <if test="contVersion != null" >
+           #{contVersion,jdbcType=VARCHAR},
+      </if>
+        <if test="applyAlreadyuse != null" >
+           #{applyAlreadyuse,jdbcType=INTEGER},
+      </if>
+        <if test="applyInventory != null" >
+           #{applyInventory,jdbcType=INTEGER},
+      </if>
+        <if test="applyBy != null" >
+           #{applyBy,jdbcType=VARCHAR},
+      </if>
+        <if test="applyContacts != null" >
+           #{applyContacts,jdbcType=VARCHAR},
+      </if>
+       <if test="applyTel != null" >
+           #{applyTel,jdbcType=VARCHAR},
+      </if>
+        <if test="applyShippingAddr != null" >
+           #{applyShippingAddr,jdbcType=VARCHAR},
+      </if>
+      <if test="applyExplain != null" >
+           #{applyExplain,jdbcType=VARCHAR},
+      </if>
+      <if test="applyDay != null" >
+          #{applyDay,jdbcType=VARCHAR},
+      </if>
+      <if test="applyStatus != null" >
+          #{applyStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+          #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+          #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+          #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+          #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </trim>
+</insert>
+
+<select id="getCountOfMonthlyApply" parameterType="java.util.Map" resultType="java.lang.String">
+	SELECT
+	    count(contract_id) as count
+	FROM
+		t_tz_contract_apply t
+	WHERE t.cont_stores_id = #{cont_stores_id} and t.cont_version = #{cont_version} and t.apply_day &gt;=#{end,jdbcType=DATE}  
+</select>
+
+
+  <!--合同申请审核分页列表  -->
+<select id="listContractApprovalPage" resultType="com.creditharmony.fortune.contract.view.ContractApplyDetailView">
+  select a.*,p.dist_contract_no,c.name as org_name from (
+		 SELECT
+			t.contract_id,
+			t.cont_stores_id,
+			t.apply_alreadyuse,
+			t.apply_inventory,
+			t.apply_no,
+			t.cont_version,
+			t.apply_day,
+			t.apply_status
+		FROM t_tz_contract_apply t
+		<where>
+			<if test="startDate != null and startDate != ''">
+					AND t.apply_day &gt;= #{startDate,jdbcType=DATE}
+			</if>
+			<if test="endDate != null and endDate != ''">
+					AND t.apply_day &lt;=#{endDate,jdbcType=DATE}  
+			</if>
+			<if test="contVersion!= null and contVersion != ''">
+					AND	t.cont_version  = #{contVersion,jdbcType=VARCHAR}
+			</if>
+			<if test="applyStatus!= null and applyStatus != ''">
+					AND	t.apply_status  = #{applyStatus,jdbcType=VARCHAR}
+			</if>
+		</where>
+   ) a 
+   LEFT JOIN 
+   t_gl_org c ON c.id = a.cont_stores_id
+   LEFT JOIN 
+   (
+     select dist_contract_no,contract_id from t_tz_contract_distribute  where dist_type =#{distType,jdbcType=VARCHAR}
+   )  p ON p.contract_id = a.contract_id   
+   	<where>
+	    <if test="orgName!= null and orgName != ''">
+	            c.name like '%'||#{orgName,jdbcType=VARCHAR}||'%'
+	    </if>
+  	</where>
+  </select>
+  
+
+<!-- 添加合同申请 -->
+<update id="updateContractApply" parameterType="com.creditharmony.fortune.contract.entity.ContractApply" >
+   update t_tz_contract_apply 
+   <set>
+      <if test="applyStatus != null" >
+      apply_status = #{applyStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="applyCheckById != null" >
+      apply_check_by_id = #{applyCheckById,jdbcType=VARCHAR},
+      </if>
+      <if test="applyCheckDesc != null" >
+      apply_check_desc = #{applyCheckDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="applyCheckDate != null" >
+      apply_check_date = #{applyCheckDate,jdbcType=DATE},
+      </if>
+      <if test="applyCheckResult != null" >
+       apply_check_result = #{applyCheckResult,jdbcType=VARCHAR} ,
+      </if>
+      <if test="dictApplyRefuseDemo != null" >
+      dict_apply_refuse_demo = #{dictApplyRefuseDemo,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyBy != null" >
+         modify_by  = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+         modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </set>
+   where contract_id = #{contractId,jdbcType=VARCHAR} 
+</update>
+
+<!-- 批量更新审核状态 -->
+<update id="updateContractApplyStatus" parameterType="java.util.Map" >
+   update t_tz_contract_apply 
+   set apply_status = #{ca.applyStatus,jdbcType=VARCHAR},
+   apply_check_result=#{ca.applyCheckResult,jdbcType=VARCHAR},
+   apply_check_date = #{ca.applyCheckDate,jdbcType=DATE},
+   modify_by  = #{ca.modifyBy,jdbcType=VARCHAR},
+   modify_time = #{ca.modifyTime,jdbcType=TIMESTAMP}
+   where contract_id in 
+   <foreach collection="contract_id" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+   </foreach>
+</update>
+
+<!-- 批量更新审核拒绝状态合同驳回理由 -->
+<update id="updateContractApplyStatusAndRefuseDemo" parameterType="java.util.Map" >
+   update t_tz_contract_apply 
+   set apply_status = #{ca.applyStatus,jdbcType=VARCHAR},
+   apply_check_result=#{ca.applyCheckResult,jdbcType=VARCHAR}, 
+   dict_apply_refuse_demo = #{ca.dictApplyRefuseDemo,jdbcType=VARCHAR},
+   apply_check_date = #{ca.applyCheckDate,jdbcType=DATE},
+   modify_by  = #{ca.modifyBy,jdbcType=VARCHAR},
+   modify_time = #{ca.modifyTime,jdbcType=TIMESTAMP}
+   where contract_id in 
+   <foreach collection="contract_id" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+   </foreach>
+</update>
+
+
+ <!--合同申请记录列表  -->
+<select id="listContractApproval" resultType="com.creditharmony.fortune.contract.view.ContractApplyExcelView">
+  	SELECT
+  		t.contract_id,
+  		t.cont_stores_id,
+  		c.name as org_name,
+  		t.apply_alreadyuse,
+  		t.apply_inventory,
+  		t.apply_no,
+  		p.dist_contract_no,
+  		t.cont_version,
+  		t.apply_day,
+  		t.apply_check_date,
+  		p.dist_date,
+  		t.apply_status
+  	FROM t_tz_contract_apply t
+  	LEFT JOIN t_gl_org c ON c.id = t.cont_stores_id
+  	LEFT JOIN (
+  	 select dist_contract_no,contract_id,dist_date from t_tz_contract_distribute  where dist_type =#{distType,jdbcType=VARCHAR}
+  	) p ON p.contract_id = t.contract_id
+  	
+  	<where>
+  		<if test="startDate != null and startDate != ''">
+	            AND t.apply_day &gt;= #{startDate,jdbcType=DATE}
+	    </if>
+	    <if test="endDate != null and endDate != ''">
+	            AND t.apply_day &lt;=#{endDate,jdbcType=DATE}  
+	    </if>
+	    <if test="contVersion!= null and contVersion != ''">
+	            AND	t.cont_version  = #{contVersion,jdbcType=VARCHAR}
+	    </if>
+	     	    <if test="applyStatus!= null and applyStatus != ''">
+	            AND	t.apply_status  = #{applyStatus,jdbcType=VARCHAR}
+	    </if>
+	    	    <if test="orgName!= null and orgName != ''">
+	            AND	c.name like '%'||#{orgName,jdbcType=VARCHAR}||'%'
+	    </if>
+  	</where>
+  	
+  </select>
+  
+<!--根据合同申请ID记录查询列表  -->
+<select id="listContractApprovalCheckout" resultType="com.creditharmony.fortune.contract.view.ContractApplyExcelView">
+  	SELECT
+  		t.contract_id,
+  		t.cont_stores_id,
+  		c.name as org_name,
+  		t.apply_alreadyuse,
+  		t.apply_inventory,
+  		t.apply_no,
+  		p.dist_contract_no,
+  		t.cont_version,
+  		t.apply_day,
+  		t.apply_check_date,
+  		p.dist_date,
+  		t.apply_status
+  	FROM t_tz_contract_apply t
+  	LEFT JOIN t_gl_org c ON c.id = t.cont_stores_id
+  	LEFT JOIN (
+  	 select dist_contract_no,contract_id,dist_date from t_tz_contract_distribute  where dist_type =#{distType,jdbcType=VARCHAR}
+  	) p ON p.contract_id = t.contract_id
+  	 where t.contract_id in 
+     <foreach collection="contract_id" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+  	
+  <!--已办理合同申请列表  -->
+  <select id="listContractApprovalDonePage" resultType="com.creditharmony.fortune.contract.view.ContractApplyDetailView">
+  	SELECT
+  		t.contract_id,
+  		t.cont_stores_id,
+  		c.name as org_name,
+  		t.apply_alreadyuse,
+  		t.apply_inventory,
+  		t.apply_no,
+  		p.dist_contract_no,
+  		t.cont_version,
+  		t.apply_day,
+  		t.apply_check_date,
+  		p.dist_date,
+  		t.apply_status
+  	FROM t_tz_contract_apply t
+  	LEFT JOIN t_gl_org c ON c.id = t.cont_stores_id
+  	LEFT JOIN (
+  	 select dist_contract_no,contract_id,dist_date from t_tz_contract_distribute  where dist_type =#{distType,jdbcType=VARCHAR}
+  	) p ON p.contract_id = t.contract_id
+  	
+  	<where>
+  	   <if test="contStoresId != null and contStoresId != ''">
+	            AND t.cont_stores_id = #{contStoresId,jdbcType=DATE}
+	    </if>
+  		<if test="startDate != null and startDate != ''">
+	            AND t.apply_day &gt;= #{startDate,jdbcType=DATE}
+	    </if>
+	    <if test="endDate != null and endDate != ''">
+	            AND t.apply_day &lt;=#{endDate,jdbcType=DATE}  
+	    </if>
+	    <if test="startCheckDate != null and startCheckDate != ''">
+	            AND t.apply_check_date &gt;= #{startCheckDate,jdbcType=DATE}
+	    </if>
+	    <if test="endCheckDate != null and endCheckDate != ''">
+	            AND t.apply_check_date &lt;=#{endCheckDate,jdbcType=DATE}  
+	    </if>
+	    <if test="contVersion!= null and contVersion != ''">
+	            AND	t.cont_version  = #{contVersion,jdbcType=VARCHAR}
+	    </if>
+	    <if test="applyStatus!= null and applyStatus != ''">
+	            AND	t.apply_status = #{applyStatus,jdbcType=VARCHAR}
+	    </if>
+	    <if test="orgName!= null and orgName != ''">
+	            AND	c.name like '%'||#{orgName,jdbcType=VARCHAR}||'%'
+	    </if>
+	    <if test="startDistDate != null and startDistDate != ''">
+	            AND p.dist_date &gt;= #{startDate,jdbcType=DATE}
+	    </if>
+	    <if test="endDistDate != null and endDistDate != ''">
+	            AND p.dist_date &lt;=#{endDate,jdbcType=DATE}  
+	    </if>
+  	</where>
+  	
+  	
+  </select>
+  
+  
+   <!--合同申请已审核记录列表  -->
+  <select id="listContractApprovalDone" resultType="com.creditharmony.fortune.contract.view.ContractApplyExcelView">
+  	SELECT
+  		t.contract_id,
+  		t.cont_stores_id,
+  		c.name as org_name,
+  		t.apply_alreadyuse,
+  		t.apply_inventory,
+  		t.apply_no,
+  		p.dist_contract_no,
+  		t.cont_version,
+  		t.apply_day,
+  		t.apply_check_date,
+  		p.dist_date,
+  		t.apply_status
+  	FROM t_tz_contract_apply t
+  	LEFT JOIN t_gl_org c ON c.id = t.cont_stores_id
+  	LEFT JOIN (
+  	 select dist_contract_no,contract_id,dist_date from t_tz_contract_distribute  where dist_type =#{distType,jdbcType=VARCHAR}
+  	) p ON p.contract_id = t.contract_id
+  	<where>
+  	   <if test="contStoresId != null and contStoresId != ''">
+	            AND t.cont_stores_id = #{contStoresId,jdbcType=DATE}
+	    </if>
+  		<if test="startDate != null and startDate != ''">
+	            AND t.apply_day &gt;= #{startDate,jdbcType=DATE}
+	    </if>
+	    <if test="endDate != null and endDate != ''">
+	            AND t.apply_day &lt;=#{endDate,jdbcType=DATE}  
+	    </if>
+	    <if test="startCheckDate != null and startCheckDate != ''">
+	            AND t.apply_check_date &gt;= #{startCheckDate,jdbcType=DATE}
+	    </if>
+	    <if test="endCheckDate != null and endCheckDate != ''">
+	            AND t.apply_check_date &lt;=#{endCheckDate,jdbcType=DATE}  
+	    </if>
+	    <if test="contVersion!= null and contVersion != ''">
+	            AND	t.cont_version  = #{contVersion,jdbcType=VARCHAR}
+	    </if>
+	    <if test="applyStatus!= null and applyStatus != ''">
+	            AND	t.apply_status = #{applyStatus,jdbcType=VARCHAR}
+	    </if>
+	    <if test="orgName!= null and orgName != ''">
+	            AND	c.name like '%'||#{orgName,jdbcType=VARCHAR}||'%'
+	    </if>
+	    <if test="startDistDate != null and startDistDate != ''">
+	            AND p.dist_date &gt;= #{startDate,jdbcType=DATE}
+	    </if>
+	    <if test="endDistDate != null and endDistDate != ''">
+	            AND p.dist_date &lt;=#{endDate,jdbcType=DATE}  
+	    </if>
+  	</where>
+  	
+  </select>
+  
+  <!--  根据ID导出合同申请审核记录 --> 
+  <select id="listContractApprovalDoneCheckout" resultType="com.creditharmony.fortune.contract.view.ContractApplyExcelView">
+  	SELECT
+  	  	t.contract_id,
+  		t.cont_stores_id,
+  		c.name as org_name,
+  		t.apply_alreadyuse,
+  		t.apply_inventory,
+  		t.apply_no,
+  		p.dist_contract_no,
+  		t.cont_version,
+  		t.apply_day,
+  		t.apply_check_date,
+  		p.dist_date,
+  		t.apply_status
+  	FROM t_tz_contract_apply t
+  	LEFT JOIN t_gl_org c ON c.id = t.cont_stores_id
+  	LEFT JOIN (
+  	 select dist_contract_no,contract_id,dist_date from t_tz_contract_distribute  where dist_type =#{distType,jdbcType=VARCHAR}
+  	) p ON p.contract_id = t.contract_id
+  	 where t.contract_id in 
+     <foreach collection="contract_id" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+  
+    <!-- 根据ids查询已待审核数量 -->
+  <select id="getYSHContractApply" parameterType="java.util.Map" resultType="java.lang.Integer">
+	SELECT
+	    count(*) as count
+	FROM
+		t_tz_contract_apply t
+	 where t.contract_id in 
+     <foreach collection="contract_id" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+    and t.apply_status != #{applyStatus,jdbcType=VARCHAR}
+</select>
+
+</mapper>

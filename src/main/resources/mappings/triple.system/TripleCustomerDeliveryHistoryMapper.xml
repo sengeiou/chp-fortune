@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.creditharmony.fortune.delivery.dao.TripleCustomerDeliveryHistoryDao">
+	<select id="findList"
+		parameterType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx"
+		resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+		select
+			d.id,
+			d.customer_code as "customerCode",
+			d.login_name as "loginName",
+			d.new_org_name as "newOrgName",
+			d.new_team_manager_name as "newTeamManagerName",
+			d.new_emp_name as "newEmpName",
+			d.new_emp_code as "newEmpCode",
+			d.org_name as "orgName",
+			d.team_manager_name as "teamManagerName",
+			d.emp_name as "empName",
+			d.emp_code as "empCode",
+			d.os_type as "osType",
+			d.create_time as "delDate",
+			d.operator as "operator",
+			d.change_reason as "changeReason"
+		from tz.int_delivery d
+		<include refid="findSql"/>
+	</select>
+	<select id="findCardList"
+		parameterType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx"
+		resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+		select
+			d.id,
+			pc.card_id as "cardId",
+			d.customer_code as "customerCode",
+			d.login_name as "loginName",
+			d.new_org_name as "newOrgName",
+			d.new_team_manager_name as "newTeamManagerName",
+			d.new_emp_name as "newEmpName",
+			d.new_emp_code as "newEmpCode",
+			d.org_name as "orgName",
+			d.team_manager_name as "teamManagerName",
+			d.emp_name as "empName",
+			d.emp_code as "empCode",
+			d.os_type as "osType",
+			d.create_time as "delDate",
+			d.operator as "operator",
+			d.change_reason as "changeReason"
+		from tz.int_delivery d
+		left join tz.int_phone_card pc
+		on pc.phone=d.phone
+		<include refid="findSql"/>
+	</select>
+	<sql id="findSql">
+		<where>
+			(d.delivery_type != '2' and d.delivery_type != '4')
+			<if test="loginName != null and loginName != ''">
+				and d.login_name like CONCAT('%', #{loginName}, '%')
+			</if>
+			<if test="newEmpCode != null and newEmpCode != ''">
+				and d.new_emp_code = #{newEmpCode,jdbcType=VARCHAR}
+			</if>
+			<if test="empCode != null and empCode != ''">
+				and d.emp_code = #{empCode,jdbcType=VARCHAR}
+			</if>
+			<if test="endTime != null and endTime != ''">
+				and to_char(d.create_time,'YYYY-MM-DD') <![CDATA[<=]]>#{endTime}
+			</if>
+			<if test="startTime != null and startTime != '' ">
+				and to_char(d.create_time,'YYYY-MM-DD') <![CDATA[>=]]>#{startTime}
+			</if>
+			<if test="newEmpName != null and newEmpName != ''">
+				and d.new_emp_name like CONCAT('%', #{newEmpName}, '%')
+			</if>
+			<if test="empName != null and empName != ''">
+				and d.emp_name like CONCAT('%', #{empName}, '%')
+			</if>
+			<!-- <if test="changeReason != null and changeReason != ''">
+				and d.change_reason like CONCAT('%', #{changeReason}, '%')
+			</if> -->
+			<if test="newOrgIdList != null and newOrgIdList != ''">
+				and d.new_org_id in
+				<foreach collection="newOrgIdList" item="item" index="index" open="(" separator="," close=")">
+					'${item}'
+				</foreach>
+			</if>
+			<if test="orgIdList != null and orgIdList != ''">
+				and d.org_id in
+				<foreach collection="orgIdList" item="item" index="index" open="(" separator="," close=")">
+					'${item}'
+				</foreach>
+			</if>
+			<if test="customerCode != null and customerCode != ''">
+				and d.customer_code = #{customerCode,jdbcType=VARCHAR}
+			</if>
+			<if test="osTypeList != null and osTypeList != ''">
+				and d.os_type in
+				<foreach collection="osTypeList" item="item" index="index" open="(" separator="," close=")">
+					'${item}'
+				</foreach>
+			</if>
+			<if test="deliveryTypeList != null and deliveryTypeList != ''">
+				and d.delivery_type in
+				<foreach collection="deliveryTypeList" item="item" index="index" open="(" separator="," close=")">
+					'${item}'
+				</foreach>
+			</if>
+		</where>
+		order by d.create_time desc
+	</sql>
+</mapper>

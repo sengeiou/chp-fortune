@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.teleSale.dao.CustomerPoolDao">
+	<resultMap id="BaseResultMap"
+		type="com.creditharmony.fortune.teleSale.entity.CustomerPool">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="customer_code" property="customerCode"
+			jdbcType="VARCHAR" />
+		<result column="customer_name" property="customerName" 	jdbcType="VARCHAR" />
+		<result column="customer_tel" property="customerTel" jdbcType="VARCHAR" />
+		<result column="product_name" property="productName" jdbcType="VARCHAR" />
+		<result column="province_id" property="provinceId" jdbcType="VARCHAR" />
+		<result column="city_id" property="cityId" jdbcType="VARCHAR" />
+		<result column="sales_dept" property="salesDept" jdbcType="VARCHAR" />
+		<result column="card" property="card" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="lend_input_date" property="lendInputDate"	jdbcType="DATE" />
+		<result column="data_type" property="dataType" jdbcType="VARCHAR" />
+		<result column="create_by" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+		<result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+		<result column="manager_id" property="managerId" jdbcType="TIMESTAMP" />
+		<result column="province_name" property="provinceName" jdbcType="VARCHAR" />
+		<result column="city_name" property="cityName" jdbcType="VARCHAR" />
+		<result column="sales_dept_name" property="salesDeptName" jdbcType="VARCHAR" />
+		
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, customer_code, customer_name, customer_tel, product_name,
+		province_id, city_id,
+		sales_dept, card, remark, lend_input_date, data_type, create_by, create_time,
+		modify_by,
+		modify_time
+	</sql>
+	<!-- 根据主键查数据 -->
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select
+			pool.id, pool.customer_code, pool.customer_name, pool.customer_tel, pool.product_name,
+			pool.province_id, pool.city_id,
+			pool.sales_dept, pool.card, pool.remark, pool.lend_input_date, pool.data_type, pool.create_by, pool.create_time,
+			pool.modify_by, 	pool.modify_time, cus.manager_code as "manager_id"
+		from t_tz_customer_pool pool  left join t_tz_customer cus on pool.customer_code = cus.customer_code
+		where pool.id = #{id,jdbcType=VARCHAR}
+	</select>
+
+	<!-- 分页查询公共池数据 -->
+	<select id="selectList" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select	pool.id,		    pool.customer_code,		    pool.customer_name,
+		    pool.customer_tel,		    pool.product_name,		    pool.province_id,
+		    pool.city_id,		    pool.sales_dept,		    pool.card,
+		    pool.remark,		    pool.lend_input_date,		    pool.data_type,
+		    pool.create_by,		    pool.create_time,		    pool.modify_by,
+		    pool.modify_time,		sd.name sales_dept_name,	pro.area_name    province_name,
+		    city.area_name     city_name
+		from 
+			t_tz_customer_pool pool LEFT JOIN  t_gl_org sd ON    pool.sales_dept = sd.id
+			LEFT JOIN     t_gl_province_city pro ON    pool.province_id = pro.id
+			LEFT JOIN    t_gl_province_city city ON    pool.city_id = city.id
+			left join  t_tz_customer cus on  pool.customer_code = cus.customer_code
+		where 1=1
+		<if test="customerCode != null and customerCode != ''">
+			and pool.customer_code = #{customerCode,jdbcType=VARCHAR}
+		</if>
+		<if test="customerName != null and customerName != ''">
+			and pool.customer_name like '%' || #{customerName,jdbcType=VARCHAR} || '%'
+		</if>
+		<if test="customerTel != null and customerTel != '' ">
+			and pool.customer_tel like '%' || #{customerTel,jdbcType=VARCHAR} || '%'
+		</if>
+		<if test="productName != null and productName != '' ">
+			and pool.product_name = #{productName,jdbcType=VARCHAR}
+		</if>
+		<if test="provinceId != null and provinceId != '' ">
+			and pool.province_id = #{provinceId,jdbcType=VARCHAR}
+		</if>
+		<if test="cityId != null and cityId != '' ">
+			and pool.city_id = #{cityId,jdbcType=VARCHAR}
+		</if>
+		<if test="salesDept != null and salesDept != '' ">
+			and pool.sales_dept = #{salesDept,jdbcType=VARCHAR}
+		</if>
+		<if test="card != null and card != '' ">
+			and pool.card = #{card,jdbcType=VARCHAR}
+		</if>
+		<if test="remark != null and remark != '' ">
+			and pool.remark = #{remark,jdbcType=VARCHAR}
+		</if>
+		<if test="lendInputDate != null">
+			and pool.lend_input_date = #{lendInputDate,jdbcType=DATE}
+		</if>
+		<if test="dataType != null and dataType != '' ">
+			and pool.data_type = #{dataType,jdbcType=VARCHAR}
+		</if>
+		
+		<!-- <if test="isTelManager != null and isTelManager != ''"> 是电销理财专员时 
+			and cus.tele_manager_id = #{teleManagerId}
+		</if> -->
+		
+	</select>
+	<insert id="insert"
+		parameterType="com.creditharmony.fortune.teleSale.entity.CustomerPool">
+		insert into t_tz_customer_pool (id, customer_code, customer_name,
+		customer_tel, product_name, province_id,
+		city_id, sales_dept, card,
+		remark, lend_input_date, data_type,
+		create_by, create_time, modify_by,
+		modify_time)
+		values (#{id,jdbcType=VARCHAR}, #{customerCode,jdbcType=VARCHAR},
+		#{customerName,jdbcType=VARCHAR},
+		#{customerTel,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR}, #{provinceId,jdbcType=VARCHAR},
+		#{cityId,jdbcType=VARCHAR}, #{salesDept,jdbcType=VARCHAR},
+		#{card,jdbcType=VARCHAR},
+		#{remark,jdbcType=VARCHAR}, #{lendInputDate,jdbcType=DATE}, #{dataType,jdbcType=VARCHAR},
+		#{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+		#{modifyBy,jdbcType=VARCHAR},
+		#{modifyTime,jdbcType=TIMESTAMP})
+	</insert>
+	<!-- 更新公共池数据 -->
+	<update id="update"
+		parameterType="com.creditharmony.fortune.teleSale.entity.CustomerPool">
+		update t_tz_customer_pool
+		<set>
+			<if test="customerCode != null">
+				customer_code = #{customerCode,jdbcType=VARCHAR},
+			</if>
+			<if test="customerName != null">
+				customer_name = #{customerName,jdbcType=VARCHAR},
+			</if>
+			<if test="customerTel != null">
+				customer_tel = #{customerTel,jdbcType=VARCHAR},
+			</if>
+			<if test="productName != null">
+				product_name = #{productName,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceId != null">
+				province_id = #{provinceId,jdbcType=VARCHAR},
+			</if>
+			<if test="cityId != null">
+				city_id = #{cityId,jdbcType=VARCHAR},
+			</if>
+			<if test="salesDept != null">
+				sales_dept = #{salesDept,jdbcType=VARCHAR},
+			</if>
+			<if test="card != null">
+				card = #{card,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				remark = #{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="lendInputDate != null">
+				lend_input_date = #{lendInputDate,jdbcType=DATE},
+			</if>
+			<if test="dataType != null">
+				data_type = #{dataType,jdbcType=VARCHAR},
+			</if>
+			<if test="createBy != null">
+				create_by = #{createBy,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifyBy != null">
+				modify_by = #{modifyBy,jdbcType=VARCHAR},
+			</if>
+			<if test="modifyTime != null">
+				modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+
+
+	<!-- 更新公共池数据 条件是客户的code -->
+	<update id="updateCustomerByCode"
+		parameterType="com.creditharmony.fortune.teleSale.entity.CustomerPool">
+		update t_tz_customer_pool
+		<set>
+			<if test="customerName != null">
+				customer_name = #{customerName,jdbcType=VARCHAR},
+			</if>
+			<if test="customerTel != null">
+				customer_tel = #{customerTel,jdbcType=VARCHAR},
+			</if>
+			<if test="productName != null">
+				product_name = #{productName,jdbcType=VARCHAR},
+			</if>
+			<if test="provinceId != null">
+				province_id = #{provinceId,jdbcType=VARCHAR},
+			</if>
+			<if test="cityId != null">
+				city_id = #{cityId,jdbcType=VARCHAR},
+			</if>
+			<if test="salesDept != null">
+				sales_dept = #{salesDept,jdbcType=VARCHAR},
+			</if>
+			<if test="card != null">
+				card = #{card,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				remark = #{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="lendInputDate != null">
+				lend_input_date = #{lendInputDate,jdbcType=DATE},
+			</if>
+			<if test="dataType != null">
+				data_type = #{dataType,jdbcType=VARCHAR},
+			</if>
+			<if test="createBy != null">
+				create_by = #{createBy,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="modifyBy != null">
+				modify_by = #{modifyBy,jdbcType=VARCHAR},
+			</if>
+			<if test="modifyTime != null">
+				modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where customer_code = #{customerCode, jdbcType=VARCHAR}
+	</update>
+
+	<!-- 返回理财经理（人员）机构信息 -->
+	<resultMap id="UserOrgMap"
+		type="com.creditharmony.fortune.common.entity.UserRoleOrgEx">
+		<result column="id" property="userId" jdbcType="VARCHAR" />
+		<result column="user_code" property="userCode" jdbcType="VARCHAR" />
+		<result column="user_name" property="userName" jdbcType="VARCHAR" />
+		<result column="org_Name" property="orgName" jdbcType="VARCHAR" />
+		<result column="team_user_Name" property="teamUserName"
+			jdbcType="VARCHAR" />
+		<result column="team_user_code" property="teamUserCode"
+			jdbcType="VARCHAR" />
+	</resultMap>
+
+	<!-- 查询理财经理信息 -->
+	<select id="findManager" parameterType="java.util.Map" resultMap="UserOrgMap">
+		select u.id, u.user_code, u.name user_name, org.name
+			org_Name, urot.user_id, ut.name team_user_Name, ut.user_code as	team_user_code
+		from tz.t_gl_user_role_org uro
+			left join tz.t_gl_user u on uro.user_id = u.id
+			left join tz.t_gl_org org on uro.org_id = org.id
+			left join tz.t_gl_user_role_org urot on urot.org_id = uro.org_id and urot.role_id = #{teamRoleId}
+			left join tz.t_gl_user ut on ut.id = urot.user_id
+		where 1 =1 
+		  and  uro.role_id  in (
+		  <foreach collection="roleIdList" separator="," item="item">
+		  		#{item}
+		  </foreach>
+		  )
+		<if test="userName != null and userName != ''">
+			and u.name like '%' || #{userName,	jdbcType=VARCHAR} || '%'
+		</if>
+		<if test="userCode != null and userCode != ''">
+  			and u.user_code = #{userCode}
+		</if>
+  		<if test="orgName != null and orgName != ''">
+  			and org.name like '%' || #{orgName,	jdbcType=VARCHAR} || '%'
+		</if>
+  		<if test="delFlag != null and delFlag != ''">
+  			and u.del_flag = #{delFlag}
+		</if>
+  			
+			
+	</select>
+
+	<!-- 查询电销人员 -->
+	<select id="findTeleManager" parameterType="java.util.Map"  	resultMap="UserOrgMap">
+		select u.id, u.user_code, u.name user_name, org.name
+		org_Name
+		from tz.t_gl_user_role_org uro
+		left join tz.t_gl_user u on uro.user_id = u.id
+		left join tz.t_gl_org org on uro.org_id = org.id
+		where uro.role_id = 	#{roleId}
+		<if test="userName != null and userName != ''">
+			and u.name like '%' || #{userName,	jdbcType=VARCHAR} || '%'
+		</if>
+		<if test="userCode != null and userCode != ''">
+  			and u.user_code = #{userCode}
+		</if>
+  		<if test="orgName != null and orgName != ''">
+  			and org.name like '%' || #{orgName,	jdbcType=VARCHAR} || '%'
+		</if>
+	</select>
+
+	<!-- CustomerPoolEx 的map -->
+	<resultMap id="CustomerPoolExMap"
+		type="com.creditharmony.fortune.teleSale.entity.ex.CustomerPoolEx">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="manager_code" property="managerId" jdbcType="VARCHAR" />
+		<result column="manager_name" property="managerName" jdbcType="VARCHAR" />
+		<result column="customer_code" property="customerCode"
+			jdbcType="VARCHAR" />
+		<result column="customer_name" property="customerName"
+			jdbcType="VARCHAR" />
+		<result column="customer_tel" property="customerTel" jdbcType="VARCHAR" />
+		<result column="province_id" property="provinceId" jdbcType="VARCHAR" />
+		<result column="city_id" property="cityId" jdbcType="VARCHAR" />
+		<result column="sales_dept" property="salesDept" jdbcType="VARCHAR" />
+		<result column="card" property="card" jdbcType="VARCHAR" />
+		<result column="data_type" property="dataType" jdbcType="VARCHAR" />
+		<result column="tele_manager_id" property="teleManagerCode"
+			jdbcType="VARCHAR" />
+		<result column="tele_manager_name" property="teleManagerName"
+			jdbcType="VARCHAR" />
+		<result column="team_manager_code" property="teamManagerCode"
+			jdbcType="VARCHAR" />
+		<result column="team_manager_name" property="teamManagerName"
+			jdbcType="VARCHAR" />
+		<!-- <result column="" property="storeManagerCode" jdbcType="VARCHAR" /> -->
+		<!-- <result column="" property="storeManagerName" jdbcType="VARCHAR" /> -->
+		<result column="store_Name" property="storeName" jdbcType="VARCHAR" />
+		<result column="modify_time" property="modifyTime" jdbcType="VARCHAR" />
+		<result column="store_manager_name" property="storeManagerName" jdbcType="VARCHAR" />
+		
+	</resultMap>
+
+	<!-- select 电销客户咨询列表数据 getDistibuteCustomers -->
+	<select id="getDistibuteCustomers" parameterType="java.util.Map"		resultMap="CustomerPoolExMap">
+		SELECT distinct pool.id, pool.customer_code, pool.customer_name,
+			pool.customer_tel, pool.product_name, pool.province_id,
+			pool.city_id, pool.sales_dept, pool.card,
+			pool.remark, pool.lend_input_date, pool.data_type,
+			pool.create_by, pool.create_time, pool.modify_by,
+			pool.modify_time, cus.manager_code, cus.tele_manager_id,
+			utel.name tele_manager_name, u.name manager_name, urot.user_id
+			team_manager_code,
+			ut.name team_manager_name, org.name store_Name,  us.name store_manager_name
+		FROM
+			t_tz_customer_pool pool
+			LEFT JOIN t_tz_customer cus ON cus.customer_code = pool.customer_code
+			LEFT JOIN t_gl_user_role_org uro ON uro.user_id = cus.manager_code  and uro.role_id = #{managerRoleId}
+			LEFT JOIN t_gl_user_role_org uroT ON uro.org_id = urot.org_id AND	urot.ROLE_ID = #{teamRoleId}
+			LEFT JOIN t_gl_user_role_org uroS ON    pool.sales_dept = uros.org_id AND uros.role_id = #{storeRoleId}
+			left join tz.t_gl_org org on pool.sales_dept = org.id
+			left join tz.t_gl_user u on cus.manager_code = u.id
+			left join tz.t_gl_user ut on urot.user_id = ut.id
+			left join t_gl_user utel on cus.tele_manager_id = utel.id
+			left join t_gl_user us on uros.user_id = us.id
+		WHERE
+		pool.data_type IN
+		<foreach item="item" index="index" collection="dataTypeList"
+			open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		<if test="customerName != null and customerName != ''">
+			and pool.customer_name like '%' || #{customerName, jdbcType=VARCHAR} || '%'
+		</if>
+		<if test="card != null and card != ''">
+			and pool.card = #{card, jdbcType=VARCHAR}
+		</if>
+		<if test="customerTel != null and customerTel != ''">
+			and pool.customer_tel  like '%' || #{customerTel, jdbcType=VARCHAR} || '%'
+		</if>
+		<if test="teleManagerName != null and teleManagerName != ''">
+			and utel.name like '%' || #{teleManagerName,jdbcType=VARCHAR} || '%'
+		</if>
+		<if test="managerName != null and managerName != ''">
+			and u.name like '%' || #{managerName,jdbcType=VARCHAR} || '%'
+		</if>
+		<if test="userId != null and userId != ''">
+			and cus.tele_manager_id = #{userId, jdbcType=VARCHAR}
+		</if>
+		<if test="maxOrgId != null and maxOrgId != ''">
+			and cus.tele_manager_id in (
+		        select user_id 
+		        from tz.t_gl_user_role_org uro
+		        where uro.org_id in (
+				                select org.id from t_gl_org org
+				                where org.parent_ids like '%' || #{maxOrgId,	jdbcType=VARCHAR} || '%'
+				                    or org.id = #{maxOrgId,	jdbcType=VARCHAR}
+		                )
+		    )
+		</if>
+	</select>
+
+	<!--根据传递的id数组，查询公共池数据  -->
+	<select id="getCustomerPoolByIds" resultMap="BaseResultMap"  parameterType="java.util.Map">
+		select	pool.id,		    pool.customer_code,		    pool.customer_name,
+		    pool.customer_tel,		    pool.product_name,		    pool.province_id,
+		    pool.city_id,		    pool.sales_dept,		    pool.card,
+		    pool.remark,		    pool.lend_input_date,		    pool.data_type,
+		    pool.create_by,		    pool.create_time,		    pool.modify_by,
+		    pool.modify_time,		sd.name sales_dept_name,	pro.area_name    province_name,
+		    city.area_name     city_name
+		from 
+			t_tz_customer_pool pool LEFT JOIN  t_gl_org sd ON    pool.sales_dept = sd.id
+			LEFT JOIN     t_gl_province_city pro ON    pool.province_id = pro.id
+			LEFT JOIN    t_gl_province_city city ON    pool.city_id = city.id
+		where   data_Type = #{dataType}
+		   and pool.id in
+		<foreach item="item" index="index" collection="checkIds" open="(" 	separator="," close=")">
+			#{item}
+		</foreach>
+	</select>
+	
+	<select id="getCustomer4Job" parameterType="java.util.Map" resultType="java.util.Map">
+		select cus.customer_code, cus.manager_code, cus.modify_time, pool.data_type, u.id manager_id
+		from tz.t_tz_customer cus 
+  			left join tz.t_tz_customer_pool pool on cus.customer_code = pool.customer_code
+  			left join tz.t_gl_user u on u.user_code = cus.manager_code
+		where 1=1 
+		   and (pool.data_type is null or pool.data_type = '2') 
+		   <![CDATA[ and cus.modify_time < '2016-1-19'  ]]>
+		     limit 2000
+	</select>
+	
+	
+	<select id="getFinishApply4Job" parameterType="java.util.Map" resultType="java.util.Map">
+		select app.customer_code, sum(case when app.dict_apply_end_state = '1' then 1 else 0 end) isNotEnd, max(app.modify_time) modify_time
+		from tz.t_tz_loan_apply app
+		where app.customer_code = #{custCode}
+		group by app.customer_code
+	</select>
+	<select id="getAsk4Job" parameterType="java.util.Map"  resultType="java.util.Map">
+		select ask.customer_code, max(ask.modify_time) modify_time 
+		from tz.t_tz_loan_ask ask
+		where ask.customer_code = #{custCode}
+		group by ask.customer_code
+	</select>
+	
+	<select id="getCustomerPoolJobData"  parameterType="java.util.Map" resultType="java.util.Map" >
+		select cus.customer_code, cus.modify_time cus_Mod_Time,u.id manager_id,
+		      appt.modify_time app_Mod_Time , appt.not_End_Cnt, askT.modify_time ask_Mod_Time, pool.data_type
+		from t_tz_customer cus  left JOIN tz.t_gl_user u on cus.manager_code = u.user_code
+		   left join(
+		    select app.customer_code, sum(case when app.dict_apply_end_state = '1' then 1 else 0 end) not_End_Cnt, max(app.modify_time) modify_time
+		from tz.t_tz_loan_apply app
+		group by app.customer_code    
+		) appT  on cus.customer_code = appt.customer_code
+		 left join (   select * from (
+		    select ask.customer_code, max(ask.modify_time) modify_time 
+		from tz.t_tz_loan_ask ask
+		group by ask.customer_code ) aski 
+		where <![CDATA[ aski.modify_time < to_timestamp(#{oneMonth},'YYYY-MM-DD')   ]]>
+		) askT on cus.customer_code = askT.customer_code
+		  left join tz.t_tz_customer_pool pool on cus.customer_code = pool.customer_code
+		where 1 =1 and ( pool.data_type is null or pool.data_type = #{dataType})
+		  <![CDATA[and cus.modify_time < to_timestamp(#{oneMonth},'YYYY-MM-DD')   ]]>
+		  <if test="withOutCodeList != null and withOutCodeList.size > 0">  <!--and withOutCodeList.size > 0  -->
+		    and cus.customer_code not in 
+		  	<foreach item="item" index="index" collection="withOutCodeList" open="(" 	separator="," close=")">
+			    #{item}
+			</foreach>
+		  </if>
+		  limit #{limitCnt}
+	</select>
+	
+	<!-- 根据机构id获取用户 -->
+	<select id="getUsersByOrgIds" parameterType="java.util.List">
+		select uro.user_id as userId
+		from t_gl_user_role_org uro
+		where uro.org_id in 
+		<foreach item="item" index="index" collection="list" open="(" 	separator="," close=")">
+			    #{item}
+		</foreach>
+	</select>
+	
+</mapper>

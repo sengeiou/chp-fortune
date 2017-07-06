@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.contract.dao.ContractStatisticsDao">
+<!--合同统计  -->
+  <select id="listStatisticsData" resultType="com.creditharmony.fortune.contract.view.ContractStatisticsView">
+			
+		SELECT 
+		    '${end}' as end, 
+		    '${start}' as start,
+		    store.cont_stores_id || '_' || store.cont_version AS id,
+		    store.cont_version,
+		    org.name as org_name,
+		    COALESCE(create_count,0) as create_count,
+		    COALESCE(valid_num,0) as valid_num,
+		    COALESCE(useless_num,0) as useless_num,
+		    store.contract_type
+		FROM 
+		    (
+		        SELECT
+		            cont_stores_id AS cont_stores_id,
+		            cont_version AS cont_version,
+		            contract_type AS contract_type
+		        FROM
+		            tz.T_TZ_CONTRACT
+		        GROUP BY
+		            cont_stores_id,
+		            cont_version,
+		            contract_type
+		    ) store
+		    left join
+		    (
+		        SELECT
+		            COUNT( * ) AS create_count,
+		            a.cont_stores_id AS cont_stores_id,
+		            a.cont_version AS cont_version,
+		            a.contract_type AS contract_type
+		        FROM
+		            t_tz_contract a
+		        WHERE
+		        	1=1
+		            <if test="start != null">
+				    	and apply_day &gt;= #{start}
+					</if>
+					<if test="end != null">
+					    and apply_day &lt;=#{end}
+					</if>
+		        GROUP BY
+		            cont_stores_id,
+		            cont_version,
+		            contract_type
+		    ) createT on 
+		    	createT.cont_stores_id = store.cont_stores_id 
+		    	and createT.cont_version = store.cont_version
+		    	and createT.contract_type = store.contract_type
+		    left join
+		    (
+		        SELECT
+		            COUNT( * ) AS valid_num,
+		            h.cont_stores_id AS cont_stores_id,
+		            h.cont_version AS cont_version,
+		            h.contract_type AS contract_type
+		        FROM
+		            t_tz_contract h
+		        WHERE
+		            h.dict_cont_status = '5'
+		            <if test="start != null">
+				    	and cont_use_day &gt;= #{start}
+					</if>
+					<if test="end != null">
+					    and cont_use_day &lt;=#{end}
+					</if>
+		        GROUP BY
+		            h.cont_stores_id,
+		            h.cont_version,
+		            h.contract_type
+		    ) validT on 
+		    	validT.cont_stores_id = store.cont_stores_id 
+		    	and validT.cont_version = store.cont_version
+		    	and validT.contract_type = store.contract_type
+		    left join
+		    (
+		        SELECT
+		            COUNT( * ) AS useless_num,
+		            q.cont_stores_id AS cont_stores_id,
+		            q.cont_version AS cont_version,
+		            q.contract_type AS contract_type
+		        FROM
+		            t_tz_contract q
+		        WHERE
+		            (
+		                q.dict_cont_status = '3'
+		                OR q.dict_cont_status = '6'
+		            )
+		            <if test="start != null">
+				    	and invalid_day &gt;= #{start}
+					</if>
+					<if test="end != null">
+					    and invalid_day &lt;=#{end}
+					</if>
+		        GROUP BY
+		            q.cont_stores_id,
+		            q.cont_version,
+		            q.contract_type
+		    ) uselessT on 
+		    	uselessT.cont_stores_id = store.cont_stores_id 
+		    	and uselessT.cont_version = store.cont_version
+		    	and uselessT.contract_type = store.contract_type
+		    left join t_gl_org org on org.id = store.cont_stores_id
+		WHERE (create_count > 0 or valid_num > 0 or useless_num > 0)
+			<if test="contVersion != null and contVersion!= ''">
+			    and store.cont_version =#{contVersion}
+			</if>
+			<if test="orgName != null and orgName != ''">
+	  			and org.name like '%'||#{orgName,jdbcType=VARCHAR}||'%'
+	  		</if>
+	  		<if test="orgId != null and orgId != ''">
+	  		 	and org.id='${orgId}'
+			</if>
+  </select>
+  
+  
+  <!--导出合同统计  -->
+  <select id="listStatisticsExcelData" resultType="com.creditharmony.fortune.contract.view.ContractStatisticsExcelView">
+	
+			SELECT 
+				row_number() over() AS no, 
+			    '${end}' as end, 
+			    '${start}' as start,
+			    store.cont_stores_id || '_' || store.cont_version AS id,
+			    store.cont_version,
+			    org.name as org_name,
+			    COALESCE(create_count,0) as create_count,
+		    	COALESCE(valid_num,0) as valid_num,
+		    	COALESCE(useless_num,0) as useless_num,
+			    (case when store.contract_type='1' then dict.label else '协议-'|| dict.label end) as conVersion
+			FROM 
+			    (
+		        SELECT
+		            cont_stores_id AS cont_stores_id,
+		            cont_version AS cont_version,
+		            contract_type AS contract_type
+		        FROM
+		            tz.T_TZ_CONTRACT
+		        GROUP BY
+		            cont_stores_id,
+		            cont_version,
+		            contract_type
+		    ) store
+		    left join
+		    (
+		        SELECT
+		            COUNT( * ) AS create_count,
+		            a.cont_stores_id AS cont_stores_id,
+		            a.cont_version AS cont_version,
+		            a.contract_type AS contract_type
+		        FROM
+		            t_tz_contract a
+		        WHERE
+		        	1=1
+		            <if test="start != null">
+				    	and apply_day &gt;= #{start}
+					</if>
+					<if test="end != null">
+					    and apply_day &lt;=#{end}
+					</if>
+		        GROUP BY
+		            cont_stores_id,
+		            cont_version,
+		            contract_type
+		    ) createT on 
+		    	createT.cont_stores_id = store.cont_stores_id 
+		    	and createT.cont_version = store.cont_version
+		    	and createT.contract_type = store.contract_type
+		    left join
+		    (
+		        SELECT
+		            COUNT( * ) AS valid_num,
+		            h.cont_stores_id AS cont_stores_id,
+		            h.cont_version AS cont_version,
+		            h.contract_type AS contract_type
+		        FROM
+		            t_tz_contract h
+		        WHERE
+		            h.dict_cont_status = '5'
+		            <if test="start != null">
+				    	and cont_use_day &gt;= #{start}
+					</if>
+					<if test="end != null">
+					    and cont_use_day &lt;=#{end}
+					</if>
+		        GROUP BY
+		            h.cont_stores_id,
+		            h.cont_version,
+		            h.contract_type
+		    ) validT on 
+		    	validT.cont_stores_id = store.cont_stores_id 
+		    	and validT.cont_version = store.cont_version
+		    	and validT.contract_type = store.contract_type
+		    left join
+		    (
+		        SELECT
+		            COUNT( * ) AS useless_num,
+		            q.cont_stores_id AS cont_stores_id,
+		            q.cont_version AS cont_version,
+		            q.contract_type AS contract_type
+		        FROM
+		            t_tz_contract q
+		        WHERE
+		            (
+		                q.dict_cont_status = '3'
+		                OR q.dict_cont_status = '6'
+		            )
+		            <if test="start != null">
+				    	and invalid_day &gt;= #{start}
+					</if>
+					<if test="end != null">
+					    and invalid_day &lt;=#{end}
+					</if>
+		        GROUP BY
+		            q.cont_stores_id,
+		            q.cont_version,
+		            q.contract_type
+		    ) uselessT on 
+		    	 uselessT.cont_stores_id = store.cont_stores_id 
+		    	 and uselessT.cont_version = store.cont_version
+		    	 and uselessT.contract_type = store.contract_type
+			left join t_gl_org org on org.id = store.cont_stores_id
+			left join t_gl_dict dict on dict.type='tz_contract_vesion' and dict.value=store.cont_version
+			WHERE (create_count > 0 or valid_num > 0 or useless_num > 0)
+				<if test="contVersion != null and contVersion!= ''">
+				    and store.cont_version =#{contVersion}
+				</if>
+				<if test="orgName != null and orgName != ''">
+		  			and org.name like '%'||#{orgName,jdbcType=VARCHAR}||'%'
+		  		</if>
+		  		<if test="orgId != null and orgId != ''">
+		  		 	and org.id='${orgId}'
+				</if>
+  </select>
+  
+</mapper>

@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.triple.system.dao.TripleInvestMapper">
+	
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.triple.system.entity.IntInvestBean" >
+    <result column="operation" property="operation" jdbcType="VARCHAR" />
+    <result column="send_type" property="sendType" jdbcType="VARCHAR" />
+    <result column="os_id" property="osId" jdbcType="VARCHAR" />
+    <result column="inv_id" property="invId" jdbcType="VARCHAR" />
+    <result column="os_type" property="osType" jdbcType="VARCHAR" />
+    <result column="inv_code" property="invCode" jdbcType="VARCHAR" />
+    <result column="pro_type" property="proType" jdbcType="VARCHAR" />
+    <result column="loan_type" property="loanType" jdbcType="VARCHAR" />
+    <result column="periods_no" property="periodsNo" jdbcType="VARCHAR" />
+    <result column="annual_yield" property="annualYield" jdbcType="VARCHAR" />
+    <result column="inv_money" property="invMoney" jdbcType="VARCHAR" />
+    <result column="inv_proform_money" property="invProformMoney" jdbcType="VARCHAR" />
+    <result column="exp_return" property="expReturn" jdbcType="VARCHAR" />
+    <result column="act_return" property="actReturn" jdbcType="VARCHAR" />
+    <result column="comp_date" property="compDate" jdbcType="TIMESTAMP" />
+    <result column="expire_date" property="expireDate" jdbcType="TIMESTAMP" />
+    <result column="bill_date" property="billDate" jdbcType="VARCHAR" />
+    <result column="is_advanced" property="isAdvanced" jdbcType="VARCHAR" />
+    <result column="is_first_oder" property="isFirstOder" jdbcType="VARCHAR" />
+    <result column="emp_code" property="empCode" jdbcType="VARCHAR" />
+    <result column="emp_name" property="empName" jdbcType="VARCHAR" />
+    <result column="send_status" property="sendStatus" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="info_create_time" property="infoCreateTime" jdbcType="TIMESTAMP" />
+    <result column="unique_num" property="uniqueNum" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <insert id="insertIntInvest" parameterType="com.creditharmony.fortune.triple.system.entity.IntInvestBean" >
+    insert into tz.int_invest
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="operation != null" >
+        operation,
+      </if>
+      <if test="sendType != null" >
+        send_type,
+      </if>
+      <if test="osId != null" >
+        os_id,
+      </if>
+      <if test="invId != null" >
+        inv_id,
+      </if>
+      <if test="osType != null" >
+        os_type,
+      </if>
+      <if test="invCode != null" >
+        inv_code,
+      </if>
+      <if test="proType != null" >
+        pro_type,
+      </if>
+      <if test="loanType != null" >
+        loan_type,
+      </if>
+      <if test="periodsNo != null" >
+        periods_no,
+      </if>
+      <if test="annualYield != null" >
+        annual_yield,
+      </if>
+      <if test="invMoney != null" >
+        inv_money,
+      </if>
+      <if test="invProformMoney != null" >
+        inv_proform_money,
+      </if>
+      <if test="expReturn != null" >
+        exp_return,
+      </if>
+      <if test="actReturn != null" >
+        act_return,
+      </if>
+      <if test="compDate != null" >
+        comp_date,
+      </if>
+      <if test="expireDate != null" >
+        expire_date,
+      </if>
+      <if test="billDate != null" >
+        bill_date,
+      </if>
+      <if test="isAdvanced != null" >
+        is_advanced,
+      </if>
+      <if test="isFirstOder != null" >
+        is_first_oder,
+      </if>
+      <if test="empCode != null" >
+        emp_code,
+      </if>
+      <if test="empName != null" >
+        emp_name,
+      </if>
+      <if test="sendStatus != null" >
+        send_status,
+      </if>
+      <if test="infoCreateTime != null" >
+        info_create_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="uniqueNum != null" >
+        unique_num,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="operation != null" >
+        #{operation,jdbcType=VARCHAR},
+      </if>
+      <if test="sendType != null" >
+        #{sendType,jdbcType=VARCHAR},
+      </if>
+      <if test="osId != null" >
+        #{osId,jdbcType=VARCHAR},
+      </if>
+      <if test="invId != null" >
+        #{invId,jdbcType=VARCHAR},
+      </if>
+      <if test="osType != null" >
+        #{osType,jdbcType=VARCHAR},
+      </if>
+      <if test="invCode != null" >
+        #{invCode,jdbcType=VARCHAR},
+      </if>
+      <if test="proType != null" >
+        #{proType,jdbcType=VARCHAR},
+      </if>
+      <if test="loanType != null" >
+        #{loanType,jdbcType=VARCHAR},
+      </if>
+      <if test="periodsNo != null" >
+        #{periodsNo,jdbcType=VARCHAR},
+      </if>
+      <if test="annualYield != null" >
+        #{annualYield,jdbcType=VARCHAR},
+      </if>
+      <if test="invMoney != null" >
+        #{invMoney,jdbcType=VARCHAR},
+      </if>
+      <if test="invProformMoney != null" >
+        #{invProformMoney,jdbcType=VARCHAR},
+      </if>
+      <if test="expReturn != null" >
+        #{expReturn,jdbcType=VARCHAR},
+      </if>
+      <if test="actReturn != null" >
+        #{actReturn,jdbcType=VARCHAR},
+      </if>
+      <if test="compDate != null" >
+        #{compDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expireDate != null" >
+        #{expireDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="billDate != null" >
+        #{billDate,jdbcType=VARCHAR},
+      </if>
+      <if test="isAdvanced != null" >
+        #{isAdvanced,jdbcType=VARCHAR},
+      </if>
+      <if test="isFirstOder != null" >
+        #{isFirstOder,jdbcType=VARCHAR},
+      </if>
+      <if test="empCode != null" >
+        #{empCode,jdbcType=VARCHAR},
+      </if>
+      <if test="empName != null" >
+        #{empName,jdbcType=VARCHAR},
+      </if>
+      <if test="sendStatus != null" >
+        #{sendStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="infoCreateTime != null" >
+        #{infoCreateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="uniqueNum != null" >
+        #{uniqueNum,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+	<!-- 鏍规嵁鍑哄€熺紪鍙锋煡璇㈠嚭鍊熶俊鎭?-->
+	<select id="findLoanInfo" resultType="com.creditharmony.fortune.triple.system.entity.IntInvestBean">
+		SELECT
+		    la.customer_code,
+		    la.lend_code,
+		    p.product_type_code,
+		    p.product_name,
+		    p.product_periods,
+		    la.product_rate,
+		    la.apply_lend_money,
+		    la.real_deduct_time,
+		    la.apply_expire_day,
+		    la.apply_billday,
+		    la.status,
+		    la.manager_code,
+		    la.real_deduct_time
+		FROM
+		    tz.t_tz_loan_apply la,
+		    tz.t_gl_tz_product p
+		WHERE
+		    la.lend_code = #{lendCode}
+		    AND la.product_code = p.product_code
+	</select>
+	
+	<select id="getFirstOrderStatus" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+		    order_status
+		FROM
+		    tz.int_card card,
+		    tz.t_tz_customer cus
+		WHERE
+		    cus.customer_code = #{customerCode,jdbcType=VARCHAR}
+		    AND cus.customer_cert_num = card.card_id
+		limit 1
+	</select>
+	
+	<select id="getRealBackInterest" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT
+		    round(sum(back_real_money), 2) as "backRealMoney"
+		FROM
+		    tz.t_tz_back_interest_pool
+		WHERE
+		    lend_code = #{lendCode}
+	</select>
+	
+	<select id="getExpBackMoney" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT
+		    round(sum(back_money), 2) as "expRealMoney"
+		FROM
+		    tz.t_tz_back_money_pool
+		WHERE
+		    lend_code = #{lendCode}
+		    limit 1
+	</select>
+	
+	<select id="getManagerInfo1" resultType="map" parameterType="java.lang.String">
+		select user_code as "userCode" , name as "name" from tz.t_gl_user where login_name = #{loginName} limit 1 
+	</select>
+	
+	<select id="getManagerInfo2" resultType="map" parameterType="java.lang.String">
+		select user_code as "userCode" , name as "name" from tz.t_gl_user where user_code = #{userCode} limit 1 
+	</select>
+	
+	<select id="getInvestByIdOpOs"  resultType="com.creditharmony.fortune.triple.system.entity.IntInvestBean"  >
+		select * from tz.int_invest where inv_id= #{lendCode} and operation=#{operation} and os_type=#{osType} and is_advanced =#{status} 
+	</select>
+</mapper>

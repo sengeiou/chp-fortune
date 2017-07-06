@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.maintenance.settles.dao.BorrowForMtMapper" >
+    <resultMap id="BaseResultMap" type="com.creditharmony.fortune.maintenance.settles.entity.BorrowInfo" >
+		<id column="credit_value_id" property="creditValueId" jdbcType="VARCHAR" />
+		<result column="loan_code" property="loanCode" jdbcType="VARCHAR" />
+		<result column="loan_id" property="loanId" jdbcType="VARCHAR" />
+		<result column="loan_name" property="loanName" jdbcType="VARCHAR" />
+		<result column="loan_idcard" property="loanIdcard" jdbcType="VARCHAR" />
+		<result column="loan_job" property="loanJob" jdbcType="VARCHAR" />
+		<result column="loan_product" property="loanProduct" jdbcType="VARCHAR" />
+		<result column="loan_purpose" property="loanPurpose" jdbcType="VARCHAR" />
+		<result column="dict_loan_type" property="dictLoanType" jdbcType="VARCHAR" />
+		<result column="loan_outmoney_day" property="loanOutmoneyDay" jdbcType="DATE" />
+		<result column="loan_backmoney_firday" property="loanBackmoneyFirday" jdbcType="DATE" />
+		<result column="loan_backmoney_day" property="loanBackmoneyDay" jdbcType="INTEGER" />
+		<result column="loan_backmoney_lastday" property="loanBackmoneyLastday" jdbcType="DATE" />
+		<result column="loan_months" property="loanMonths" jdbcType="INTEGER" />
+		<result column="loan_months_surplus" property="loanMonthsSurplus" jdbcType="INTEGER" />
+		<result column="loan_quota" property="loanQuota" jdbcType="NUMERIC" />
+		<result column="loan_credit_value" property="loanCreditValue" jdbcType="NUMERIC" />
+		<result column="loan_month_rate" property="loanMonthRate" jdbcType="NUMERIC" />
+		<result column="loan_value_year" property="loanValueYear" jdbcType="NUMERIC" />
+		<result column="dict_loan_free_flag" property="dictLoanFreeFlag" jdbcType="VARCHAR" />
+		<result column="loan_modified_day" property="loanModifiedDay" jdbcType="TIMESTAMP" />
+		<result column="loan_pledge" property="loanPledge" jdbcType="VARCHAR" />
+		<result column="loan_day_surplus" property="loanDaySurplus" jdbcType="INTEGER" />
+		<result column="loan_middle_man" property="loanMiddleMan" jdbcType="VARCHAR" />
+		<result column="loan_freeze_day" property="loanFreezeDay" jdbcType="TIMESTAMP" />
+		<result column="loan_monthgain_flag" property="loanMonthgainFlag" jdbcType="VARCHAR" />
+		<result column="loan_trustee_flag" property="loanTrusteeFlag" jdbcType="VARCHAR" />
+		<result column="create_by" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+		<result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+  
+    <sql id="Base_Column_List" >
+		credit_value_id, loan_code, loan_id, loan_name, loan_idcard, loan_job,
+		loan_product, loan_purpose, dict_loan_type, loan_outmoney_day, loan_backmoney_firday, 
+		loan_backmoney_day, loan_backmoney_lastday, loan_months, loan_months_surplus, loan_quota, 
+		loan_credit_value, loan_month_rate, loan_value_year, dict_loan_free_flag, loan_modified_day, 
+		loan_pledge, loan_day_surplus, loan_middle_man, loan_freeze_day, loan_monthgain_flag, 
+		loan_trustee_flag, create_by, create_time, modify_by, modify_time
+    </sql>
+  
+	<!-- 更新可用债权 -->  
+	<update id="updBorrow" parameterType="com.creditharmony.fortune.maintenance.settles.entity.BorrowInfo" >
+	    UPDATE 
+	        tz.t_tz_borrow 
+	    <set> 
+	        <if test="loanCreditValue != null">
+	            loan_credit_value = #{loanCreditValue},
+	        </if>
+      		<if test="modifyBy != null" >
+        		modify_by = #{modifyBy,jdbcType=VARCHAR},
+      		</if>
+            <if test="modifyTime != null" >
+        		modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      		</if>
+	    </set>
+	    <where> 
+	        <if test="loanCode != null and loanCode != ''">
+	            loan_code = #{loanCode}
+	        </if>
+	        <if test="creditValueId != null and creditValueId != ''">
+	            And credit_value_id = #{creditValueId}
+	        </if>
+	    </where>       
+	</update>
+	
+	<!-- 更新可用债权 -->  
+	<update id="updBorrowInfo" parameterType="com.creditharmony.fortune.maintenance.settles.entity.BorrowInfo" >
+	    UPDATE 
+	        tz.t_tz_borrow 
+	    <set> 
+	        <if test="loanCreditValue != null">
+	            loan_credit_value = loan_credit_value - #{loanCreditValue},
+	        </if>
+      		<if test="modifyBy != null" >
+        		modify_by = #{modifyBy,jdbcType=VARCHAR},
+      		</if>
+            <if test="modifyTime != null" >
+        		modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      		</if>
+	    </set>
+	    <where> 
+	        <if test="loanCode != null and loanCode != ''">
+	            loan_code = #{loanCode}
+	        </if>
+	        <if test="creditValueId != null and creditValueId != ''">
+	            And credit_value_id = #{creditValueId}
+	        </if>
+	    </where> 
+	</update>
+	
+    <!-- 取得可用债权 --> 
+	<select id="selBorrow" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.maintenance.settles.entity.BorrowInfo">
+	    select 
+	    	<include refid="Base_Column_List"/>
+	    from 
+	    	tz.t_tz_borrow
+	     <where> 	        
+	        <if test="creditValueId != null and creditValueId != ''">
+	            credit_value_id= #{creditValueId}
+	        </if>
+	    </where>   
+	</select>
+</mapper>

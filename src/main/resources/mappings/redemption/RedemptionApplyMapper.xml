@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.redemption.common.dao.RedemptionApplyDao" >
+
+	<insert id="insetApply" parameterType="com.creditharmony.fortune.redemption.common.entity.RedemptionApply">
+		INSERT INTO tz.t_tz_redemption(
+            redemption_id, lend_code, customer_code, redemption_time, redemption_type, 
+            redemption_money, redemption_rece_type, redemption_bmoney, redemption_demoney, 
+            residual_amount, linit_day, back_money_day, redemption_status, 
+            check_sp, check_spmoney, check_spremarks, 
+            create_by, create_time, modify_by, modify_time, feedback, feedback_money, 
+            feedback_remark)
+	    VALUES (#{redemptionId}, #{lendCode}, #{customerCode}, #{redemptionTime}, #{redemptionType}, 
+	            #{redemptionMoney}, #{redemptionReceType},#{redemptionBmoney}, #{redemptionDemoney}, 
+	            #{residualAmount},#{linitDay}, #{backMoneyDay}, #{redemptionStatus}, 
+	            #{checkSp}, #{checkSpmoney}, #{checkSpremarks}, 
+	            #{createBy}, #{createTime}, #{modifyBy}, #{modifyTime}, #{feedback}, #{feedbackMoney}, 
+            	#{feedbackRemark});
+	</insert>
+	
+	<select id="getRedemptionApplyById" parameterType="java.lang.String" resultType="com.creditharmony.fortune.redemption.common.entity.RedemptionApply">
+		SELECT
+			redemption_id, lend_code, customer_code, redemption_time, redemption_type, 
+		    redemption_money, redemption_rece_type, redemption_bmoney, redemption_demoney, 
+		    residual_amount, linit_day, back_money_day, redemption_status, 
+		    check_sp, check_spmoney, check_spremarks, 
+			create_by, 
+			create_time as createTime, 
+			modify_by as modifyBy, 
+			modify_time as modifyTime, feedback, feedback_money, 
+       		feedback_remark
+		FROM 
+			tz.t_tz_redemption
+	  	where
+	  		redemption_id = #{redemptionId}
+	</select>
+	
+	<update id="updateRedemptionApply" parameterType="com.creditharmony.fortune.redemption.common.entity.RedemptionApply">
+		UPDATE tz.t_tz_redemption
+		<set>
+			<if test="redemptionMoney != null" >
+	        	redemption_money = #{redemptionMoney},
+			</if>
+			<if test="redemptionBmoney != null" >
+	        	redemption_bmoney = #{redemptionBmoney},
+			</if>
+			<if test="redemptionDemoney != null" >
+	        	redemption_demoney = #{redemptionDemoney},
+			</if>
+			<if test="residualAmount != null" >
+	        	residual_amount = #{residualAmount},
+			</if>
+			<if test="backMoneyDay != null" >
+	        	back_money_day = #{backMoneyDay},
+			</if>
+			<if test="linitDay != null" >
+	        	linit_day = #{linitDay},
+			</if>
+			<if test="redemptionStatus != null" >
+	        	redemption_status = #{redemptionStatus},
+			</if>
+			<if test="redemptionReceType != null and redemptionReceType != ''" >
+	        	redemption_rece_type = #{redemptionReceType},
+			</if>
+			<if test="redemptionType != null and redemptionType != ''" >
+	        	redemption_type = #{redemptionType},
+			</if>
+			<if test="modifyBy != null" >
+	        	modify_by = #{modifyBy},
+			</if>
+			<if test="modifyTime != null" >
+	        	modify_time = #{modifyTime},
+			</if>
+			<if test="feedback != null" >
+	        	feedback = #{feedback},
+			</if>
+			<if test="feedbackMoney != null" >
+	        	feedback_money = #{feedbackMoney},
+			</if>
+			<if test="feedbackRemark != null" >
+	        	feedback_remark = #{feedbackRemark},
+			</if>
+			<if test="checkSp != null" >
+	        	check_sp = #{checkSp},
+			</if>
+			<if test="checkSpmoney != null" >
+	        	check_spmoney = #{checkSpmoney},
+			</if>
+			<if test="checkSpremarks != null" >
+	        	check_spremarks = #{checkSpremarks},
+			</if>
+		</set>
+		WHERE
+			redemption_id= #{redemptionId}
+	</update>
+
+	<select id="countApply" parameterType="string" resultType="int">
+		SELECT
+			count(lend_code)
+		FROM 
+			tz.t_tz_redemption
+	  	where
+	  		lend_code = #{lendCode}
+	</select>
+</mapper>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.delivery.dao.AchievementDeliveryDao" >
+<select id="findList" resultType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+    select 
+        l.customer_code as "custCode",
+        cust.customer_name as "custName",
+        l.lend_code as "lendCode",
+        p.product_name as "productName",
+	    l.apply_lend_day as "applyLendDay",
+	    l.apply_lend_money as "applyLendMoney",
+	    l.apply_pay as "applyPay",
+	    l.apply_expire_day as "applyExpireDay",
+	    l.lend_status as "lendStatus",
+	    l.dict_apply_end_state as "applyEndStatus",
+	    temp.fManagerName as "fManagerName",
+        temp.fManagerId as "fManagerId",
+        temp.teamManagerName as "teamManagerName",
+        temp.orgName as "orgName"
+    from tz.t_tz_loan_apply l
+    left join tz.t_tz_customer cust on cust.customer_code = l.customer_code
+    left join tz.t_gl_tz_product p on p.product_code = l.product_code
+    left join (
+               select
+                   uro.user_id,
+		 	       u.id as fManagerId,
+				   u.login_name as loginName,
+				   u.name as fManagerName,
+				   u.user_code as fManagerCode,
+				   u1.name as teamManagerName,
+				   u1.user_code as teamManagerCode,
+				   org_ogl.name as teamName,
+				   org.name as orgName,
+				   org.id as orgId
+			   from tz.t_gl_user_role_org uro
+			   left join tz.t_gl_user u on u.id = uro.user_id and u.del_flag = '0'
+			   inner join t_gl_org org_ogl on org_ogl.id = uro.org_id and org_ogl.del_flag='0'
+			   left join  tz.t_gl_org org on ','||org_ogl.parent_ids like '%,'||org.id||',%')
+               and org.type = #{orgType} and org.del_flag = '0'
+	           left join tz.t_gl_user_role_org uro2 on uro.org_id = uro2.org_id and uro2.role_id = #{teamManagerRole}
+	           left join tz.t_gl_user u1 on u1.id = uro2.user_id and u1.del_flag = '0'
+	           where
+	                uro.role_id = #{managerRole}
+    ) temp on temp.user_id = l.manager_code
+    <where>
+        <if test="custCode != null and custCode != ''">
+	        and	l.customer_code = #{custCode}
+	    </if>
+	    <if test="startTime != null and startTime != '' and endTime != null and endTime != '' ">
+                and l.apply_lend_day &gt;= #{startTime}  
+                and l.apply_lend_day &lt;= #{endTime}
+        </if>
+        <if test="productCodeList != null and productCodeList != '' ">
+	        and l.product_code in
+	        <foreach collection="productCodeList" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+             </foreach>
+	    </if>
+    </where>
+</select>
+<select id="countMoney" resultType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+    select 
+         cast(sum(l.apply_lend_money)  as   decimal(15,2)) as "totalMoney"
+    from  tz.t_tz_loan_apply l
+    <where>
+        <if test="custCode != null and custCode != ''">
+	        and	l.customer_code = #{custCode}
+	    </if>
+	     <if test="lendCode != null and lendCode != '' ">
+	        and l.lend_code LIKE '%'||#{lendCode}||'%'
+	    </if>
+	    <if test="startTime != null and startTime != '' and endTime != null and endTime != '' ">
+                and l.apply_lend_day &gt;= #{startTime}  
+                and l.apply_lend_day &lt;= #{endTime}
+        </if>
+        <if test="productCodeList != null and productCodeList != '' ">
+	        and l.product_code in
+	        <foreach collection="productCodeList" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+             </foreach>
+	    </if>
+    </where>
+</select>
+<update id="updateLendApply" parameterType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+    update t_tz_loan_apply 
+	<trim prefix="SET" suffixOverrides=",">
+	    <if test="nfManagerCode != null and nfManagerCode != ''">manager_code = #{nfManagerCode,jdbcType=VARCHAR},</if>
+	    <if test="nTeamManagerCode != null and nTeamManagerCode != ''">team_manager_code = #{nTeamManagerCode,jdbcType=VARCHAR},</if>
+	    <if test="nCityManagerCode != null and nCityManagerCode != ''">city_manager_code = #{nCityManagerCode,jdbcType=VARCHAR},</if>
+	    <if test="nStoreManagerCode != null and nStoreManagerCode != ''">store_manager_code = #{nStoreManagerCode,jdbcType=VARCHAR},</if>
+	    <if test="nOrgCode != null and nOrgCode != ''">org_code = #{nOrgCode,jdbcType=VARCHAR},</if>
+	    <if test="isDelivery != null and isDelivery != ''">is_delivery = #{isDelivery,jdbcType=VARCHAR},</if>
+	    <if test="modifyBy != null and modifyBy != ''">modify_by = #{modifyBy,jdbcType=VARCHAR},</if>
+	    <if test="modifyTime != null and modifyTime != ''">modify_time = #{modifyTime,jdbcType=TIMESTAMP},</if>
+	</trim>
+	<where>
+	    <if test="lendCode != null and lendCode != ''">
+	        lend_code = #{lendCode,jdbcType=VARCHAR}
+	    </if>
+	</where> 
+</update>
+ <select id="findInfoById" parameterType="java.util.Map" resultType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+      select
+	 	 u.id as "nfManagerId",
+	 	 u.login_name as "loginName",
+	     u.name as "nfManagerName",
+	     u.user_code as "nfManagerCode",
+	     u1.name as "nTeamManagerName",
+	     u1.user_code as "nTeamManagerCode",
+	     org_ogl.name as "teamName",
+	     org.name as "nOrgName"
+	 from tz.t_gl_user_role_org uro
+	 left join tz.t_gl_user u on u.id = uro.user_id and u.del_flag = '0'
+	 inner join t_gl_org org_ogl on org_ogl.id = uro.org_id and org_ogl.del_flag='0'
+	 left join  tz.t_gl_org org on ','||org_ogl.parent_ids like '%,'||org.id||',%' 
+	 and org.type = #{orgType} and org.del_flag = '0'
+	 left join tz.t_gl_user_role_org uro2 on uro.org_id = uro2.org_id and uro2.role_id = #{teamManagerRole}
+	 left join tz.t_gl_user u1 on u1.id = uro2.user_id and u1.del_flag = '0'
+	 where 
+	     uro.user_id = #{id} 
+	 and uro.role_id =#{managerRole}
+  </select>
+</mapper>

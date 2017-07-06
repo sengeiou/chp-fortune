@@ -1,0 +1,688 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.remind.dao.RemindDao" >
+ 
+   <select id="findThreeMonthPage" parameterType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx" 
+  	resultType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx">
+  	  select a.id,
+  	  		a.customer_code as customerCode,  	  		
+	 		c.customer_name as customerName, 
+	 		a.lend_code as loanCode, 
+	 		a.apply_lend_day as lendDay, 
+	 		a.apply_lend_money as lendmoney, 
+	 		tp.product_name as dictLendType, 
+	 		a.apply_pay as dictPayType, 
+	 		a.city_org_id as areaName,
+<!-- 	 		g.area_name as areaName, -->
+	 		o.id as orgId,  
+	 		o.name as orgName,	
+	 		a.apply_expire_day as dueDay, 
+	 		a.create_time as createTime, 
+	 		a.manager_code 	as managerCode,
+	 		u.name as wealthManager
+ 	from   tz.t_tz_loan_apply a
+ 	left join tz.t_tz_customer c on c.customer_code = a.customer_code
+    left join tz.t_gl_org o on a.store_org_id = o.id
+<!--     left join tz.t_gl_province_city g on g.id = a.city_org_id -->
+    left join tz.t_gl_user u on a.manager_code = u.id 
+    left join tz.t_gl_tz_product tp on tp.product_code = a.product_code
+   <include refid="whereSqlNew" />
+  </select>
+  
+  <select id="getTotalLendMoneyNew" parameterType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx"  	resultType="java.util.Map">
+  	  select 
+		    coalesce(sum(a.apply_lend_money),0) as lendmoney 	
+	 	from   tz.t_tz_loan_apply a
+	 	left join tz.t_tz_customer c on c.customer_code = a.customer_code
+    	left join tz.t_gl_org o on a.store_org_id = o.id
+<!--     left join tz.t_gl_province_city g on g.id = a.city_org_id -->
+    	left join tz.t_gl_user u on a.manager_code = u.id 
+    	left join tz.t_gl_tz_product tp on tp.product_code = a.product_code
+    <include refid="whereSqlNew" />
+  </select>
+  
+   <sql id="whereSqlNew">
+		 <where>
+	        	a.lend_status = '11'	<!-- 查询成功数据 -->
+	      	<if test="loanCode != null and  loanCode !=''">
+	        	and a.lend_code = #{loanCode}
+	      	</if>
+	      	<if test="lendCodes != null and  lendCodes.size() > 0 ">
+	        	and a.lend_code in
+			    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")">
+			    			#{item}
+			    	</foreach>
+	      	</if>
+	      	<if test="customerName != null and  customerName !=''">
+	        	and c.customer_name LIKE '%'||#{customerName}||'%'
+	      	</if>
+	      	<if test="areaName != null and  areaName !=''">
+	        	and a.city_org_id = #{areaName}
+	      	</if>
+	      	<if test="lendMoney != null and  lendMoney !=''">
+	        	and a.apply_lend_money = to_number(#{lendMoney})
+	      	</if>
+	      	<if test="orgIdList != null and  orgIdList.size() > 0">
+	        	and o.id in 
+	        		<foreach collection="orgIdList" item="item" index="index" open="(" separator="," close=")">
+			    			'${item}'
+			    	</foreach>
+	      	</if>
+	      	<if test="dueDayStart != null and  dueDayStart !=''">
+	        	<![CDATA[ and a.apply_expire_day >= to_date(#{dueDayStart},'YYYY-MM-DD') ]]>
+	      	</if>
+	      	<if test="dueDayEnd != null and  dueDayEnd !=''">
+	        	<![CDATA[ and a.apply_expire_day <= to_date(#{dueDayEnd} ,'YYYY-MM-DD')]]>
+	      	</if>
+	      	<if test="applyPayList != null and  applyPayList.size() > 0">
+	        	and a.apply_pay in 
+	        		<foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+			    			'${item}'
+			    	</foreach>
+	      	</if>
+	      	<if test="productCodeList != null and  productCodeList.size() > 0">
+	        	and a.product_code in 
+	        		<foreach collection="productCodeList" item="item" index="index" open="(" separator="," close=")">
+			    			'${item}'
+			    	</foreach>
+	      	</if>
+	      	
+	        <if test="sqlMap.dataRights != null ">   <!-- 权限控制 -->
+	        	${sqlMap.dataRights}
+	        </if>
+	  </where>
+   </sql>
+  
+  <select id="findList" parameterType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx" 
+  	resultType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx">
+  	 select 
+    	l.id, l.lend_code as loanCode, l.customer_name, l.customer_code, l.customer_phone as tel, l.manager_name as wealthManager, l.deduct_date as deductsDay, 
+	    l.bill_day, l.lend_money, l.lend_day, l.due_day, l.product_name as dictLendType, l.back_money_day, l.dict_repay_type as dictPayType, 
+	    l.dict_deduct_status, l.bank_no as bankCode, l.bank_name, l.sms_id, l.sms_msg, l.send_status as operStatus, l.send_day,push_day as push_day, 
+	    l.area_name, o.name as orgName, l.dict_back_status, l.product_close_term, l.dict_remind_type, l.apply_day, 
+	    l.create_by, l.create_time, l.modify_by, l.modify_time , p.dict_back_status as backStatus, l.lend_day::timestamp + (l.product_close_term || ' Months')::interval as  productClosedates
+	    
+    from  (
+	select t1.* 
+	from t_gl_sms_send_list t1 
+	inner join (
+		select l.lend_code ,max(modify_time) as max_modify_time 
+		from t_gl_sms_send_list l where 1=1
+		<if test="dictRemindTypeList != null and  dictRemindTypeList.size() > 0">
+        	and  l.dict_remind_type in 
+        		<foreach collection="dictRemindTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+		group by l.lend_code
+		) t2 
+	on t1.lend_code = t2.lend_code and t1.modify_time = max_modify_time
+) l 
+    LEFT JOIN tz.t_tz_loan_apply a on a.lend_code=l.lend_code
+    left join tz.t_gl_org o on a.store_org_id = o.id
+    left join tz.t_tz_back_money_pool  p  on p.lend_code=l.lend_code
+     <include refid="whereSql" />
+  </select>
+  
+  <select id="getTotalLendMoney" parameterType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx" 
+  	resultType="java.util.Map">
+  	 select 
+	    coalesce(sum(l.lend_money),0) as lendmoney
+    from  (
+	select t1.* 
+	from t_gl_sms_send_list t1 
+	inner join (
+		select l.lend_code ,max(modify_time) as max_modify_time 
+		from t_gl_sms_send_list l where  1=1     	
+		<if test="dictRemindTypeList != null and  dictRemindTypeList.size() > 0">
+        	and  l.dict_remind_type in 
+        		<foreach collection="dictRemindTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+		group by l.lend_code
+		) t2 
+	on t1.lend_code = t2.lend_code and t1.modify_time = max_modify_time
+) l 
+    LEFT JOIN tz.t_tz_loan_apply a on a.lend_code=l.lend_code
+    left join tz.t_gl_org o on a.store_org_id = o.id
+     left join tz.t_tz_back_money_pool  p  on p.lend_code=l.lend_code
+    <include refid="whereSql" />
+  </select>
+  <sql id="whereSql">
+  	<where>
+        	1=1 
+  	
+    	<if test="id != null and id !=''">
+        	and l.id = #{id}
+      	</if>
+      	<if test="loanCode != null and  loanCode !=''">
+        	and l.lend_code = #{loanCode}
+      	</if>
+      	<if test="lendCodes != null and  lendCodes.size() > 0 ">
+        	and l.lend_code in
+		    	<foreach collection="lendCodes" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+      	</if>
+      	<if test="dueDayFlag != null and dueDayFlag !='' ">
+      		<![CDATA[ and l.due_day = CURRENT_DATE ]]>
+      	</if>
+      	<if test="customerName != null and  customerName !=''">
+        	and l.customer_name LIKE '%'||#{customerName}||'%'
+      	</if>
+      	<if test="lendMoney != null and  lendMoney !=''">
+        	and l.lend_money = to_number(#{lendMoney})
+      	</if>
+      	<choose>
+      		<when test="dueDayStart != null and  dueDayStart !=''">
+      			<![CDATA[ and l.due_day >= to_date(#{dueDayStart},'YYYY-MM-DD') ]]>
+      		</when>
+      		<otherwise>
+      			<![CDATA[ and l.due_day >= to_date(#{newDate},'YYYY-MM-DD') ]]>
+      		</otherwise>
+      	</choose>
+<!--       	<if test="dueDayStart != null and  dueDayStart !=''"> -->
+<!--         	<![CDATA[ and l.due_day >= to_date(#{dueDayStart},'YYYY-MM-DD') ]]> -->
+<!--       	</if> -->
+      	<if test="dueDayEnd != null and  dueDayEnd !=''">
+        	<![CDATA[ and l.due_day <= to_date(#{dueDayEnd} ,'YYYY-MM-DD')]]>
+      	</if>
+      	<if test="applyPayList != null and  applyPayList.size() > 0">
+        	and l.dict_repay_type in 
+        		<foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="productCodeList != null and  productCodeList.size() > 0">
+        	and l.product_code in 
+        		<foreach collection="productCodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="orgIdList != null and  orgIdList.size() > 0">
+        	and o.id in 
+        		<foreach collection="orgIdList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="dictLendType != null and  dictLendType !=''">
+        	and l.dict_lend_type = #{dictLendType}
+      	</if>
+<!--       	<if test="dictRemindType != null and  dictRemindType !=''"> -->
+<!--         	and l.dict_remind_type = #{dictRemindType} -->
+<!--       	</if> -->
+      	<!-- 短信类型 -->
+      	<if test="dictRemindTypeList != null and  dictRemindTypeList.size() > 0">
+        	and  l.dict_remind_type in 
+        		<foreach collection="dictRemindTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="orgName != null and  orgName !=''">
+        	and l.ORG_NAME = #{orgName}
+      	</if>
+      	<if test="areaName != null and  areaName !=''">
+        	and l.AREA_NAME = #{areaName}
+      	</if>
+      	<!-- 回款类型 -->
+      	 <if test="backStatusList != null and  backStatusList.size() > 0">
+        	and  p.dict_back_status in 
+        		<foreach collection="backStatusList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<!--  封闭日期 -->
+      	<if test="productClosedateStartchar != null and  productClosedateStartchar !=''">
+        	<![CDATA[ and  l.lend_day::timestamp + (l.product_close_term || ' Months')::interval  >= to_date(#{productClosedateStartchar},'YYYY-MM-DD') ]]>
+      	</if>
+      	<if test="productClosedateEndchar != null and  productClosedateEndchar !=''">
+        	<![CDATA[ and  l.lend_day::timestamp + (l.product_close_term || ' Months')::interval  <= to_date(#{productClosedateEndchar},'YYYY-MM-DD') ]]>
+      	</if>
+	      <if test="sqlMap.dataRights != null ">   <!-- 权限控制 -->
+	        	${sqlMap.dataRights}
+	      </if>
+    </where>
+  </sql>
+  
+  <select id="getRemindDetail" parameterType="java.util.Map" 
+  	resultType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx">
+		SELECT 
+			customer.customer_code as customerCode,
+			customer.customer_name as customerName,
+			customer.customer_cert_num as custCertNum,
+			account.account_bank,
+			account.account_branch,
+			account.account_addrprovince,
+			account.account_addrcity,
+			account.account_addrdistrict,
+			account.account_card_or_booklet,
+			account.account_name,
+			account.account_no,
+			apply.lend_code as loanCode,
+			apply.apply_day as applyDate,
+			apply.apply_deduct_day as applyDuctDate,
+			apply.apply_lend_day as applyLendDate,
+			product.product_name as productCode,
+			apply.f_apply_code,
+			apply.lend_status as lendStatus,
+			apply.apply_pay as payType,
+			apply.dict_apply_deduct_type as dictApplyDeductType,
+			apply.apply_lend_money as applyLendMoney,
+			apply.apply_deduct_money as applyDeductMoney,
+			apply.apply_transfer_money as applyTransferMoney,
+			apply.apply_agreement_edition as applyAgreementEition,
+			apply.apply_contract_no,
+			apply.apply_sales_discount,
+			apply.apply_remarks as applyRemarks,
+			apply.manager_code as managerCode,
+			log.check_examine,
+			log.check_examinetype,
+			apply.xinhebao_type as xinheBaoType
+		FROM tz.t_tz_loan_apply apply
+			LEFT JOIN tz.t_tz_customer customer
+				ON apply.customer_code=customer.customer_code
+			LEFT JOIN tz.t_tz_customer_account account
+				ON account.customer_code=apply.customer_code
+				AND account.id=apply.repay_id
+			LEFT JOIN tz.t_gl_tz_product product
+				ON product.product_code=apply.product_code
+			LEFT JOIN tz.t_tz_apply_log log
+				ON log.lend_code=apply.lend_code
+		WHERE apply.lend_code=#{loanCode}
+  </select>
+  
+  
+  
+  
+  
+  <!--  到期导出 -->
+  <select id="exportExlRemind" resultType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx" 
+  	parameterType="java.util.Map"> 
+	select
+	l.lend_code as loanCode,
+	l.customer_name,
+	l.lend_day,
+	l.lend_money,
+	l.product_name as dictLendType,
+	l.due_day,	 
+	'***********' as tel,
+	o1.name as menDianMingCheng,
+	pvc.area_name  as areaName,
+	e.account_bank as bank_name,
+	e.account_branch as accountBranch,
+	l.bank_no as bankCode, 
+	a.apply_pay as dictPayType
+
+	from  (
+	select t1.* 
+	from t_gl_sms_send_list t1 
+	inner join (
+		select l.lend_code ,max(modify_time) as max_modify_time 
+		from t_gl_sms_send_list l where	1=1	
+		<if test="sms.dictRemindTypeList != null and  sms.dictRemindTypeList.size() > 0">
+        	and  l.dict_remind_type in 
+        		<foreach collection="sms.dictRemindTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+		group by l.lend_code
+		) t2 
+	on t1.lend_code = t2.lend_code and t1.modify_time = max_modify_time
+) l 
+	LEFT JOIN tz.t_tz_loan_apply a on a.lend_code=l.lend_code	
+	left join tz.t_tz_back_money_pool p on p.lend_code=l.lend_code
+	left join tz.t_tz_customer d on a.customer_code = d.customer_code
+	left join tz.t_tz_customer_account e on a.repay_id=e.id
+	left join tz.t_gl_org o1 on a.store_org_id = o1.id
+
+	left join t_gl_org o2  on a.city_org_id =o2.id 
+	left join tz.t_gl_province_city pvc on pvc.id=l.AREA_NAME  
+	 <include refid="whereSqlExl" />
+   
+  </select>
+  <sql id="whereSqlExl">
+  	<where>
+        	1=1    
+  	
+    	<if test="sms.lendCodes != null and  sms.lendCodes.size() > 0 ">
+        	and l.lend_code in
+		    	<foreach collection="sms.lendCodes" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+      	</if>
+      	<if test="sms.loanCode != null and  sms.loanCode !=''">
+        	and l.lend_code = #{sms.loanCode}
+      	</if>
+      	<if test="sms.dueDayFlag != null and sms.dueDayFlag !='' ">
+      		<![CDATA[ and l.due_day = CURRENT_DATE ]]>
+      	</if>
+      	<if test="sms.customerName != null and  sms.customerName !=''">
+        	and l.customer_name LIKE '%'||#{sms.customerName}||'%'
+      	</if>
+      	<if test="sms.lendMoney != null and  sms.lendMoney !=''">
+        	and l.lend_money = to_number(#{sms.lendMoney})
+      	</if>
+      	<if test="sms.dueDayStart != null and  sms.dueDayStart !=''">
+        	<![CDATA[ and l.due_day >= to_date(#{sms.dueDayStart},'YYYY-MM-DD') ]]>
+      	</if>
+      	<if test="sms.dueDayEnd != null and  sms.dueDayEnd !=''">
+        	<![CDATA[ and l.due_day <= to_date(#{sms.dueDayEnd} ,'YYYY-MM-DD')]]>
+      	</if>
+      	<if test="sms.applyPayList != null and  sms.applyPayList.size() > 0">
+        	and l.dict_repay_type in 
+        		<foreach collection="sms.applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="sms.productCodeList != null and  sms.productCodeList.size() > 0">
+        	and l.product_code in 
+        		<foreach collection="sms.productCodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="sms.orgIdList != null and  sms.orgIdList.size() > 0">
+        	and o1.id in 
+        		<foreach collection="sms.orgIdList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="sms.dictLendType != null and  sms.dictLendType !=''">
+        	and l.dict_lend_type = #{dictLendType}
+      	</if>
+      	<if test="sms.areaName != null and  sms.areaName !=''">
+        	and l.AREA_NAME = #{sms.areaName}
+      	</if>
+      	<if test="sms.dictRemindTypeList != null and  sms.dictRemindTypeList.size() > 0">
+        	and  l.dict_remind_type in 
+        		<foreach collection="sms.dictRemindTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+<!--       	<if test="sms.dictRemindType != null and  sms.dictRemindType !=''"> -->
+<!--         	and l.dict_remind_type = #{sms.dictRemindType} -->
+<!--       	</if> -->
+      	<!-- 回款类型 -->
+      	 <if test="sms.backStatusList != null and  sms.backStatusList.size() > 0">
+        	and  p.dict_back_status in 
+        		<foreach collection="sms.backStatusList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+		   <if test="sqlMap != null and sqlMap != ''">
+    			${sqlMap.dataRights}
+    		</if>
+    </where>
+  </sql>
+  
+  <select id="exportExlRemind30" resultType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx" 
+  	parameterType="java.util.Map"> 
+  select
+	l.customer_name as customerName,
+	'***********' as tel,
+	l.lend_day as lendDay,
+	l.lend_money as lendMoney,
+	d1.label as dictLendType,
+	l.lend_day::timestamp + (l.product_close_term || ' Months')::interval as  productClosedate
+
+	from  (
+	select t1.* 
+	from t_gl_sms_send_list t1 
+	inner join (
+		select l.lend_code ,max(modify_time) as max_modify_time 
+		from t_gl_sms_send_list l where 1=1
+		<if test="sms.dictRemindTypeList != null and  sms.dictRemindTypeList.size() > 0">
+        	and  l.dict_remind_type in 
+        		<foreach collection="sms.dictRemindTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+		group by l.lend_code
+		) t2 
+	on t1.lend_code = t2.lend_code and t1.modify_time = max_modify_time
+) l 
+	LEFT JOIN tz.t_tz_loan_apply a on a.lend_code=l.lend_code	
+	left join tz.t_gl_dict d1 on l.dict_repay_type = d1.value  and d1.type='tz_pay_type'
+	left join tz.t_gl_org o1 on a.store_org_id = o1.id
+   <include refid="whereSqlExl30" />
+  </select>
+  
+  <sql id="whereSqlExl30">
+  	<where>
+        	1=1    
+  	
+    	<if test="sms.lendCodes != null and  sms.lendCodes.size() > 0 ">
+        	and l.lend_code in
+		    	<foreach collection="sms.lendCodes" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+      	</if>
+      	<if test="sms.loanCode != null and  sms.loanCode !=''">
+        	and l.lend_code = #{sms.loanCode}
+      	</if>
+      	<if test="sms.dueDayFlag != null and sms.dueDayFlag !='' ">
+      		<![CDATA[ and l.due_day = CURRENT_DATE ]]>
+      	</if>
+      	<if test="sms.customerName != null and  sms.customerName !=''">
+        	and l.customer_name LIKE '%'||#{sms.customerName}||'%'
+      	</if>
+      	<if test="sms.lendMoney != null and  sms.lendMoney !=''">
+        	and l.lend_money = to_number(#{sms.lendMoney})
+      	</if>
+      	<if test="sms.dueDayStart != null and  sms.dueDayStart !=''">
+        	<![CDATA[ and l.due_day >= to_date(#{sms.dueDayStart},'YYYY-MM-DD') ]]>
+      	</if>
+      	<if test="sms.dueDayEnd != null and  sms.dueDayEnd !=''">
+        	<![CDATA[ and l.due_day <= to_date(#{sms.dueDayEnd} ,'YYYY-MM-DD')]]>
+      	</if>
+      	<if test="sms.applyPayList != null and  sms.applyPayList.size() > 0">
+        	and l.dict_repay_type in 
+        		<foreach collection="sms.applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="sms.productCodeList != null and  sms.productCodeList.size() > 0">
+        	and l.product_code in 
+        		<foreach collection="sms.productCodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="sms.orgIdList != null and  sms.orgIdList.size() > 0">
+        	and o1.id in 
+        		<foreach collection="sms.orgIdList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="sms.dictLendType != null and  sms.dictLendType !=''">
+        	and l.dict_lend_type = #{dictLendType}
+      	</if>
+      	<if test="sms.areaName != null and  sms.areaName !=''">
+        	and l.AREA_NAME = #{areaName}
+      	</if>
+      		<if test="sms.dictRemindType != null and  sms.dictRemindType !=''">
+        	and l.dict_remind_type = #{sms.dictRemindType}
+      	</if>
+      	
+      		<!--  封闭日期 -->
+      	<if test="sms.productClosedateStartchar != null and  sms.productClosedateStartchar !=''">
+        	<![CDATA[ and  l.lend_day::timestamp + (l.product_close_term || ' Months')::interval  >= to_date(#{sms.productClosedateStartchar},'YYYY-MM-DD') ]]>
+      	</if>
+      	<if test="sms.productClosedateEndchar != null and  sms.productClosedateEndchar !=''">
+        	<![CDATA[ and  l.lend_day::timestamp + (l.product_close_term || ' Months')::interval  <= to_date(#{sms.productClosedateEndchar},'YYYY-MM-DD') ]]>
+      	</if>
+		   <if test="sqlMap != null and sqlMap != ''">
+    			${sqlMap.dataRights}
+    		</if>
+  </where>
+  </sql>
+  
+   <select id="exportExlRemind10" resultType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx" 
+  	parameterType="java.util.Map"> 
+  select
+	l.customer_name as customerName,
+	'***********' as tel,
+	l.lend_day as lendDay,
+	l.lend_money as lendMoney,
+	d1.label as dictLendType,
+	l.due_day as dueDay
+
+	from  (
+	select t1.* 
+	from t_gl_sms_send_list t1 
+	inner join (
+		select l.lend_code ,max(modify_time) as max_modify_time 
+		from t_gl_sms_send_list l where 1=1
+		<if test="sms.dictRemindTypeList != null and  sms.dictRemindTypeList.size() > 0">
+        	and  l.dict_remind_type in 
+        		<foreach collection="sms.dictRemindTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+		group by l.lend_code
+		) t2 
+	on t1.lend_code = t2.lend_code and t1.modify_time = max_modify_time
+) l 
+	LEFT JOIN tz.t_tz_loan_apply a on a.lend_code=l.lend_code	
+	left join tz.t_gl_dict d1 on l.dict_repay_type = d1.value  and d1.type='tz_pay_type'
+	left join tz.t_gl_org o1 on a.store_org_id = o1.id
+   <include refid="whereSqlExl10" />
+  </select>
+  
+  <sql id="whereSqlExl10">
+  	<where>
+        	1=1    
+  	
+    	<if test="sms.lendCodes != null and  sms.lendCodes.size() > 0 ">
+        	and l.lend_code in
+		    	<foreach collection="sms.lendCodes" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+      	</if>
+      	<if test="sms.loanCode != null and  sms.loanCode !=''">
+        	and l.lend_code = #{sms.loanCode}
+      	</if>
+      	<if test="sms.dueDayFlag != null and sms.dueDayFlag !='' ">
+      		<![CDATA[ and l.due_day = CURRENT_DATE ]]>
+      	</if>
+      	<if test="sms.customerName != null and  sms.customerName !=''">
+        	and l.customer_name LIKE '%'||#{sms.customerName}||'%'
+      	</if>
+      	<if test="sms.lendMoney != null and  sms.lendMoney !=''">
+        	and l.lend_money = to_number(#{sms.lendMoney})
+      	</if>
+      	<if test="sms.dueDayStart != null and  sms.dueDayStart !=''">
+        	<![CDATA[ and l.due_day >= to_date(#{sms.dueDayStart},'YYYY-MM-DD') ]]>
+      	</if>
+      	<if test="sms.dueDayEnd != null and  sms.dueDayEnd !=''">
+        	<![CDATA[ and l.due_day <= to_date(#{sms.dueDayEnd} ,'YYYY-MM-DD')]]>
+      	</if>
+      	<if test="sms.applyPayList != null and  sms.applyPayList.size() > 0">
+        	and l.dict_repay_type in 
+        		<foreach collection="sms.applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="sms.productCodeList != null and  sms.productCodeList.size() > 0">
+        	and l.product_code in 
+        		<foreach collection="sms.productCodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="sms.orgIdList != null and  sms.orgIdList.size() > 0">
+        	and o1.id in 
+        		<foreach collection="sms.orgIdList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+      	</if>
+      	<if test="sms.dictLendType != null and  sms.dictLendType !=''">
+        	and l.dict_lend_type = #{dictLendType}
+      	</if>
+      	<if test="sms.areaName != null and  sms.areaName !=''">
+        	and l.AREA_NAME = #{areaName}
+      	</if>
+      		<if test="sms.dictRemindType != null and  sms.dictRemindType !=''">
+        	and l.dict_remind_type = #{sms.dictRemindType}
+      	</if>
+		   <if test="sqlMap != null and sqlMap != ''">
+    			${sqlMap.dataRights}
+    		</if>
+  </where>
+  </sql>
+  
+  <select id="exportExlRemindThreeMonth" resultType="com.creditharmony.fortune.remind.entity.ext.SmsSendListEx"  parameterType="java.util.Map"> 
+   select a.customer_code as customerCode,  	  		
+	 		c.customer_name as customerName,
+	 		c.customer_mobilephone  as tel, 
+	 		a.lend_code as loanCode, 
+	 		a.apply_lend_day as lendDay, 
+	 		a.apply_lend_money as lendmoney, 
+	 		tp.product_name as dictLendType, 
+<!-- 	 		a.apply_pay as dictPayType,  -->
+			d1.label as dictPayType, 
+	 		g.area_name as areaName,  
+	 		o.name as orgName,	
+	 		a.apply_expire_day as dueDay, 
+	 		a.create_time as createTime
+ 	from   tz.t_tz_loan_apply a
+ 	left join tz.t_tz_customer c on c.customer_code = a.customer_code
+    left join tz.t_gl_org o on a.store_org_id = o.id
+    left join tz.t_gl_province_city g on g.id = a.city_org_id
+    left join tz.t_gl_user u on a.manager_code = u.id 
+    left join tz.t_gl_tz_product tp on tp.product_code = a.product_code
+    left join tz.t_gl_dict d1 on a.apply_pay = d1.value  and d1.type='tz_pay_type'
+   <include refid="whereSqlExlThreeMonth" />
+  </select>
+  
+  <sql id="whereSqlExlThreeMonth">
+  	<where>
+	        	a.lend_status = '11'	<!-- 查询成功数据 -->
+	      	<if test="sms.loanCode != null and  sms.loanCode !=''">
+	        	and a.lend_code = #{sms.loanCode}
+	      	</if>
+	      	<if test="sms.lendCodes != null and  sms.lendCodes.size() > 0 ">
+	        	and a.lend_code in
+			    	<foreach collection="sms.lendCodes" item="item" index="index" open="(" separator="," close=")">
+			    			#{item}
+			    	</foreach>
+	      	</if>
+	      	<if test="sms.customerName != null and  sms.customerName !=''">
+	        	and c.customer_name LIKE '%'||#{sms.customerName}||'%'
+	      	</if>
+	      	<if test="sms.areaName != null and  sms.areaName !=''">
+	        	and a.city_org_id = #{sms.areaName}
+	      	</if>
+	      	<if test="sms.lendMoney != null and  sms.lendMoney !=''">
+	        	and a.apply_lend_money = to_number(#{sms.lendMoney})
+	      	</if>
+	      	<if test="sms.orgIdList != null and  sms.orgIdList.size() > 0">
+	        	and o.id in 
+	        		<foreach collection="sms.orgIdList" item="item" index="index" open="(" separator="," close=")">
+			    			'${item}'
+			    	</foreach>
+	      	</if>
+	      	<if test="sms.dueDayStart != null and  sms.dueDayStart !=''">
+	        	<![CDATA[ and a.apply_expire_day >= to_date(#{sms.dueDayStart},'YYYY-MM-DD') ]]>
+	      	</if>
+	      	<if test="sms.dueDayEnd != null and  sms.dueDayEnd !=''">
+	        	<![CDATA[ and a.apply_expire_day <= to_date(#{sms.dueDayEnd} ,'YYYY-MM-DD')]]>
+	      	</if>
+	      	<if test="sms.applyPayList != null and  sms.applyPayList.size() > 0">
+	        	and a.apply_pay in 
+	        		<foreach collection="sms.applyPayList" item="item" index="index" open="(" separator="," close=")">
+			    			'${item}'
+			    	</foreach>
+	      	</if>
+	      	<if test="sms.productCodeList != null and  sms.productCodeList.size() > 0">
+	        	and a.product_code in 
+	        		<foreach collection="sms.productCodeList" item="item" index="index" open="(" separator="," close=")">
+			    			'${item}'
+			    	</foreach>
+	      	</if>
+	      	
+	        <if test="sqlMap.dataRights != null ">   <!-- 权限控制 -->
+	        	${sqlMap.dataRights}
+	        </if>
+	  </where>
+  </sql>
+  
+</mapper>

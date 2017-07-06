@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.maintenance.settles.dao.MatchingCreditorForMtMapper" >
+	<resultMap id="BaseResultMap" type="com.creditharmony.fortune.maintenance.settles.entity.MatchingCreditorInfo" >
+	    <id column="matching_id" property="matchingId" jdbcType="VARCHAR" />
+	    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+	    <result column="product_code" property="productCode" jdbcType="VARCHAR" />
+	    <result column="matching_firstday_flag" property="matchingFirstdayFlag" jdbcType="VARCHAR" />
+	    <result column="matching_interest_start" property="matchingInterestStart" jdbcType="TIMESTAMP" />
+	    <result column="matching_bill_day" property="matchingBillDay" jdbcType="INTEGER" />
+	    <result column="matching_borrow_quota" property="matchingBorrowQuota" jdbcType="NUMERIC" />
+	    <result column="matching_status" property="matchingStatus" jdbcType="INTEGER" />
+	    <result column="matching_endday" property="matchingEndday" jdbcType="DATE" />
+	    <result column="matching_match_money" property="matchingMatchMoney" jdbcType="NUMERIC" />
+	    <result column="dict_matching_file_status" property="dictMatchingFileStatus" jdbcType="VARCHAR" />
+	    <result column="dict_matching_filesend_status" property="dictMatchingFilesendStatus" jdbcType="VARCHAR" />
+	    <result column="matching_total" property="matchingTotal" jdbcType="INTEGER" />
+	    <result column="matching_now" property="matchingNow" jdbcType="INTEGER" />
+	    <result column="matching_expire_day" property="matchingExpireDay" jdbcType="DATE" />
+	    <result column="matching_coss_time" property="matchingCossTime" jdbcType="TIMESTAMP" />
+	    <result column="matching_make_day" property="matchingMakeDay" jdbcType="TIMESTAMP" />
+	    <result column="matching_hk_day" property="matchingHkDay" jdbcType="TIMESTAMP" />
+	    <result column="matching_firstbill_day" property="matchingFirstbillDay" jdbcType="DATE" />
+	    <result column="matching_order_status" property="matchingOrderStatus" jdbcType="INTEGER" />
+	    <result column="matching_pay_status" property="matchingPayStatus" jdbcType="VARCHAR" />
+	    
+	    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+	    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+	    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+	    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+	    
+	    <result column="customer_code" property="customerCode" jdbcType="VARCHAR" />
+	    <result column="matching_user_id" property="matchingUserId" jdbcType="VARCHAR" />
+	    <result column="drop_time" property="dropTime" jdbcType="TIMESTAMP" />
+	    <result column="xhb_backrest_term" property="xhbBackrestTerm" jdbcType="VARCHAR" />
+	    <result column="apply_lend_money" property="applyLendMoney" jdbcType="VARCHAR" />
+	    <result column="xinhebao_type" property="xinhebaoType" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<sql id="Base_Column_List" >
+	    matching_id, 
+	    lend_code, 
+	    product_code, 
+	    matching_firstday_flag, 
+	    matching_interest_start, 
+	    matching_bill_day, 
+	    matching_borrow_quota, 
+	    matching_status, 
+	    matching_endday, 
+	    matching_match_money, 
+	    dict_matching_file_status, 
+	    dict_matching_filesend_status, 
+	    matching_total, 
+	    matching_now, 
+	    matching_expire_day, 
+	    matching_coss_time, 
+	    matching_make_day, 
+	    matching_hk_day, 
+	    matching_firstbill_day, 
+	    matching_order_status, 
+	    matching_pay_status, 
+	    create_by, 
+	    create_time, 
+	    modify_by, 
+	    modify_time, 
+	    matching_user_id,
+	    drop_time,
+	    xhb_backrest_term
+	</sql>
+
+	<update id="updateMatchingCreditorInfo" parameterType="com.creditharmony.fortune.maintenance.settles.entity.MatchingCreditorInfo" >
+	    update 
+	    	tz.t_tz_matching_creditor 
+        set 
+        	modify_by = #{modifyBy},
+            modify_time = #{modifyTime},
+            matching_pay_status = #{matchingPayStatus} 
+        where
+            matching_id = #{matchingId}
+	</update>
+	
+	<!-- 查询 出借申请表\待债权推荐信息表：出借状态=划扣成功,完结状态=未完结,产品!=月满盈 的出借，本期账单日(billDate)<=到期日,结算状态=未结算,本期到期日期=本期账单日(billDate),债权状态=已推荐 -->
+	<select id="selMatchingInfos" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.maintenance.settles.entity.MatchingCreditorInfo" >		
+		SELECT
+			apply.lend_code 			     AS lend_code,
+			apply.product_code 	             AS product_code,
+			apply.status 		             AS status, 
+			apply.lend_status 		         AS lend_status, 
+			apply.apply_lend_day 		     AS apply_lend_day,
+			apply.dict_apply_end_state 		 AS dict_apply_end_state,
+			apply.xinhebao_type			     AS xinhebao_type,
+			apply.apply_expire_day           AS apply_expire_day,
+			apply.apply_lend_money           AS apply_lend_money,
+			creditor.matching_id 			 AS matching_id, 
+			creditor.matching_now 			 AS matching_now, 
+			creditor.matching_total 		 AS matching_total, 
+			creditor.matching_expire_day 	 As matching_expire_day,
+			creditor.matching_status         AS matching_status,
+			creditor.matching_endday         AS matching_endday,
+            creditor.matching_pay_status     AS matching_pay_status,
+            creditor.matching_bill_day       AS matching_bill_day,
+            creditor.matching_firstbill_day  AS matching_firstbill_day 
+		FROM  tz.t_tz_loan_apply apply, tz.t_tz_matching_creditor creditor
+		<where>
+			apply.lend_code = creditor.lend_code
+			<if test="lendCode != null and lendCode != ''">
+				And apply.lend_code = #{lendCode}
+			</if>
+			<if test="productCode != null and productCode != ''">
+				And apply.product_code != #{productCode}
+			</if>
+			<if test="dictApplyEndState != null and dictApplyEndState != ''">
+				And apply.dict_apply_end_state = #{dictApplyEndState}
+			</if>
+			<if test="matchingBillDay != null and matchingBillDay != ''">
+			    And apply.apply_billday = #{matchingBillDay}
+				And creditor.matching_bill_day = #{matchingBillDay}
+			</if>
+			<if test="matchingExpireDay != null and matchingExpireDay != ''">
+				And creditor.matching_expire_day = to_timestamp(#{matchingExpireDay},'YYYY-MM-DD')
+			</if>
+			<if test="matchingPayStatus != null and matchingPayStatus != ''">
+				And creditor.matching_pay_status = #{matchingPayStatus}
+			</if>
+			<if test="matchingStatus != null and matchingStatus != ''">
+				And creditor.matching_status = #{matchingStatus}
+			</if>
+		</where> 
+	</select>
+    
+	<!-- 添加数据 -->
+	<insert id="insMatchingCreditorInfo" parameterType="com.creditharmony.fortune.maintenance.settles.entity.MatchingCreditorInfo">
+	    INSERT INTO tz.t_tz_matching_creditor (
+	       <include refid="Base_Column_List" />
+	    ) values (
+	        #{matchingId}, 
+	        #{lendCode}, 
+	        #{productCode}, 
+	        #{matchingFirstdayFlag}, 
+	        #{matchingInterestStart}, 
+	        #{matchingBillDay}, 
+	        #{matchingBorrowQuota}, 
+	        #{matchingStatus}, 
+	        #{matchingEndday}, 
+	        #{matchingMatchMoney}, 
+	        #{dictMatchingFileStatus}, 
+	        #{dictMatchingFilesendStatus}, 
+	        #{matchingTotal}, 
+	        #{matchingNow}, 
+	        #{matchingExpireDay}, 
+	        #{matchingCossTime}, 
+	        #{matchingMakeDay}, 
+	        #{matchingHkDay}, 
+	        #{matchingFirstbillDay}, 
+	        #{matchingOrderStatus}, 
+	        #{matchingPayStatus}, 
+	        #{createBy}, 
+	        #{createTime}, 
+	        #{modifyBy}, 
+	        #{modifyTime}, 
+	        #{matchingUserId},
+	        #{dropTime},
+	        #{xhbBackrestTerm}
+	    )
+	</insert>
+</mapper>

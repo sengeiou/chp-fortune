@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.config.rule.dao.MatchingRuleDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleConfig" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="rule_name" property="ruleName" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+     <result column="use_flag" property="useFlag" jdbcType="VARCHAR" />    
+    <result column="bill_type" property="billType" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />    
+    <result column="upper_limit" property="upperLimit" jdbcType="NUMERIC" />    
+    <result column="lower_limit" property="lowerLimit" jdbcType="NUMERIC" />    
+    <collection property="proporti" ofType="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleProporti">
+		<result property="id" column="proporti.id" />
+		<result property="proportion" column="proporti.proportion" />
+		<collection property="lower" ofType="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleLower">
+			<result property="id" column="proporti.lower.id" />
+			<result property="lower" column="proporti.lower.lower" />
+		</collection>
+	</collection>  
+  </resultMap>
+  <select id="find" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    	rule_config.id, rule_config.rule_name, rule_config.remark, rule_config.use_flag, 
+    	rule_config.bill_type,rule_config.default_flag,
+    	rule_config.upper_limit,rule_config.lower_limit,
+    	proporti.id as "proporti.id",
+    	proporti.proportion as "proporti.proportion",
+    	lower.lower as "proporti.lower.lower",
+    	lower.lower as "proporti.lower.id"
+    from t_tz_creditorper_rule_config rule_config
+    inner join t_tz_creditorper_rule_proporti proporti
+    	on rule_config.id=proporti.rule_id
+    		and proporti.use_flag = '1'
+   	inner join t_tz_creditorper_rule_lower lower
+    	on proporti.id=lower.proportion_id
+    where 1=1
+     <if test="useFlag != null and useFlag != ''" >
+        AND rule_config.use_flag = #{useFlag,jdbcType=VARCHAR}
+      </if>
+       <if test="ruleId != null and ruleId != ''" >
+        AND rule_config.id = #{ruleId,jdbcType=VARCHAR}
+      </if>
+      <if test="billType != null and billType != ''" >
+        AND bill_type = #{billType,jdbcType=VARCHAR}
+      </if>
+      <if test="matchingBorrowQuota != null" >
+        AND upper_limit <![CDATA[> ]]> #{matchingBorrowQuota,jdbcType=NUMERIC}
+        AND lower_limit <![CDATA[<=]]> #{matchingBorrowQuota,jdbcType=NUMERIC}
+      </if>
+      
+     order by rule_config.modify_time desc,proporti.sort,lower.sort
+  </select>
+  <!-- 规则配置插入处理 -->
+  <insert id="insertRule" parameterType="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleConfig" >
+    insert into t_tz_creditorper_rule_config
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="ruleName != null" >
+        rule_name,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>      
+      <if test="billType != null" >
+        bill_type,
+      </if>
+     <if test="useFlag != null" >
+        use_flag,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+      <if test="upperLimit != null" >
+        upper_limit,
+      </if>
+      <if test="lowerLimit != null" >
+        lower_limit,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleName != null" >
+        #{ruleName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>      
+      <if test="billType != null" >
+        #{billType,jdbcType=VARCHAR},
+      </if>
+       <if test="useFlag != null" >
+        #{useFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="upperLimit != null" >
+        #{upperLimit,jdbcType=NUMERIC},
+      </if>
+      <if test="lowerLimit != null" >
+        #{lowerLimit,jdbcType=NUMERIC},
+      </if>
+    </trim>
+  </insert>
+  <!-- 投资比例插入处理 -->
+  <insert id="insertProportion" parameterType="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleProporti" >
+    insert into t_tz_creditorper_rule_proporti
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="ruleId != null" >
+        rule_id,
+      </if>
+      <if test="proportion != null" >
+        proportion,
+      </if>
+      <if test="sort != null" >
+        sort,
+      </if>
+      <if test="useFlag != null" >
+        use_flag,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleId != null" >
+        #{ruleId,jdbcType=VARCHAR},
+      </if>
+      <if test="proportion != null" >
+        #{proportion,jdbcType=NUMERIC},
+      </if>
+      <if test="sort != null" >
+        #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="useFlag != null" >
+        #{useFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <!-- 投资下限插入处理 -->
+  <insert id="insertLower" parameterType="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleLower" >
+    insert into t_tz_creditorper_rule_lower
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="proportionId != null" >
+        proportion_id,
+      </if>
+      <if test="lower != null" >
+        lower,
+      </if>
+      <if test="sort != null" >
+        sort,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="proportionId != null" >
+        #{proportionId,jdbcType=VARCHAR},
+      </if>
+      <if test="lower != null" >
+        #{lower,jdbcType=NUMERIC},
+      </if>
+      <if test="sort != null" >
+        #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <!-- 更新状态处理 -->
+  <update id="updateStatusByIds" parameterType="java.lang.String" >
+    update t_tz_creditorper_rule_config
+    set use_flag = 1- cast(use_flag as INTEGER)
+    where id 
+    in (
+     <foreach item="id" index="index" collection="array"  
+           separator=","> #{id,jdbcType=VARCHAR} 
+     </foreach>
+    )
+  </update>
+  <!-- 更改产品匹配规则的默认标识  1：是 2：否 -->
+  <update id="resetRuleDefaultFlag" parameterType="java.util.Map" >
+    update t_tz_creditorper_rule_config
+    set default_flag = 
+    	case 
+    	when id = #{excludeId,jdbcType=VARCHAR}  then '1'
+    	else '2'
+    	end
+    where bill_type = #{billType,jdbcType=VARCHAR}
+  </update>
+  <!-- 投资比例停用 0:停用 1：启用 -->
+  <update id="stopProportion" parameterType="java.lang.String" >
+    update t_tz_creditorper_rule_proporti
+    set 
+        use_flag = '0'
+    where 
+    	rule_id = #{id,jdbcType=VARCHAR} 
+    	and use_flag = '1'
+  </update>
+  <!-- 删除处理 -->
+  <delete id="deleteByIds" parameterType="java.lang.String" >
+      delete from t_tz_creditorper_rule_config where id 
+      in (
+	      <foreach item="id" index="index" collection="array"  
+	            separator=","> #{id,jdbcType=VARCHAR} 
+	      </foreach>
+      )
+  </delete>
+  
+  <!-- 查找 -->
+  <select id="getByIds" parameterType="java.util.Map" resultType="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleConfig">
+      select * from t_tz_creditorper_rule_config 
+      WHERE id IN 
+		<foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+	   			#{item,jdbcType=VARCHAR}
+	   	</foreach>
+	   	and use_flag = #{useFlag,jdbcType=VARCHAR}
+  </select>
+  
+  <!--修改  -->
+  <update id="updateUseFlag" parameterType="java.lang.String" >
+		  	UPDATE
+		    tz.t_tz_creditorper_rule_config
+		    set use_flag = 1- cast(use_flag as INTEGER)
+		    where bill_type = #{billType} and use_flag='1'
+  </update>
+  <!--单个对象的查询  -->
+  <select id="findAllList" resultType="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleConfig" parameterType="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleConfig">
+  	select * from tz.t_tz_creditorper_rule_config 
+  	<where>
+  		<if test="id != null and id != ''" >
+        AND id = #{id,jdbcType=VARCHAR}
+      </if>
+      <if test="billType != null and billType != ''" >
+        AND bill_type = #{billType,jdbcType=VARCHAR}
+      </if>
+  	</where>
+  </select>
+  <!-- 批量启用停用 -->
+  <update id="updateBatchStatusByIds" parameterType="java.lang.String" >
+    update t_tz_creditorper_rule_config
+    set use_flag = #{useFlag,jdbcType=VARCHAR}
+    where id 
+    in (
+     <foreach item="id" index="index" collection="updateIds"  
+           separator=","> #{id,jdbcType=VARCHAR} 
+     </foreach>
+    )
+  </update>
+
+	<select id="countRuleConfig" resultType="int"
+		parameterType="com.creditharmony.fortune.creditor.config.rule.entity.CreditorperRuleConfig">
+		SELECT
+			count( id )
+		FROM
+			tz."t_tz_creditorper_rule_config"
+		WHERE
+		bill_type = #{billType,jdbcType=VARCHAR}
+		AND use_flag = #{useFlag,jdbcType=VARCHAR}
+		<choose>
+			<!-- 有输入参数，查询有重叠范围的数据 -->
+			<when test="lowerLimit != null and upperLimit != null">
+				AND NOT ((upper_limit <![CDATA[<=]]> #{lowerLimit,jdbcType=NUMERIC}) 
+						OR (lower_limit <![CDATA[>=]]> #{upperLimit,jdbcType=NUMERIC}))
+			</when>
+			<!-- 没有输入参数，查询对应字段为空的数据 -->
+			<otherwise>
+				AND lower_limit IS NULL AND upper_limit IS NULL 
+			</otherwise>
+		</choose>
+	</select>
+</mapper>

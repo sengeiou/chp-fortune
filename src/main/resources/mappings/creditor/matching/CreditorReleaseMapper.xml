@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.CreditorReleaseDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.creditor.matching.vo.CreditorReleaseVo" >
+    <id column="release_id" property="releaseId" jdbcType="VARCHAR" />
+    <result column="credit_value_id" property="creditValueId" jdbcType="VARCHAR" />
+    <result column="release_credit_value" property="releaseCreditValue" jdbcType="NUMERIC" />
+    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+    <result column="matching_id" property="matchingId" jdbcType="VARCHAR" />
+    <result column="phase_id" property="phaseId" jdbcType="VARCHAR" />
+    <result column="release_flag" property="releaseFlag" jdbcType="VARCHAR" />
+    <result column="release_time" property="releaseTime" jdbcType="TIMESTAMP" />
+    <result column="release_state" property="releaseState" jdbcType="VARCHAR" />
+    <result column="is_release" property="isRelease" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_cert_num" property="customerCertNum" jdbcType="VARCHAR" />
+    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+    <result column="lend_release_credit_value" property="lendReleaseCreditValue" jdbcType="NUMERIC" />
+    <result column="apply_expire_day" property="applyExpireDay" jdbcType="TIMESTAMP" />
+    <result column="loan_code" property="loanCode" jdbcType="VARCHAR" />
+    <result column="loan_name" property="loanName" jdbcType="VARCHAR" />
+    <result column="loan_idcard" property="loanIdcard" jdbcType="VARCHAR" />
+    <result column="loan_trustee_flag" property="loanTrusteeFlag" jdbcType="VARCHAR" />
+    <result column="dic_loan_distinguish" property="dicLoanDistinguish" jdbcType="VARCHAR" />
+    <result column="loan_product" property="loanProduct" jdbcType="VARCHAR" />
+    <result column="loan_purpose" property="loanPurpose" jdbcType="VARCHAR" />
+    <result column="loan_months" property="loanMonths" jdbcType="VARCHAR" />
+    <result column="loan_months_surplus" property="loanMonthsSurplus" jdbcType="VARCHAR" />
+    <result column="loan_backmoney_firday" property="loanBackmoneyFirday" jdbcType="VARCHAR" />
+    <result column="loan_quota" property="loanQuota" jdbcType="NUMERIC" />
+    <result column="loan_backmoney_day" property="loanBackmoneyDay" jdbcType="VARCHAR" />
+    <result column="loan_month_rate" property="loanMonthRate" jdbcType="VARCHAR" />
+    <result column="loan_credit_value" property="loanCreditValue" jdbcType="NUMERIC" />
+    
+    <result column="tj_flag" property="tjFlag" jdbcType="VARCHAR" />
+    <result column="loan_freeze_day" property="loanFreezeDay" jdbcType="TIMESTAMP" />
+    <result column="zq_state" property="zqState" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    release_id, loan_code, release_credit_value, lend_code, matching_id, phase_id, release_flag, release_time, rolloff_destination,create_by, create_time, modify_by, 
+    modify_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_creditor_release
+    where release_id = #{id,jdbcType=VARCHAR}
+  </select>
+  <select id="findList" parameterType="java.util.Map"  resultMap="BaseResultMap">
+	select  
+		cr.release_id as id,
+		cr.release_id,
+		cr.credit_value_id,
+		cr.matching_id,
+		c.customer_name,/** 出借人 */
+		c.customer_cert_num,/** 出借人身份证号 */
+		la.lend_code,/** 出借编号 */ 
+		tcr.lend_release_credit_value,/** 到期释放金额 */
+		la.apply_expire_day,/** 出借到期日 */
+		b.loan_code,/** 借款ID */
+		b.loan_name,/** 借款人 */
+		b.loan_idcard,/** 借款人身份证号 */
+		b.dict_loan_type,/** 债权来源 */
+		b.loan_trustee_flag,/** 债权标识 */
+		b.dic_loan_distinguish,/** 债权区分 */
+		b.loan_product,/** 借款产品 */
+		b.loan_purpose,/** 借款用途 */
+		b.loan_months,/** 借款期数 */
+		b.loan_months_surplus,/** 剩余期数 */
+		b.loan_backmoney_firday,/** 首次还款日 */
+		b.loan_quota,/** 原始债权价值 */
+		cr.release_credit_value,/** 释放金额 */
+		b.loan_backmoney_day,/** 还款日 */
+		b.loan_month_rate,/** 月利率 */
+		cr.release_state,/** 转出状态 */
+		cr.release_flag,/** 转出标识 */
+		cr.release_time, /** 转出日期 */
+		decode(b.dict_loan_free_flag,'2','TJ','') as tj_flag,/** 提前结清标识 */
+		b.loan_freeze_day, /** 提前结清日期 */
+		case when (b.loan_quota - (b.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money))) >= 0 
+		then null
+		else (b.loan_quota - (b.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money)))
+		end as zq_state /** 债权情况 */
+	from tz.t_tz_creditor_release cr 
+		left join tz.t_tz_borrow b on cr.credit_value_id = b.credit_value_id
+		left join tz.t_tz_loan_apply la on cr.lend_code = la.lend_code
+		left join tz.t_tz_customer c on la.customer_code = c.customer_code
+		left join (select lend_code,matching_id,sum(release_credit_value) as lend_release_credit_value from tz.t_tz_creditor_release group by lend_code,matching_id) tcr on tcr.lend_code = cr.lend_code and tcr.matching_id = cr.matching_id
+		left join (select credit_value_id,sum(release_credit_value) as borrow_release_credit_value from tz.t_tz_creditor_release where is_release = '0' and release_state in ('0') group by credit_value_id) bcr on bcr.credit_value_id = cr.credit_value_id
+		left join (select credit_value_id,sum(release_money) release_money
+			from (
+					SELECT
+						lp.loan_code as credit_value_id,
+						case when c.matching_pay_status = '0'
+						then (lp.phase_principal_cur+lp.phase_principal_surplus)
+						else lp.phase_principal_surplus
+						end release_money
+					FROM  
+						tz.t_tz_loan_apply a 
+						join tz.t_tz_matching_creditor c on a.lend_code = c.lend_code
+						join tz.t_tz_loanphase lp on c.matching_id = lp.matching_id
+					where a.status 			  != '2' /**提前赎回*/
+						and a.lend_status 		   = '11'  
+						and a.product_code 		  != '86'
+						and c.matching_status      = '160'
+						and c.matching_expire_day >= a.apply_expire_day
+						
+						and lp.phase_discard_status = '0' /**未废弃*/
+						and lp.phase_release_status = '0' /**没释放*/
+						
+						and a.apply_expire_day > sysdate
+			) group by credit_value_id	) rcr on rcr.credit_value_id = cr.credit_value_id
+	<include refid="findListWhere"></include>
+    order by la.apply_expire_day,la.lend_code,b.loan_code
+  </select>
+  
+  <sql id="findListWhere">
+  	<where>
+  		cr.is_release = '0'
+  		<!-- 借款人 -->
+  		<if test="loanName != null and loanName != ''">
+  			and b.loan_name like '%${loanName}%'
+  		</if>
+  		<!-- 债权释放金额 -->
+  		<if test="releaseCreditValueFrom != null and releaseCreditValueFrom != ''">
+  			and cr.release_credit_value <![CDATA[>=]]> ${releaseCreditValueFrom}
+  		</if>
+  		<if test="releaseCreditValueTo != null and releaseCreditValueTo != ''">
+  			and cr.release_credit_value <![CDATA[<=]]> ${releaseCreditValueTo}
+  		</if>
+  		<!-- 剩余期数 -->
+  		<if test="loanMonthsSurplus != null and loanMonthsSurplus != ''">
+  			and b.loan_months_surplus = ${loanMonthsSurplus}
+  		</if>
+  		<if test="loanMonthsSurplusFrom != null and loanMonthsSurplusFrom != ''">
+  			and b.loan_months_surplus <![CDATA[>=]]> cast(${loanMonthsSurplusFrom} as NUMERIC)
+  		</if>
+  		<if test="loanMonthsSurplusTo != null and loanMonthsSurplusTo != ''">
+  			and b.loan_months_surplus <![CDATA[<=]]> cast(${loanMonthsSurplusTo} as NUMERIC)
+  		</if>
+  		<!-- 还款日 -->
+  		<if test="loanBackmoneyDay != null and loanBackmoneyDay != '' ">
+ 	 		and b.loan_backmoney_day in 
+ 	 		<foreach collection="loanBackmoneyDay" index="index" item="item" open="(" separator="," close=")">  
+	            #{item}   
+	    	</foreach> 
+ 	 	</if>
+ 	 	<!-- 月利率 -->
+ 	 	<if test="loanMonthRate != null and loanMonthRate != '' ">
+ 	 		and b.loan_month_rate = ${loanMonthRate}
+ 	 	</if>
+ 	 	<!-- 首次还款日 -->
+ 	 	<if test="loanBackmoneyFirdayFrom !=null and loanBackmoneyFirdayFrom != '' ">
+ 	 	    and b.loan_backmoney_firday <![CDATA[>=]]> to_timestamp(#{loanBackmoneyFirdayFrom},'YYYY-MM-DD')
+ 	 	</if>
+ 	 	<if test="loanBackmoneyFirdayTo !=null and loanBackmoneyFirdayTo != '' ">
+ 	 	    and b.loan_backmoney_firday <![CDATA[<=]]> to_timestamp(#{loanBackmoneyFirdayTo},'YYYY-MM-DD')
+ 	 	</if>
+ 	 	<!-- 债权区分 -->
+ 	 	<if test="dicLoanDistinguish !=null and dicLoanDistinguish != '' ">
+ 	 		and b.dic_loan_distinguish in 
+ 	 		<foreach collection="dicLoanDistinguish" index="index" item="item" open="(" separator="," close=")">  
+	            #{item}   
+	    	</foreach>
+	    </if> 
+ 	 	<!-- 债权来源  -->
+ 	 	<if test="dictLoanType != null and dictLoanType != '' ">
+ 	 	 	and b.dict_loan_type in 
+ 	 	 	<foreach collection="dictLoanType" index="index" item="item" open="(" separator="," close=")">  
+	            #{item}   
+	    	</foreach> 
+ 	 	</if>
+ 	 	<!-- 债权标识 -->
+ 	 	<if test="loanTrusteeFlag !=null and loanTrusteeFlag != '' ">
+	 	 	and b.loan_trustee_flag in 
+	 	 	<foreach collection="loanTrusteeFlag" index="index" item="item" open="(" separator="," close=")">  
+	            #{item}   
+	    	</foreach> 
+ 	 	</if>
+ 	 	<!-- 出借到期日 -->
+ 	 	<if test="applyExpireDayFrom !=null and applyExpireDayFrom != '' ">
+ 	 	    and la.apply_expire_day <![CDATA[>=]]> to_timestamp(#{applyExpireDayFrom},'YYYY-MM-DD')
+ 	 	</if>
+ 	 	<if test="applyExpireDayTo !=null and applyExpireDayTo != '' ">
+ 	 	    and la.apply_expire_day <![CDATA[<=]]> to_timestamp(#{applyExpireDayTo},'YYYY-MM-DD')
+ 	 	</if>
+ 	 	<!-- 转出状态 -->
+ 	 	<if test="releaseState !=null and releaseState != '' ">
+	 	 	and cr.release_state in 
+	 	 	<foreach collection="releaseState" index="index" item="item" open="(" separator="," close=")">  
+	            #{item}   
+	    	</foreach> 
+ 	 	</if>
+ 	 	<!-- 转出时间 -->
+ 	 	<if test="releaseTimeFrom !=null and releaseTimeFrom != '' ">
+ 	 	    and to_date(to_char(cr.release_time,'YYYY-MM-DD'),'YYYY-MM-DD') <![CDATA[>=]]> #{releaseTimeFrom}
+ 	 	</if>
+ 	 	<if test="releaseTimeTo !=null and releaseTimeTo != '' ">
+ 	 	    and to_date(to_char(cr.release_time,'YYYY-MM-DD'),'YYYY-MM-DD') <![CDATA[<=]]> #{releaseTimeTo}
+ 	 	</if>
+ 	 	<!-- 转出标识 -->
+ 	 	<if test="releaseFlag !=null and releaseFlag != '' ">
+	 	 	and cr.release_flag in 
+	 	 	<foreach collection="releaseFlag" index="index" item="item" open="(" separator="," close=")">  
+	            #{item}   
+	    	</foreach> 
+ 	 	</if>
+ 	 	<!-- 借款ID -->
+ 	 	<if test="creditValueIdFlag !=null and creditValueIdFlag != '' ">
+ 	 		<if test="creditValueIdFlag == 0 ">
+ 	 			and b.loan_code is null
+ 	 		</if>
+ 	 		<if test="creditValueIdFlag == 1 ">
+ 	 			and b.loan_code is not null
+ 	 		</if>
+ 	 	</if>
+ 	 	<!-- 证件类型 -->
+ 	 	<if test="customerCertType !=null and customerCertType != '' ">
+ 	 		<if test="customerCertType == 0 ">
+ 	 			and c.dict_customer_cert_type = '0'
+ 	 		</if>
+ 	 		<if test="customerCertType == 1 ">
+ 	 			and c.dict_customer_cert_type != '0'
+ 	 		</if>
+ 	 	</if>
+ 	 	<!-- 选中项ID -->
+ 	 	<if test="ids != null and ids != ''">
+			and cr.release_id in 
+			<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">  
+		           #{item}   
+		   	</foreach> 
+	   	</if>
+	   	<!-- 提前结清标识 -->
+	   	<if test="tjFlag !=null and tjFlag != '' ">
+ 	 		<if test="tjFlag == 0 ">
+ 	 			and b.dict_loan_free_flag = '2'
+ 	 		</if>
+ 	 		<if test="tjFlag == 1 ">
+ 	 			and b.dict_loan_free_flag != '2'
+ 	 		</if>
+ 	 	</if>
+	   	
+	   	<!-- 提前结清日期 -->
+ 	 	<if test="loanFreezeDayFrom !=null and loanFreezeDayFrom != '' ">
+ 	 	    and to_date(to_char(b.loan_freeze_day,'YYYY-MM-DD'),'YYYY-MM-DD') <![CDATA[>=]]> #{loanFreezeDayFrom}
+ 	 	</if>
+ 	 	<if test="loanFreezeDayTo !=null and loanFreezeDayTo != '' ">
+ 	 	    and to_date(to_char(b.loan_freeze_day,'YYYY-MM-DD'),'YYYY-MM-DD') <![CDATA[<=]]> #{loanFreezeDayTo}
+ 	 	</if>
+ 	 	
+ 	 	<!-- 债权情况 -->
+ 	 	<if test="zqState !=null and zqState != '' ">
+ 	 		<if test="zqState == 0 ">
+ 	 			and (b.loan_quota - (b.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money))) <![CDATA[<]]> 0
+ 	 		</if>
+ 	 		<if test="zqState == 1 ">
+ 	 			and (b.loan_quota - (b.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money))) <![CDATA[>=]]> 0
+ 	 		</if>
+ 	 	</if>
+  	</where>
+  </sql>
+  
+  <!-- 查询 总金额 -->
+  <select id="findAllMoney" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+  	select
+		sum(release_credit_value) as loan_credit_value
+	from tz.t_tz_creditor_release cr 
+		left join tz.t_tz_borrow b on cr.credit_value_id = b.credit_value_id
+		left join tz.t_tz_loan_apply la on cr.lend_code = la.lend_code
+		left join tz.t_tz_customer c on la.customer_code = c.customer_code
+		left join (select credit_value_id,sum(release_credit_value) as borrow_release_credit_value from tz.t_tz_creditor_release where is_release = '0' and release_state in ('0') group by credit_value_id) bcr on bcr.credit_value_id = cr.credit_value_id
+		left join (select credit_value_id,sum(release_money) release_money
+			from (
+					SELECT
+						lp.loan_code as credit_value_id,
+						case when c.matching_pay_status = '0'
+						then (lp.phase_principal_cur+lp.phase_principal_surplus)
+						else lp.phase_principal_surplus
+						end release_money
+					FROM  
+						tz.t_tz_loan_apply a 
+						join tz.t_tz_matching_creditor c on a.lend_code = c.lend_code
+						join tz.t_tz_loanphase lp on c.matching_id = lp.matching_id
+					where a.status 			  != '2' /**提前赎回*/
+						and a.lend_status 		   = '11'  
+						and a.product_code 		  != '86'
+						and c.matching_status      = '160'
+						and c.matching_expire_day >= a.apply_expire_day
+						
+						and lp.phase_discard_status = '0' /**未废弃*/
+						and lp.phase_release_status = '0' /**没释放*/
+						
+						and a.apply_expire_day > sysdate
+			) group by credit_value_id	) rcr on rcr.credit_value_id = cr.credit_value_id
+  	<include refid="findListWhere"></include>
+  </select>
+  
+  <!-- 查询 总金额[先四舍五入后求和] -->
+  <select id="findAllMoney2" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+  	select
+		sum(round(release_credit_value,2)) as loan_credit_value
+	from tz.t_tz_creditor_release cr 
+		left join tz.t_tz_borrow b on cr.credit_value_id = b.credit_value_id
+		left join tz.t_tz_loan_apply la on cr.lend_code = la.lend_code
+		left join tz.t_tz_customer c on la.customer_code = c.customer_code
+		left join (select credit_value_id,sum(release_credit_value) as borrow_release_credit_value from tz.t_tz_creditor_release where is_release = '0' and release_state in ('0') group by credit_value_id) bcr on bcr.credit_value_id = cr.credit_value_id
+		left join (select credit_value_id,sum(release_money) release_money
+			from (
+					SELECT
+						lp.loan_code as credit_value_id,
+						case when c.matching_pay_status = '0'
+						then (lp.phase_principal_cur+lp.phase_principal_surplus)
+						else lp.phase_principal_surplus
+						end release_money
+					FROM  
+						tz.t_tz_loan_apply a 
+						join tz.t_tz_matching_creditor c on a.lend_code = c.lend_code
+						join tz.t_tz_loanphase lp on c.matching_id = lp.matching_id
+					where a.status 			  != '2' /**提前赎回*/
+						and a.lend_status 		   = '11'  
+						and a.product_code 		  != '86'
+						and c.matching_status      = '160'
+						and c.matching_expire_day >= a.apply_expire_day
+						
+						and lp.phase_discard_status = '0' /**未废弃*/
+						and lp.phase_release_status = '0' /**没释放*/
+						
+						and a.apply_expire_day > sysdate
+			) group by credit_value_id	) rcr on rcr.credit_value_id = cr.credit_value_id
+  	<include refid="findListWhere"></include>
+  </select>
+  
+  <!-- 根据ids 查询到期债权释放信息 -->
+  <select id="findListByIds" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	select cr.*,b.loan_credit_value 
+  	from tz.t_tz_creditor_release cr 
+		left join tz.t_tz_borrow b on cr.credit_value_id = b.credit_value_id 
+	where 
+	<if test="ids != null and ids != ''">
+		cr.release_id in 
+		<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">  
+	           #{item}   
+	   	</foreach> 
+   	</if>
+  </select>
+  
+  <!-- 更新可用债权 -->  
+	<update id="updateBorrow" parameterType="java.util.Map" >
+	    UPDATE 
+	        tz.t_tz_borrow 
+	    <set> 
+	        <if test="releaseMoney != null">
+	            loan_credit_value = (cast(loan_credit_value as numeric) + cast(#{releaseMoney} as numeric)),
+	        </if>
+	     		<if test="modifyBy != null" >
+	       		modify_by = #{modifyBy,jdbcType=VARCHAR},
+	     		</if>
+	           <if test="modifyTime != null" >
+	       		modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+	     		</if>
+	    </set>
+	    where 
+			<trim prefixOverrides="AND | OR"> 
+		        <if test="creditValueId != null and creditValueId != ''">
+		            And credit_value_id = #{creditValueId}
+		        </if>
+			</trim>
+	</update>
+	
+	<!-- 添加债权列 -->
+	<sql id="insertCreditorColumn">
+	    id, 
+	    dict_check_node, 
+	    node_id, 
+	    operator, 
+	    operate_type, 
+	    matching_id, 
+	    befor_money, 
+	    operate_money, 
+	    after_money, 
+	    operate_time, 
+	    mac, 
+	    ip, 
+	    create_by, 
+	    create_time, 
+	    modify_by, 
+	    modify_time
+	</sql>
+	<!-- 添加债权管理记录 -->
+	<insert id="insertCreditorHis" parameterType="java.util.Map" >
+    	insert into tz.t_tz_creditor_his (
+    		<include refid="insertCreditorColumn"></include>
+    	) values (
+    		#{id},
+    		#{dictCheckNode},
+    		#{nodeId},
+    		#{operator},
+    		#{operateType},
+    		#{matchingId},
+    		#{beforMoney},
+    		#{operateMoney},
+    		#{afterMoney},
+    		#{operateTime},
+    		#{mac},
+    		#{ip},
+    		#{createBy},
+    		#{createTime},
+    		#{modifyBy},
+    		#{modifyTime}
+    	)
+  	</insert>
+  	
+  	<!-- 释放 -->
+  	<update id="updateCreditorReleaseForRelease" parameterType="java.util.Map">
+  		update 
+  			tz.t_tz_creditor_release
+  		<set> 
+  			is_release = '1',
+  			<if test="modifyBy != null and modifyBy != ''">
+	        	modify_by = #{modifyBy},
+	        </if>
+	        <if test="modifyTime != null and modifyTime != ''">
+	        	modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+	        </if>
+	    </set>
+  		where release_state = '0'
+  			<if test="releaseId != null and releaseId != ''">
+  				and release_id = #{releaseId}
+  			</if>
+  	</update>
+  	
+  	<!-- 转出 -->
+  	<update id="updateCreditorReleaseForOut" parameterType="java.util.Map">
+  		update 
+  			tz.t_tz_creditor_release
+  		<set> 
+	        <if test="releaseTime != null and releaseTime != ''">
+	        	release_time = #{releaseTime,jdbcType=TIMESTAMP},
+	        </if>
+	        <if test="releaseState != null and releaseState != ''">
+	        	release_state = #{releaseState},
+	        </if>
+	        <if test="releaseFlag != null and releaseFlag != ''">
+	        	release_flag = #{releaseFlag},
+	        </if>
+	        <if test="modifyBy != null and modifyBy != ''">
+	        	modify_by = #{modifyBy},
+	        </if>
+	        <if test="modifyTime != null and modifyTime != ''">
+	        	modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+	        </if>
+        </set>
+  		where release_state = '0'
+  			<if test="ids != null and ids != ''">
+		  		and release_id in 
+				<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">  
+			           #{item}   
+			   	</foreach>
+		   	</if> 
+  	</update>
+  	
+  	<!-- 确认转出 -->
+  	<update id="updateCreditorReleaseForConfirm" parameterType="java.util.Map">
+  		update 
+  			tz.t_tz_creditor_release
+  		<set> 
+	        <if test="releaseTime != null and releaseTime != ''">
+	        	release_time = #{releaseTime,jdbcType=TIMESTAMP},
+	        </if>
+	        <if test="releaseState != null and releaseState != ''">
+	        	release_state = #{releaseState},
+	        </if>
+	        <if test="modifyBy != null and modifyBy != ''">
+	        	modify_by = #{modifyBy},
+	        </if>
+	        <if test="modifyTime != null and modifyTime != ''">
+	        	modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+	        </if>
+        </set>
+  		where release_state = '1'
+  			<if test="ids != null and ids != ''">
+		  		and release_id in 
+				<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">  
+			           #{item}   
+			   	</foreach>
+		   	</if>
+  	</update>
+  	
+  	<!-- 结清 -->
+  	<update id="updateCreditorReleaseForEarlySettlement" parameterType="java.util.Map">
+  		update 
+  			tz.t_tz_creditor_release
+  		<set> 
+	        <if test="releaseTime != null and releaseTime != ''">
+	        	release_time = #{releaseTime,jdbcType=TIMESTAMP},
+	        </if>
+	        <if test="releaseState != null and releaseState != ''">
+	        	release_state = #{releaseState},
+	        </if>
+	        <if test="modifyBy != null and modifyBy != ''">
+	        	modify_by = #{modifyBy},
+	        </if>
+	        <if test="modifyTime != null and modifyTime != ''">
+	        	modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+	        </if>
+        </set>
+  		where release_state = '0'
+  			<if test="ids != null and ids != ''">
+		  		and release_id in 
+				<foreach collection="ids" index="index" item="item" open="(" separator="," close=")">  
+			           #{item}   
+			   	</foreach>
+		   	</if>
+  	</update>
+  	
+  	<!-- 检测是否可用Where -->
+  	<sql id="checkListWhere">
+  		<!-- 转出状态 -->
+  		<if test="checkReleaseState != null and checkReleaseState != ''">
+  			and cr.release_state in 
+  			<foreach collection="checkReleaseState" index="index" item="item" open="(" separator="," close=")">  
+		           #{item}   
+		   	</foreach>
+  		</if>
+  		<!-- 剩余期数 -->
+  		<if test="checkLoanMonthsSurplus != null and checkLoanMonthsSurplus != ''">
+  			and b.loan_months_surplus = ${checkLoanMonthsSurplus}
+  		</if>
+  		<!-- 借款ID -->
+ 	 	<if test="checkCreditValueIdFlag !=null and checkCreditValueIdFlag != '' ">
+ 	 		<if test="checkCreditValueIdFlag == 0 ">
+ 	 			and b.loan_code is null
+ 	 		</if>
+ 	 		<if test="checkCreditValueIdFlag == 1 ">
+ 	 			and b.loan_code is not null
+ 	 		</if>
+ 	 	</if>
+  	</sql>
+  	
+  	<!-- 检测是否可用查询 -->
+  	<select id="findCheck" parameterType="java.util.Map"  resultType="java.util.Map">
+  		select
+			count(cr.*) as cr_count,
+			nvl(sum(release_credit_value),0) as sum_money,
+			nvl(sum(round(release_credit_value,2)),0) as sum_round_money
+		from tz.t_tz_creditor_release cr 
+			left join tz.t_tz_borrow b on cr.credit_value_id = b.credit_value_id
+			left join tz.t_tz_loan_apply la on cr.lend_code = la.lend_code
+			left join tz.t_tz_customer c on la.customer_code = c.customer_code
+			left join (select lend_code,matching_id,sum(release_credit_value) as lend_release_credit_value from tz.t_tz_creditor_release group by lend_code,matching_id) tcr on tcr.lend_code = cr.lend_code and tcr.matching_id = cr.matching_id
+			left join (select credit_value_id,sum(release_credit_value) as borrow_release_credit_value from tz.t_tz_creditor_release where is_release = '0' and release_state in ('0') group by credit_value_id) bcr on bcr.credit_value_id = cr.credit_value_id
+			left join (select credit_value_id,sum(release_money) release_money
+				from (
+						SELECT
+							lp.loan_code as credit_value_id,
+							case when c.matching_pay_status = '0'
+							then (lp.phase_principal_cur+lp.phase_principal_surplus)
+							else lp.phase_principal_surplus
+							end release_money
+						FROM  
+							tz.t_tz_loan_apply a 
+							join tz.t_tz_matching_creditor c on a.lend_code = c.lend_code
+							join tz.t_tz_loanphase lp on c.matching_id = lp.matching_id
+						where a.status 			  != '2' /**提前赎回*/
+							and a.lend_status 		   = '11'  
+							and a.product_code 		  != '86'
+							and c.matching_status      = '160'
+							and c.matching_expire_day >= a.apply_expire_day
+							
+							and lp.phase_discard_status = '0' /**未废弃*/
+							and lp.phase_release_status = '0' /**没释放*/
+							
+							and a.apply_expire_day > sysdate
+				) group by credit_value_id	) rcr on rcr.credit_value_id = cr.credit_value_id
+	  	<include refid="findListWhere"></include>
+	  	<include refid="checkListWhere"></include>
+  	</select>
+  	
+  	<!-- 获取 债权情况为负的 借款人姓名 -->
+  	<select id="findZqLoanName" parameterType="java.util.Map"  resultType="java.util.Map">
+  		select string_agg(loan_name,',') as loan_name from (
+	  		select
+				DISTINCT b.loan_name,loan_id
+			from tz.t_tz_creditor_release cr 
+				left join tz.t_tz_borrow b on cr.credit_value_id = b.credit_value_id
+				left join tz.t_tz_loan_apply la on cr.lend_code = la.lend_code
+				left join tz.t_tz_customer c on la.customer_code = c.customer_code
+				left join (select lend_code,matching_id,sum(release_credit_value) as lend_release_credit_value from tz.t_tz_creditor_release group by lend_code,matching_id) tcr on tcr.lend_code = cr.lend_code and tcr.matching_id = cr.matching_id
+				left join (select credit_value_id,sum(release_credit_value) as borrow_release_credit_value from tz.t_tz_creditor_release where is_release = '0' and release_state in ('0') group by credit_value_id) bcr on bcr.credit_value_id = cr.credit_value_id
+				left join (select credit_value_id,sum(release_money) release_money
+					from (
+							SELECT
+								lp.loan_code as credit_value_id,
+								case when c.matching_pay_status = '0'
+								then (lp.phase_principal_cur+lp.phase_principal_surplus)
+								else lp.phase_principal_surplus
+								end release_money
+							FROM  
+								tz.t_tz_loan_apply a 
+								join tz.t_tz_matching_creditor c on a.lend_code = c.lend_code
+								join tz.t_tz_loanphase lp on c.matching_id = lp.matching_id
+							where a.status 			  != '2' /**提前赎回*/
+								and a.lend_status 		   = '11'  
+								and a.product_code 		  != '86'
+								and c.matching_status      = '160'
+								and c.matching_expire_day >= a.apply_expire_day
+								
+								and lp.phase_discard_status = '0' /**未废弃*/
+								and lp.phase_release_status = '0' /**没释放*/
+								
+								and a.apply_expire_day > sysdate
+					) group by credit_value_id	) rcr on rcr.credit_value_id = cr.credit_value_id
+	  		<include refid="findListWhere"></include>
+		  	<include refid="checkListWhere"></include>
+	  	)
+  	</select>
+  	
+  	<!-- 获取 债权释放金额 第一部分:释放前为负,释放后为正.(取正数部分的总额) -->
+  	<select id="getReleaseFirstPart" parameterType="java.util.Map"  resultType="java.util.Map">
+  		select sum(after_money) as add_money from ( 
+			select node_id,min(befor_money) befor_money,max(after_money) after_money,sum(operate_money) operate_money from ( 
+				select node_id,befor_money,after_money,operate_money from tz.t_tz_creditor_his ch 
+				where ch.operate_type = '15'  
+				and to_timestamp(to_char(ch.modify_time,'yyyy-mm-dd HH24:MI:SS'),'yyyy-mm-dd HH24:MI:SS')<![CDATA[>=]]>to_timestamp(#{startTime},'yyyy-mm-dd HH24:MI:SS' ) 
+				and to_timestamp(to_char(ch.modify_time,'yyyy-mm-dd HH24:MI:SS'),'yyyy-mm-dd HH24:MI:SS')<![CDATA[<=]]>to_timestamp(#{endTime},'yyyy-mm-dd HH24:MI:SS' ) 
+			) 
+			group by node_id 
+		) t0 left join tz.t_tz_borrow b on t0.node_id = b.credit_value_id 
+		where b.loan_months_surplus > 0 and b.dict_loan_free_flag = '1' and t0.befor_money <![CDATA[<]]> 0 and t0.after_money > 0 
+  	</select>
+  	
+  	<!-- 获取 债权释放金额 第二部分:释放前后均为正.(取变更金额的总额) -->
+  	<select id="getReleaseSecordPart" parameterType="java.util.Map"  resultType="java.util.Map">
+  		select sum(operate_money) as add_money from ( 
+			select node_id,min(befor_money) befor_money,max(after_money) after_money,sum(operate_money) operate_money from ( 
+				select node_id,befor_money,after_money,operate_money from tz.t_tz_creditor_his ch 
+				where ch.operate_type = '15' 
+				and to_timestamp(to_char(ch.modify_time,'yyyy-mm-dd HH24:MI:SS'),'yyyy-mm-dd HH24:MI:SS')<![CDATA[>=]]>to_timestamp(#{startTime},'yyyy-mm-dd HH24:MI:SS' ) 
+				and to_timestamp(to_char(ch.modify_time,'yyyy-mm-dd HH24:MI:SS'),'yyyy-mm-dd HH24:MI:SS')<![CDATA[<=]]>to_timestamp(#{endTime},'yyyy-mm-dd HH24:MI:SS' ) 
+			) 
+			group by node_id 
+		) t0 left join tz.t_tz_borrow b on t0.node_id = b.credit_value_id 
+		where b.loan_months_surplus > 0 and b.dict_loan_free_flag = '1' and t0.befor_money >= 0 
+  		
+  	</select>
+  	
+  	<!-- 新增 债权释放统计 -->
+	<insert id="insertReleaseStat" parameterType="java.util.Map" >
+    	insert into tz.t_tz_creditor_release_stat (
+    		stat_id,release_credit_value,release_start_time,release_end_time,create_by,create_time,modify_by,modify_time
+    	) values (
+    		#{id},
+    		#{releaseCreditValue},
+    		#{releaseStartTime},
+    		#{releaseEndTime},
+    		#{createBy},
+    		#{createTime},
+    		#{modifyBy},
+    		#{modifyTime}
+    	)
+  	</insert>
+</mapper>

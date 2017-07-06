@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.platform.dao.PlatformGotoRuleDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.platform.entity.PlatformGotoRule" >
+  	<id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="platform_id" property="platformId" jdbcType="VARCHAR" />
+    <result column="platform_rule_name" property="platformRuleName" jdbcType="VARCHAR" />
+     <result column="platform_rule" property="platformRule" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, platform_id, platform_rule_name, platform_rule, status, create_by, create_time, 
+    modify_by, modify_time
+  </sql>
+  
+  <select id="findList" resultType="com.creditharmony.fortune.platform.entity.PlatformGotoRule" 
+  		parameterType="com.creditharmony.fortune.platform.entity.PlatformGotoRule" >
+    select 
+    	<include refid="Base_Column_List" />
+    from t_tz_platform_goto_rule
+    <where>
+     <if test="id != null and id != ''">
+     	and id = #{id}
+     </if>
+     <if test="platformId != null and platformId != ''" >
+        and platform_id = #{platformId}
+      </if>
+      <if test="platformRuleName != null and  platformRuleName != ''" >
+       	and platform_rule_name = #{platformRuleName}
+      </if>
+      <if test="platformRule != null and  platformRule != ''" >
+        and platform_rule = #{platformRule}
+      </if>
+      <if test="status != null and status != ''" >
+        and status &lt;&gt; #{status}
+      </if>
+    </where>
+  </select>
+  
+  <select id="get" resultType="com.creditharmony.fortune.platform.entity.PlatformGotoRule" 
+  		parameterType="com.creditharmony.fortune.platform.entity.PlatformGotoRule" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_platform_goto_rule
+    <where>
+    	<if test="id != null and id != ''">
+    		id = #{id,jdbcType=VARCHAR}
+    	</if>
+    	<if test="platformId != null and platformId != ''">
+    		and platform_id = #{platformId,jdbcType=VARCHAR}
+    	</if>
+        <if test="status != null and status != ''" >
+        	and status &lt;&gt; #{status}
+      	</if>
+    </where>
+  </select>
+  
+  <!-- 查询单个实例 -->
+  <select id="findPlatformGotoRule" parameterType="com.creditharmony.fortune.platform.entity.PlatformGotoRule" 
+  	resultType="com.creditharmony.fortune.platform.entity.PlatformGotoRule">
+  	select * from tz.t_tz_platform_goto_rule
+  	where status= #{status,jdbcType=VARCHAR} and platform_id = #{platformId,jdbcType=VARCHAR}
+  </select>
+  
+  <insert id="insert" parameterType="com.creditharmony.fortune.platform.entity.PlatformGotoRule" >
+    insert into t_tz_platform_goto_rule (id, platform_id, platform_rule_name, 
+      platform_rule, status, create_by, 
+      create_time, modify_by, modify_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{platformId,jdbcType=VARCHAR}, #{platformRuleName,jdbcType=VARCHAR}, 
+      #{platformRule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  
+  <update id="update" parameterType="com.creditharmony.fortune.platform.entity.PlatformGotoRule" >
+    update t_tz_platform_goto_rule
+    <set >
+      <if test="platformId != null" >
+        platform_id = #{platformId,jdbcType=VARCHAR},
+      </if>
+      <if test="platformRuleName != null" >
+        platform_rule_name = #{platformRuleName,jdbcType=VARCHAR},
+      </if>
+      <if test="platformRule != null" >
+        platform_rule = #{platformRule,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <where>
+    	<if test="id != null and id != ''">
+    		id = #{id,jdbcType=VARCHAR}
+    	</if>
+    	<if test="platformId != null and platformId != ''">
+    		and platform_id = #{platformId,jdbcType=VARCHAR}
+    	</if>
+    </where>
+  </update>
+</mapper>

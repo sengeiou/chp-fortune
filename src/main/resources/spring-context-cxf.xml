@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	
+	<bean id="OcrServerImpl"
+		class="com.creditharmony.fortune.app.webservice.ocr.server.OcrServerImpl" />
+	<jaxws:server id="OcrServer"
+		serviceClass="com.creditharmony.fortune.app.webservice.ocr.server.IOcrServer"
+		address="/ocrAppServer/lend">
+		<jaxws:serviceBean>
+			<ref bean="OcrServerImpl" />
+		</jaxws:serviceBean>
+	</jaxws:server>
+	
+	<bean id="EmpServerImpl"
+		class="com.creditharmony.fortune.app.webservice.development.server.EmpServerImpl" />
+	<jaxws:server id="EmpServer"
+		serviceClass="com.creditharmony.fortune.app.webservice.development.server.EmpServer"
+		address="/ocrAppServer/deprecation">
+		<jaxws:serviceBean>
+			<ref bean="EmpServerImpl" />
+		</jaxws:serviceBean>
+	</jaxws:server>
+	
+	<bean id="EmpHelperServerImpl"
+		class="com.creditharmony.fortune.app.webservice.development.server.EmpHelperServerImpl" />
+	<jaxws:server id="EmpHelperServer"
+		serviceClass="com.creditharmony.fortune.app.webservice.development.server.EmpHelperServer"
+		address="/ocrAppServer/deprecationHelper">
+		<jaxws:serviceBean>
+			<ref bean="EmpHelperServerImpl" />
+		</jaxws:serviceBean>
+	</jaxws:server>
+	
+</beans>

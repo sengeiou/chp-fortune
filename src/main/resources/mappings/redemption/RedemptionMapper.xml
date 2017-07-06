@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.redemption.common.dao.RedemptionDao" >
+	<!-- 获取可赎回申请列表 -->
+	<select id="findByParams" resultType="com.creditharmony.fortune.redemption.common.entity.ext.Redemptionex">
+		SELECT 
+			loan.lend_code,
+			apply_lend_day,
+			apply_lend_money,
+			apply_billday,
+			apply_pay,
+			product_name,
+			cust.customer_code,
+			customer_name,
+			usr.name as userName,
+			org.name as orgName,
+			pc1.area_name as addrProvince,
+			pc2.area_name as addrCity
+
+		FROM 
+			tz.t_tz_loan_apply loan
+		LEFT JOIN 
+			tz.t_tz_customer cust ON loan.customer_code=cust.customer_code
+		LEFT JOIN 
+			tz.t_gl_user usr ON usr.id=loan.manager_code
+		LEFT JOIN 
+			tz.t_gl_org org ON org.id=loan.store_org_id
+		LEFT JOIN 
+			t_gl_province_city pc1 ON pc1.id=org.province_id
+		LEFT JOIN 
+			t_gl_province_city pc2 ON pc2.id=org.city_id
+		LEFT JOIN 
+			tz.t_gl_tz_product p ON p.product_code=loan.product_code
+		<where>
+			loan.apply_expire_day <![CDATA[>]]> now()
+			AND loan.lend_code NOT IN (
+				SELECT lend_code FROM t_tz_redemption)
+			AND loan.lend_code NOT IN (
+				SELECT
+				    api.lend_code
+				FROM
+				    t_tz_loan_apply api 
+				LEFT JOIN 
+					t_tz_transfer_relation tri ON tri.lend_code_childe = api.lend_code 
+				LEFT JOIN 
+					t_tz_redemption ri ON ri.lend_code = tri.lend_code_parent
+				WHERE
+				    api.apply_pay = #{limitApplyPay}
+				    AND(NOW()::DATE - (ri.linit_day)::DATE) &lt; #{limitDay})
+			<if test="lendStatus != null and lendStatus != ''">
+	            AND	loan.lend_status = #{lendStatus}
+	      	</if>
+			<if test="status != null and status != ''">
+	            AND	loan.status = #{status}
+	      	</if>
+			<!-- <if test="userId != null and userId != ''">
+	            AND	loan.manager_code = #{userId}
+	      	</if> -->
+			<if test="dictApplyEndState != null and dictApplyEndState != ''">
+	            AND	loan.dict_apply_end_state = #{dictApplyEndState}
+	      	</if>
+			<if test="customerNameList !=null">
+	      		AND
+				<foreach collection="customerNameList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_name like '%${item}%'
+		    	</foreach>
+			</if>
+	      	<if test="customerCodeList !=null">
+				AND
+				<foreach collection="customerCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="lendCodeList !=null">
+				AND 
+				<foreach collection="lendCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		loan.lend_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="productCodeList != null ">
+	            AND p.product_code IN 
+	            <foreach collection="productCodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+	      	</if>
+			<if test="exProductList != null ">
+	            AND p.product_code NOT IN 
+	            <foreach collection="exProductList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+	      	</if>
+			<if test="orgList !=null ">
+				AND loan.store_org_id in
+				<foreach collection="orgList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="addrCity != null and addrCity != ''">
+		    	AND org.province_id||'_'||org.city_id SIMILAR TO #{addrCity}
+	      	</if>
+			<if test="applyLendDay != null and applyLendDay != ''">
+	            AND loan.apply_lend_day &gt;= #{applyLendDay}
+	      	</if>
+			<if test="applyLendDayTo != null and applyLendDayTo != ''">
+	            AND loan.apply_lend_day &lt;= #{applyLendDayTo}
+	      	</if>
+			<if test="applyDeductDay != null and applyDeductDay != ''">
+	            AND loan.apply_deduct_day &gt;= #{applyDeductDay}
+	      	</if>
+			<if test="applyDeductDayTo != null and applyDeductDayTo != ''">
+	            AND loan.apply_deduct_day &lt;= #{applyDeductDayTo}
+	      	</if>
+			<if test="billdayList != null and billdayList != ''">
+	            AND loan.apply_billday in 
+	            <foreach collection="billdayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+	      	</if>
+			<if test="applyLendMoney != null and applyLendMoney != ''">
+	            AND loan.apply_lend_money &gt;=	#{applyLendMoney}
+	      	</if>
+			<if test="applyLendMoneyTo != null and applyLendMoneyTo != ''">
+	            AND loan.apply_lend_money &lt;=	#{applyLendMoneyTo}
+	      	</if>
+			<if test="applyExpireDay != null and applyExpireDay != ''">
+	            AND loan.apply_expire_day &gt;= #{applyExpireDay}
+	      	</if>
+			<if test="applyExpireDayTo != null and applyExpireDayTo != ''">
+	            AND loan.apply_expire_day &lt;= #{applyExpireDayTo}
+	      	</if>
+			<if test="applyPayList != null ">
+	            AND loan.apply_pay in 
+	            <foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+	      	</if>
+			<if test="managerCode != null and managerCode != ''">
+	            AND usr.name like '%${managerCode}%'
+	      	</if>
+	      	${sqlMap.dataRights}
+		</where>
+	</select>
+	
+	<!-- 根据applyID 获取赎回信息 -->
+	<select id="getRedemptionByApplyId" resultType="com.creditharmony.fortune.redemption.common.view.RedemptionApplyEntity">
+		SELECT 
+			apply.lend_code as lendCode,
+			apply_deduct_day as applyDeductDay,
+			apply_lend_day as applyLendDay,
+			apply_contract_no as applyContractNo,
+			apply_pay as applyPay,
+			apply_lend_money as applyLendMoneyd,
+			apply_agreement_edition as applyAgreementEdition,
+			dict_apply_deduct_type as dictApplyDeductType,
+			apply_billday as applyBillday,
+			apply_expire_day as applyExpireDay,
+			
+			<!-- name as department, -->
+			apply.store_org_id as orgID,
+			org.province_id as province,
+			org.city_id as city,
+			
+			apply.product_code as productCode,
+			p.product_name as productName,
+			case when apply.apply_lend_day <![CDATA[ < ]]> TO_DATE('2016-01-05','yyyy-MM-dd')  
+			then  p.old_year_profit ELSE p.new_year_profit END as expectProfit,
+			product_type_code as producType,
+			
+			apply.customer_code as customerCode,
+			customer_name as customerName,
+			customer_cert_num as customerCertNum,
+			
+			account_bank as accountBank,
+			account_card_or_booklet as accountCardOrBooklet,
+			account_branch as accountBranch,
+			account_name as accountName,
+			account_no as accountNo,
+			
+			pc1.area_name as accountAddrprovince,
+			pc2.area_name as accountAddrcity,
+			pc3.area_name as accountAddrdistrict,
+			fpc1.area_name as faccountAddrprovince,
+			fpc2.area_name as faccountAddrcity,
+			fpc3.area_name as faccountAddrdistrict,
+			
+			red.redemption_id as redemptionId,
+			redemption_time as redemptionTime,
+			redemption_type as redemptionType,
+			redemption_money as redemptionMoney,
+			residual_amount as residualAmount,
+			redemption_demoney as redemptionDeMoney,
+			redemption_bmoney as redemptionBMoney,
+			redemption_rece_type as redemptionReceType,
+			linit_day as linitDay,
+			feedback as feedback,
+			feedback_money as feedbackMoney,
+			feedback_remark as feedbackRemark,
+			check_sp as checkSp,
+			check_spmoney as checkSpmoney,
+			check_spremarks as checkSpremarks,
+			
+			rlog.apply_id as applyId,
+			rlog.check_examinetype as checkExaminetype,
+			rlog.check_examine as checkExamine
+			
+		FROM
+			tz.t_tz_loan_apply apply
+		LEFT JOIN
+			tz.t_gl_tz_product p ON p.product_code=apply.product_code
+		<!-- LEFT JOIN
+			tz.t_gl_tz_product_type ptp ON ptp.product_type_code=p.product_type_code -->
+		LEFT JOIN
+			tz.t_tz_customer cust ON cust.customer_code=apply.customer_code
+		LEFT JOIN
+			tz.t_tz_customer_account account ON apply.receiving_id=account.id
+		LEFT JOIN
+			t_gl_province_city pc1 ON pc1.id=account.account_addrprovince
+		LEFT JOIN
+			t_gl_province_city pc2 ON pc2.id=account.account_addrcity
+		LEFT JOIN
+			t_gl_province_city pc3 ON pc3.id=account.account_addrdistrict
+		LEFT JOIN
+			t_tz_fy_area_code fpc1 ON fpc1.area_code=account.account_addrprovince
+		LEFT JOIN
+			t_tz_fy_area_code fpc2 ON fpc2.area_code=account.account_addrcity
+		LEFT JOIN
+			t_tz_fy_area_code fpc3 ON fpc3.area_code=account.account_addrdistrict
+		LEFT JOIN
+			tz.t_tz_redemption red ON red.lend_code=apply.lend_code
+		LEFT JOIN
+			t_gl_org org ON org.id=apply.store_org_id
+		<!-- LEFT JOIN 
+			t_gl_province_city pc1 ON pc1.id=org.province_id
+		LEFT JOIN 
+			t_gl_province_city pc2 ON pc2.id=org.city_id -->
+		LEFT JOIN
+			t_tz_redemption_log rlog ON rlog.redemption_id=red.redemption_id
+		LEFT JOIN
+			t_tz_loan_workflow wf ON wf.lend_code=apply.lend_code
+		INNER JOIN 
+			(SELECT apply_id, MAX(check_time) crttm 
+				FROM t_tz_redemption_log 
+				GROUP BY apply_id) x ON rlog.check_time=x.crttm AND rlog.apply_id=x.apply_id
+		<where>
+			wf.apply_id=#{applyId} 
+		</where>
+	</select>
+	
+	<!-- 根据出借编号获取赎回信息 -->
+	<select id="getRedemptionByLendCode" resultType="com.creditharmony.fortune.redemption.common.view.RedemptionApplyEntity">
+		SELECT 
+			apply.lend_code as lendCode,
+			apply_deduct_day as applyDeductDay,
+			apply_lend_day as applyLendDay,
+			apply_contract_no as applyContractNo,
+			apply_pay as applyPay,
+			apply_lend_money as applyLendMoneyd,
+			apply_agreement_edition as applyAgreementEdition,
+			dict_apply_deduct_type as dictApplyDeductType,
+			apply_billday as applyBillday,
+			apply_expire_day as applyExpireDay,
+			
+			<!-- name as department, -->
+			apply.store_org_id as orgID,
+			org.province_id as province,
+			org.city_id as city,
+			
+			apply.product_code as productCode,
+			p.product_name as productName,
+			case when apply.apply_lend_day <![CDATA[ < ]]> TO_DATE('2016-01-05','yyyy-MM-dd')  
+			then  p.old_year_profit ELSE p.new_year_profit END as expectProfit,
+			product_type_code as producType,
+			
+			apply.customer_code as customerCode,
+			customer_name as customerName,
+			customer_cert_num as customerCertNum,
+			
+			account_bank as accountBank,
+			account_card_or_booklet as accountCardOrBooklet,
+			account_branch as accountBranch,
+			account_name as accountName,
+			account_no as accountNo,
+			
+			pc1.area_name as accountAddrprovince,
+			pc2.area_name as accountAddrcity,
+			pc3.area_name as accountAddrdistrict,
+			fpc1.area_name as faccountAddrprovince,
+			fpc2.area_name as faccountAddrcity,
+			fpc3.area_name as faccountAddrdistrict,
+			
+			red.redemption_id as redemptionId,
+			red.back_money_day as backMoneyDay,
+			redemption_time as redemptionTime,
+			redemption_type as redemptionType,
+			redemption_money as redemptionMoney,
+			residual_amount as residualAmount,
+			redemption_bmoney,
+			redemption_demoney as redemptionDeMoney,
+			redemption_rece_type as redemptionReceType,
+			linit_day as linitDay,
+			feedback as feedback,
+			feedback_money as feedbackMoney,
+			feedback_remark as feedbackRemark,
+			bmp.back_money_day as backMoneyDayOfLend
+		FROM
+			tz.t_tz_loan_apply apply
+		LEFT JOIN
+			tz.t_gl_tz_product p ON p.product_code=apply.product_code
+		<!-- LEFT JOIN
+			tz.t_gl_tz_product_type ptp ON ptp.product_type_code=p.product_type_code -->
+		LEFT JOIN
+			tz.t_tz_customer cust ON cust.customer_code=apply.customer_code
+		LEFT JOIN
+			tz.t_tz_customer_account account ON apply.receiving_id=account.id
+		LEFT JOIN
+			t_gl_province_city pc1 ON pc1.id=account.account_addrprovince
+		LEFT JOIN
+			t_gl_province_city pc2 ON pc2.id=account.account_addrcity
+		LEFT JOIN
+			t_gl_province_city pc3 ON pc3.id=account.account_addrdistrict
+		LEFT JOIN
+			t_tz_fy_area_code fpc1 ON fpc1.area_code=account.account_addrprovince
+		LEFT JOIN
+			t_tz_fy_area_code fpc2 ON fpc2.area_code=account.account_addrcity
+		LEFT JOIN
+			t_tz_fy_area_code fpc3 ON fpc3.area_code=account.account_addrdistrict
+		LEFT JOIN
+			tz.t_tz_redemption red ON red.lend_code=apply.lend_code
+		LEFT JOIN
+			t_gl_org org ON org.id=apply.store_org_id
+		LEFT JOIN 
+			tz.t_tz_back_money_pool bmp ON bmp.lend_code = apply.lend_code
+		<!-- LEFT JOIN 
+			t_gl_province_city pc1 ON pc1.id=org.province_id
+		LEFT JOIN 
+			t_gl_province_city pc2 ON pc2.id=org.city_id -->
+		<where>
+			apply.lend_code=#{lendCode}
+		</where>
+	</select>
+	
+	<update id="updateLoanApply">
+		UPDATE 
+			t_tz_loan_apply
+		SET 
+			status=#{status},
+			<if test="expireDate != null">
+				apply_expire_day=#{expireDate},
+			</if>
+			modify_time=#{modifyTime}, 
+			modify_by=#{modifyBy} 
+		WHERE
+			lend_code=#{applyCode}
+	</update>
+	
+	<select id="getProductByCode" resultType="com.creditharmony.fortune.customer.entity.Product">
+		SELECT * FROM 
+			t_gl_tz_product
+		WHERE 
+			product_code = #{productCode}
+	</select>
+	
+	<select id="getLastBackInterest" resultType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		SELECT
+		    pool.*
+		FROM
+		    T_TZ_BACK_INTEREST_POOL pool
+		WHERE
+		    lend_code = #{lendCode}
+		ORDER BY
+		    current_billday DESC limit 1
+	</select>
+	
+	<select id="getLastBackInterestDay" resultType="java.util.Date">
+		SELECT 
+			current_billday 
+		FROM 
+			t_tz_back_interest_pool
+		WHERE 
+			lend_code=#{lendCode} 
+			AND current_billday <![CDATA[<=]]> #{currentBillday}
+		ORDER BY
+	    	current_billday DESC limit 1	
+	</select>
+	
+	<select id="getBackInterestCount" resultType="java.lang.Integer">
+		select count(1) from tz.t_tz_back_interest_pool ip 
+		where 1=1 
+		and ip.back_money_status = '12'
+		and ip.lend_code = #{lendCode}
+		AND current_billday <![CDATA[<=]]> #{currentBillday}
+	</select>
+		
+	<update id="updateInterestPool">
+		UPDATE
+			t_tz_back_interest_pool
+		SET 
+			back_money_status=#{backMoneyStatus}, 
+			modify_by=#{modifyBy}, 
+			modify_time=#{modifyTime}
+		WHERE
+			backi_id=#{backiId}
+		AND
+			back_money_status NOT IN ('8','9','10','11','12');
+	</update>
+	
+	<select id="findPushList" resultType="com.creditharmony.fortune.redemption.common.entity.ext.Redemptionex">
+		SELECT 
+			redep.redemption_id,
+			redemption_type,
+			redemption_status,
+			redemption_rece_type,
+			back_money_day,
+			check_sp,
+			
+			loan.lend_code,
+			apply_lend_day,
+			apply_billday,
+			apply_lend_money,
+			apply_pay,
+			
+			cust.customer_code,
+			customer_name,
+			
+			product_name,
+			
+			org.name as orgName,
+			
+			pc1.area_name as addrProvince,
+			pc2.area_name as addrCity,
+			
+			usr.name as userName,
+			
+			check_time
+			
+		FROM 
+			tz.t_tz_redemption redep
+		LEFT JOIN
+			tz.t_tz_loan_apply loan ON loan.lend_code=redep.lend_code
+		LEFT JOIN
+			tz.t_tz_customer cust ON cust.customer_code=loan.customer_code
+		LEFT JOIN
+			tz.t_gl_user usr ON usr.id=loan.manager_code
+		LEFT JOIN
+			tz.t_gl_org org ON org.id=loan.store_org_id
+		LEFT JOIN 
+			t_gl_province_city pc1 ON pc1.id=org.province_id
+		LEFT JOIN 
+			t_gl_province_city pc2 ON pc2.id=org.city_id
+		LEFT JOIN
+			t_gl_tz_product p ON p.product_code=loan.product_code
+		LEFT JOIN
+			t_tz_redemption_log rlog ON rlog.redemption_id=redep.redemption_id
+		INNER JOIN 
+			(SELECT redemption_id, MAX(check_time) chktm 
+			FROM t_tz_redemption_log 
+			WHERE check_time IS NOT NULL 
+			GROUP BY redemption_id) x ON rlog.check_time=x.chktm AND rlog.redemption_id=x.redemption_id
+		<where>
+			redep.redemption_status = #{redemptionStatus}
+	      	<if test="customerNameList !=null">
+	      		AND
+				<foreach collection="customerNameList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_name like '%${item}%'
+		    	</foreach>
+			</if>
+	      	<if test="customerCodeList !=null">
+				AND
+				<foreach collection="customerCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="lendCodeList !=null">
+				AND 
+				<foreach collection="lendCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		loan.lend_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="productCodeList != null ">
+	            AND p.product_code IN 
+	            <foreach collection="productCodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+	      	</if>
+			<if test="orgList !=null ">
+				AND loan.store_org_id in
+				<foreach collection="orgList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="addrCity != null and addrCity != ''">
+		    	AND org.province_id||'_'||org.city_id SIMILAR TO #{addrCity}
+	      	</if>
+			<if test="applyLendMoney != null">
+	            AND loan.apply_lend_money &gt;=	#{applyLendMoney}
+	      	</if>
+			<if test="applyLendMoneyTo != null">
+	            AND loan.apply_lend_money &lt;=	#{applyLendMoneyTo}
+	      	</if>
+			<if test="applyExpireDay != null">
+	            AND loan.apply_expire_day &gt;= #{applyExpireDay}
+	      	</if>
+			<if test="applyExpireDayTo != null">
+	            AND loan.apply_expire_day &lt;= #{applyExpireDayTo}
+	      	</if>
+			<if test="checkTime != null">
+	            AND rlog.check_time &gt;= #{checkTime}
+	      	</if>
+			<if test="checkTimeTo != null">
+	            AND rlog.check_time &lt;= #{checkTimeTo}
+	      	</if>
+			<if test="backMoneyDay != null">
+	            AND redep.back_money_day &gt;= #{backMoneyDay}
+	      	</if>
+			<if test="backMoneyDayTo != null">
+	            AND redep.back_money_day &lt;= #{backMoneyDayTo}
+	      	</if>
+			<if test="applyPayList != null ">
+	            AND loan.apply_pay in 
+	            <foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+	      	</if>
+	      	<if test="billdayList != null and billdayList != ''">
+	            AND loan.apply_billday in 
+	            <foreach collection="billdayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+	      	</if>
+		</where>
+	</select>
+	
+	<update id="updateMatchingEnddayBylendCode" parameterType="com.creditharmony.fortune.creditor.matching.entity.MatchingCreditor">
+		UPDATE t_tz_matching_creditor
+	    <set >
+	      <if test="matchingEndday != null" >
+	        matching_endday = #{matchingEndday,jdbcType=DATE},
+	      </if>
+	      <if test="modifyBy != null" >
+	        modify_by = #{modifyBy,jdbcType=VARCHAR},
+	      </if>
+	      <if test="modifyTime != null" >
+	        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+	      </if>
+	    </set>
+	    WHERE
+	    	lend_code = #{lendCode}
+	</update>
+	
+	<delete id="deleteEmail" parameterType="java.util.Map">
+		DELETE FROM  tz."t_gl_email_info"
+		WHERE email_send_id in 
+		(SELECT
+		    mail.email_send_id
+		FROM
+		    tz.t_gl_email_info mail 
+		LEFT JOIN 
+			tz."t_tz_matching_creditor" cred ON mail.credit_id = cred.matching_id
+		WHERE
+		    mail.lend_code = #{lendCode}
+		    AND mail.email_send_status = #{emailSendStatus}
+		    AND mail.email_type = #{emailType}
+		    AND cred.matching_expire_day > #{linitDay});
+	</delete>
+</mapper>

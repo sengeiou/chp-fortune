@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.customer.dao.CommonDao" >
+
+  <select id="getCurrentCustCode" resultType="java.lang.String">
+  	  select currval('tz.seq_cust_code')
+  </select>
+  
+  <select id="getNextCustCode" resultType="java.lang.String">
+  	  select nextval('tz.seq_cust_code')
+  </select>
+  
+  <select id="getUserOrg" resultType="com.creditharmony.fortune.customer.entity.FortuneOrg">
+  	  select distinct
+    	org.id id,
+    	org.parent_id parentId,
+    	org.parent_ids parentIds,
+    	org.name,
+    	org.type,
+    	org.province_id provinceId,
+    	org.city_id cityId,
+    	org.district_id districtId
+from   tz.t_gl_user_role_org uro
+  join tz.t_gl_org org on org.id = uro.org_id
+where uro.user_id=#{userId,jdbcType=VARCHAR} 
+<if test="roleId != null and roleId != ''">
+  	and uro.role_id=#{roleId,jdbcType=VARCHAR}
+</if>
+<if test="orgType != null and orgType != ''">
+  	and org.type=#{orgType,jdbcType=VARCHAR}
+</if>
+union all
+   select distinct org.id id, org.parent_id parentId, org.parent_ids parentIds,
+      org.name, org.type, org.province_id provinceId, org.city_id cityId, org.district_id districtId
+   from tz.t_gl_user_role_org uro 
+join t_gl_org org1 on org1.id = uro.org_id
+join t_gl_org org  on ','||org1.parent_ids like '%,'||org.id||',%'
+where uro.user_id=#{userId,jdbcType=VARCHAR} 
+<if test="roleId != null and roleId != ''">
+  	and uro.role_id=#{roleId,jdbcType=VARCHAR}
+</if>
+<if test="orgType != null and orgType != ''">
+  	and org.type=#{orgType,jdbcType=VARCHAR}
+</if>
+  </select>
+  
+  <select id="getOrgMember" resultType="com.creditharmony.fortune.customer.entity.FortuneUser">
+  	  select distinct
+    	u.id id,
+    	u.user_code code,
+    	u.name,
+    	u.login_name loginName,
+    	uro.role_id roleId,
+    	u.status status
+from   tz.t_gl_org org
+  join tz.t_gl_org org1 on ','||org1.parent_ids like '%,'||org.id||',%'
+  join tz.t_gl_user_role_org uro on uro.org_id=org1.id
+  join tz.t_gl_user u on u.id = uro.user_id
+where org.id=#{orgId}
+      <if test="roleTypes != null">
+      	   and uro.role_id in 
+      	   <foreach collection="roleTypes" item="item" open="(" separator="," close=")">
+		       #{item,jdbcType=VARCHAR}
+		   </foreach>
+      </if>
+      <if test="userStatus != null and userStatus != ''">
+      	   and u.status = #{userStatus,jdbcType=VARCHAR}
+      </if>
+  union all
+  select distinct
+    	u.id id,
+    	u.user_code code,
+    	u.name,
+    	u.login_name loginName,
+    	uro.role_id roleId,
+    	u.status status
+from   tz.t_gl_org org
+  join tz.t_gl_user_role_org uro on uro.org_id=org.id
+  join tz.t_gl_user u on u.id = uro.user_id
+where org.id=#{orgId}
+      <if test="roleTypes != null">
+      	   and uro.role_id in 
+      	   <foreach collection="roleTypes" item="item" open="(" separator="," close=")">
+		       #{item,jdbcType=VARCHAR}
+		   </foreach>
+      </if>
+      <if test="userStatus != null and userStatus != ''">
+      	   and u.status = #{userStatus,jdbcType=VARCHAR}
+      </if>
+  </select>
+  
+  <select id="getSubOrg" resultType="com.creditharmony.fortune.customer.entity.FortuneOrg">
+  	  select distinct
+    	org1.id id,
+    	org1.parent_id parentId,
+    	org1.parent_ids parentIds,
+    	org1.name,
+    	org1.type,
+    	org1.province_id provinceId,
+    	org1.city_id cityId,
+    	org1.district_id districtId
+from   tz.t_gl_org org
+  join tz.t_gl_org org1 on ','||org1.parent_ids like '%,'||org.id||',%'
+where org.id=#{orgId}
+      <if test="orgTypes != null">
+      	   and org1.type in 
+      	   <foreach collection="orgTypes" item="item" open="(" separator="," close=")">
+		       #{item,jdbcType=VARCHAR}
+		   </foreach>
+      </if>
+  </select>
+  
+  <select id="getHigherOrg" resultType="com.creditharmony.fortune.customer.entity.FortuneOrg">
+  	  select distinct
+    	org1.id id,
+    	org1.parent_id parentId,
+    	org1.parent_ids parentIds,
+    	org1.name,
+    	org1.type,
+    	org1.province_id provinceId,
+    	org1.city_id cityId,
+    	org1.district_id districtId
+from   tz.t_gl_org org
+  join tz.t_gl_org org1 on ','||org.parent_ids like '%,'||org1.id||',%'
+where org.id=#{orgId}
+      <if test="orgTypes != null">
+      	   and org1.type in 
+      	   <foreach collection="orgTypes" item="item" open="(" separator="," close=")">
+		       #{item,jdbcType=VARCHAR}
+		   </foreach>
+      </if>
+  </select>
+  
+  <select id="getRoles" parameterType="java.lang.String" resultType="java.lang.String">
+  	  select role_id
+  	  from tz.t_gl_user_role_org
+  	  where user_id=#{userId}
+  </select>
+  
+</mapper>

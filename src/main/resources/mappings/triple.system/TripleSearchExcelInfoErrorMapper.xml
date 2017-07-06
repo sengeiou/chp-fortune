@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.delivery.dao.TripleSearchExcelInfoErrorDao">
+    <select id="findList" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+        select
+            d.id,
+			d.batchnumber as "batchNumber",
+			d.login_name as "loginName",
+			d.emp_code as "empCode",
+			d.emp_name as "empName",
+			d.org_name as "orgName",
+			d.new_emp_code as "newEmpCode",
+			d.new_emp_name as "newEmpName",
+			d.create_time as "createTime",
+			d.remark as "remark",
+			d.customer_code as "customerCode",
+			d.os_type as "osType"
+		from tz.int_delivery d
+		<where>
+		    <if test="deliveryType != null and deliveryType != ''">
+		        d.delivery_type = #{deliveryType,jdbcType=VARCHAR}
+		    </if>
+		    <if test="loginName != null and loginName != ''">
+		        and d.login_name = #{loginName,jdbcType=VARCHAR}
+		    </if>
+	        <if test="endTime != null and endTime != '' ">
+	            and to_char(d.create_time,'YYYY-MM-DD') <![CDATA[<=]]> #{endTime}
+	        </if>
+	        <if test="startTime != null and startTime != ''">
+	            and to_char(d.create_time,'YYYY-MM-DD') <![CDATA[>=]]> #{startTime} 
+	        </if>
+	        <if test="batchNumber != null and batchNumber != ''">
+	            and d.batchnumber like '%' || #{batchNumber} || '%'
+	        </if>
+	        <if test="customerCode != null and customerCode != ''">
+                and d.customer_code = #{customerCode,jdbcType=VARCHAR}
+            </if>
+	         <if test="osTypeList != null and osTypeList != ''">
+                and d.os_type in 
+                <foreach collection="osTypeList" item="item"  index="index" open="(" separator="," close=")">  
+                     '${item}' 
+                </foreach>
+            </if>
+		</where>
+		order by create_time desc
+    </select>
+</mapper>

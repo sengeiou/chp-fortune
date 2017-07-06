@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.change.lender.apply.dao.LenderChangeDao">
+
+	<!--客户信息 -->
+	<sql id="lenderChangeColumns">
+		a.customer_name as "custName",
+		a.customer_code as custCode,
+		a.create_time as "createTime",
+		a.customer_ename as
+		"custEname",
+		u.name    as "managerName",
+		a.manager_code as "managerId",
+		org.province_id as "addrProvince",
+		org.city_id as "addrCity",
+		a.dict_customer_source as "dictCustSource",
+		a.trusteeship_no as "trusteeshipNo",
+		teamUser.name as "teamManagerName",
+		team.name as "teamName"
+	</sql>
+	<!--客户详细信息 -->
+	<sql id="getDetailColumns">
+		a.customer_name as "custName",
+		a.customer_code as
+		"custCode",
+		a.create_time as "createTime",
+		a.customer_ename as
+		"custEname",
+		a.customer_mobilephone as "custMobilephone",
+		a.customer_tel as "custPhone",
+		a.customer_email as "custEmail",
+		a.customer_cert_org as "custCertOrg",
+		a.customer_cert_issueday as
+		"custCertIssuedate",
+		a.customer_cert_permanent as custCertPermanent,
+		a.dict_customer_sex as dictCustSex,
+		a.customer_first_contactday as
+		custFirstContactdate,
+		a.customer_birthday as custBirthday,
+		a.dict_customer_cert_type as custCertType,
+		a.customer_cert_num as custCertNum,
+		a.customer_occupation as custOccupation,
+		a.customer_industry as custIndustry,
+		a.customer_unitname as
+		custUnitname,
+		a.dict_customer_education as custEducation,
+		a.customer_work_experience as custWorkExperience,
+		a.customer_post as
+		custPost,
+		a.dict_customer_source as dictCustSource,
+		a.customer_fax as
+		custFax,
+		a.customer_unit_scale as custUnitScale,
+		u.name    as "managerName",
+		a.manager_code as "managerId",
+		org.province_id as "addrProvince",
+		org.city_id as "addrCity",
+		a.add_id as addrId,
+		a.dict_customer_marriage as custMarriage,
+		a.trusteeship_no as "trusteeshipNo",
+		a.apply_hosted_status as applyHostedStatus,
+		teamUser.name as "teamManagerName",
+		team.id as "teamName"
+	</sql>
+
+	<!--变更表字段 -->
+	<sql id="getLerderChangeInfo">
+		ce.change_id as id,
+		ce.change_begin changeBegin,
+		ce.change_after changeAfter,
+		ce.apply_id applyId,
+		ce.change_code changeCode ,
+		ce.change_type dictChangeType,
+		ce.dict_change_state dictChangeState
+	</sql>
+
+	<!--根据客户编号查询出借信息 -->
+	<sql id="getLenderLoanColumns">
+		li.id id,
+		li.customer_code custCode,
+		li.loan_bill_recv
+		loanBillRecv,
+		li.loan_sign loanSign,
+		li.loan_agreement_type
+		loanAgreementType,
+		li.loan_agreement_edition loanAgreementEdition,
+		li.agreemrnt_sign_day agreemrntSignDate
+	</sql>
+
+	<!--根据客户编号查询地址信息 -->
+	<sql id="getLenderAddrColumns">
+		addr.id id,
+		addr.addr_province addrProvince,
+		addr.addr_city
+		addrCity,
+		addr.addr_district addrDistrict,
+		addr.addr_postal_code
+		addrPostalCode,
+		addr.addr addr
+	</sql>
+
+	<!--紧急联系人字段 -->
+	<sql id="emerInfo">
+		emer.id id,
+		emer.customer_code,
+		emer.emer_name emerName,
+		emer.emer_ename emerEname,
+		emer.emer_sex emerSex,
+		emer.emer_type,
+		emer.emer_cert_no,
+		emer.emer_mobilephone emerMobilephone,
+		emer.emer_relationship emerRelationship,
+		emer.emer_phone emerPhone,
+		emer.emer_email emerEmail,
+		add_id addId
+	</sql>
+
+	<sql id="lenderChangeJoins">
+		left join t_gl_user  u on u.id = a.manager_code
+		left join t_gl_user  teamUser on teamUser.id = a.team_manager_code
+		left join
+		tz.t_tz_addr addr on addr.id=a.add_id  <!-- 地址 -->
+	</sql>
+
+	<!--查询已开户客户信息 -->
+	<select id="findList" resultType="com.creditharmony.fortune.change.lender.apply.entity.ext.CustomerEx">
+		SELECT
+		 org.name departmentName,
+		<include refid="lenderChangeColumns" />
+		FROM tz.t_tz_customer a
+		<include refid="lenderChangeJoins" />
+		left join t_gl_org org on org.id = a.org_code
+		left join t_gl_org team on team.id = a.team_org_id
+		<where>
+			a.dict_customer_state = #{dictCustomerState} 
+			<!-- 
+			and 
+			(
+				(not exists( select t1.change_code from t_tz_changer t1 where a.customer_code=t1.change_code and t1.change_type !='3')) 
+			or 
+             	(select t2.dict_change_state from t_tz_changer t2 where a.customer_code=t2.change_code and t2.change_type !='3' order by modify_time desc limit 0,1)=#{dictChangeState}
+            ) 
+            -->
+				and  a.apply_hosted_status !=#{applyHostedStatus}
+			<if test="custName != null and custName != ''">
+				AND a.customer_name LIKE '%'||#{custName}||'%'<!-- 姓名 -->
+			</if>
+			<if test="addrCity != null and addrCity != ''">
+				AND org.PROVINCE_ID||'_'||org.CITY_ID SIMILAR TO '%'|| replace(#{addrCity},',','%|%')|| '%' <!-- 城市 -->
+			</if>
+
+			<if test="custCode != null and custCode != ''">
+				AND a.customer_code LIKE '%'||#{custCode}||'%'<!-- 客户编码 -->
+			</if>
+             <!-- <if test="managerId != null and managerId != ''">
+	    	    and a.manager_code = #{managerId}
+	          </if> -->
+	          ${sqlMap.dataRights}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.modify_time DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--根据客户编码获取紧急人联系信息 -->
+	<select id="getLenderEmer" resultType="com.creditharmony.fortune.change.lender.apply.entity.ext.EmergencyContactEx">
+		SELECT
+
+		<include refid="emerInfo" />
+
+		FROM tz.t_tz_customer_emergency emer
+		<where>
+
+			emer.customer_code =#{cusCode}
+
+		</where>
+	</select>
+
+	<!--根据客户编码获取客户信息 -->
+	<select id="get" resultType="com.creditharmony.fortune.change.lender.apply.entity.ext.CustomerEx">
+		SELECT
+
+		<include refid="getDetailColumns" />
+
+		FROM tz.t_tz_customer a
+		<include refid="lenderChangeJoins" />
+		left join t_gl_org org on org.id = a.org_code
+		left join t_gl_org team on team.id = a.team_org_id
+		<where>
+
+			AND a.customer_code =#{custCode}
+
+		</where>
+	</select>
+
+	<!--根据applyId获取变更信息 -->
+	<select id="getChangeInfo" resultType="com.creditharmony.fortune.change.lender.apply.entity.LenderChangeInfo">
+		SELECT
+		<include refid="getLerderChangeInfo" />
+		FROM tz.t_tz_changer ce
+		<where>
+			AND ce.apply_id =#{applyId}
+		</where>
+	</select>
+
+	<!--保存变更信息 -->
+	<insert id="saveLenderChangeInfo">
+		INSERT INTO tz.t_tz_changer
+		(
+		change_id,
+		change_type,
+		change_code,
+		change_begin,
+		change_after,
+		apply_id,
+		dict_change_state,
+		create_by,
+		create_time,
+		modify_by,
+		modify_time
+		)
+		VALUES
+		(
+		#{id},#{dictChangeType}, #{changeCode}, #{changeBegin},
+		#{changeAfter},#{applyId},#{dictChangeState},#{createBy},#{createTime},#{modifyBy},#{modifyTime});
+
+	</insert>
+	
+	<!--修改变更信息 -->
+	<update id="updateChangeInfo">
+	UPDATE tz.t_tz_changer SET 
+		change_after=#{changeAfter},
+		dict_change_state=#{dictChangeState},
+		change_type=#{dictChangeType},
+		modify_by=#{modifyBy},
+		modify_time=#{modifyTime}
+	WHERE 
+	    change_id=#{changeId}
+	
+	</update>
+
+	<!--保存审批信息 -->
+	<insert id="saveApproveInfo">
+		INSERT INTO tz.t_tz_changer_log
+		(
+		change_id,
+		id,
+		check_examine,
+		dict_check_examinetype,
+		check_by_id,
+		apply_id,
+		create_by,
+		create_time,
+		modify_by,
+		modify_time,
+		dict_change_state
+		)
+		VALUES
+		( #{changeId}, #{id},#{auditCheckExamine},
+		#{auditResult},#{modifyBy},#{applyId},#{createBy},#{createTime},#{modifyBy},#{modifyTime},#{dictChangeState});
+
+	</insert>
+
+	<!-- 更新客户信息 -->
+	<update id="updateCust">
+
+		UPDATE tz.t_tz_customer set
+
+		customer_mobilephone=#{custMobilephone},
+		customer_tel=#{custPhone},
+		customer_email=#{custEmail},
+		<!--customer_cert_num=#{custCertNum}, -->
+		customer_cert_org=#{custCertOrg},
+		customer_cert_issueday=#{custCertIssuedate},
+		<!--customer_cert_failuredate=#{custCertFailuredate},  -->
+		customer_cert_permanent=#{custCertPermanent},
+		customer_ename=#{custEname},
+		dict_customer_marriage=#{custMarriage},
+		modify_by=#{modifyBy},
+		modify_time=#{modifyTime}
+		WHERE
+		customer_code=#{custCode}
+	</update>
+
+	<!-- 更新变更状态 -->
+	<update id="updateChangeState">
+
+		UPDATE tz.t_tz_changer set
+		dict_change_state=#{dictChangeState},
+		modify_by=#{modifyBy},
+		modify_time=#{modifyTime}
+		WHERE
+		change_id=#{id} and
+		change_type=#{dictChangeType}
+	</update>
+
+	<!-- 查询单个审批信息 -->
+	<select id="getApproveInfo" resultType="com.creditharmony.fortune.change.lender.apply.entity.LenderChangeLog">
+
+		SELECT
+		check_examine auditCheckExamine ,
+		dict_check_examinetype
+		auditResult
+		FROM tz.t_tz_changer_log ace
+		<where>
+			AND ace.apply_id =#{applyId}
+			and ace.dict_change_state = #{dictChangeState} 
+			<if test="auditResult != null and auditResult != ''">
+			AND ace.dict_check_examinetype =#{auditResult}
+			</if>
+			order by create_time desc
+			limit 0,1
+		</where>
+	</select>
+
+	<!-- 查询审批信息列表 -->
+	<select id="getApproveInfoList" resultType="com.creditharmony.fortune.change.lender.apply.entity.LenderChangeLog">
+
+		SELECT
+		check_examine auditCheckExamine ,
+		dict_check_examinetype
+		auditResult
+		FROM tz.t_tz_changer_log ace
+		<where>
+			AND ace.apply_id =#{applyId}
+			and ace.dict_change_state = #{dictChangeState} 
+			<if test="auditResult != null and auditResult != ''">
+			AND ace.dict_check_examinetype =#{auditResult}
+			</if>
+			order by create_time 
+		</where>
+	</select>
+
+	<!-- 更新地址表 -->
+	<update id="updateAddr">
+
+		UPDATE tz.t_tz_addr set
+		addr_province=#{addrProvince},
+		addr_city=#{addrCity},
+		addr_district=#{addrDistrict},
+		addr=#{addr},
+		addr_postal_code=#{addrPostalCode},
+		modify_by=#{modifyBy},
+		modify_time=#{modifyTime}
+		WHERE
+		id=#{id}
+
+	</update>
+
+	<!-- 更新客户紧急联系人 -->
+	<update id="updateEmer">
+
+		UPDATE tz.t_tz_customer_emergency SET
+		emer_name=#{emerName},
+		emer_ename=#{emerEname},
+		emer_sex=#{emerSex},
+		emer_mobilephone=#{emerMobilephone},
+		emer_relationship=#{emerRelationship},
+		emer_phone=#{emerPhone},
+		emer_email=#{emerEmail},
+		modify_by=#{modifyBy},
+		modify_time=#{modifyTime}
+		WHERE
+		id=#{id}
+
+	</update>
+	
+	<!-- 更新金账户 -->
+	<update id="updateTrusteeship">
+
+		UPDATE tz.t_tz_customer SET
+		trusteeship_no=#{trusteeshipNo},
+		trusteeship_account_id='',
+		apply_hosted_status=#{applyHostedStatus},
+		modify_by=#{modifyBy},
+		modify_time=#{modifyTime}
+		WHERE
+		customer_code=#{custCode}
+	</update>
+
+	<!--查询出借信息 -->
+	<select id="getLenderLoanInfo" resultType="com.creditharmony.fortune.customer.entity.LoanConfiguration">
+		SELECT
+		<include refid="getLenderLoanColumns" />
+		FROM tz.t_tz_loan_info li
+		<where>
+			li.customer_code = #{custCode}<!-- 客户编号 -->
+		</where>
+
+	</select>
+
+	<!--根据ID查询地址信息 -->
+	<select id="getLenderAddr" resultType="com.creditharmony.fortune.customer.entity.Address">
+		SELECT
+		<include refid="getLenderAddrColumns" />
+		FROM tz.t_tz_addr addr
+		<where>
+			addr.id = #{addrId}<!-- 所需要ID -->
+		</where>
+
+	</select>
+
+	<!--获取变更历史客户信息 -->
+	<select id="getLenderChangeHistory" resultType="com.creditharmony.fortune.change.lender.apply.entity.ext.CustomerEx">
+
+		SELECT distinct cer.apply_id applyId,
+		a.customer_name as "custName",
+		a.customer_code as
+		"custCode",
+		cer.create_time as "createTime",
+		a.customer_ename as
+		"custEname",
+		u.name    as "managerName",
+		a.manager_code as "managerId",
+		org.province_id as "addrProvince",
+		org.city_id as "addrCity",
+		org.name as "departmentName",
+		a.dict_customer_source as "dictCustSource",
+		a.trusteeship_no as "trusteeshipNo",
+		a.team_manager_code as "teamManagerId",
+		teamUser.name as "teamManagerName",
+		team.name as "teamName"
+	FROM tz.t_tz_changer cer
+		left join tz.t_tz_customer a on
+		a.customer_code=cer.change_code
+		<include refid="lenderChangeJoins" />
+		left join t_gl_org org on org.id = a.org_code
+		left join t_gl_org team on team.id = a.team_org_id
+		<where>
+			cer.change_code= #{changeCode}
+			and
+			(cer.change_type=#{dictChangeType} or
+			cer.change_type=#{changeTypePhone} or
+			cer.change_type=#{changeTypeAccOff})
+			and
+			cer.dict_change_state=#{dictChangeState}
+		</where>
+	</select>
+	<!--获取出借人信息已办 -->
+	<select id="getLenderChangeFinish" resultType="com.creditharmony.fortune.change.lender.apply.entity.ext.CustomerEx">
+
+		SELECT distinct cer.apply_id applyId,
+		dict.label as dictChangeState,
+		a.customer_name as "custName",
+		a.customer_code as
+		"custCode",
+		cer.create_time as "createTime",
+		a.customer_ename as
+		"custEname",
+		u.name    as "managerName",
+		a.manager_code as "managerId",
+		org.province_id as "addrProvince",
+		org.city_id as "addrCity",
+		a.dict_customer_source as "dictCustSource",
+		a.trusteeship_no as "trusteeshipNo",
+		team.name as "teamName",
+		teamUser.name as "teamManagerName",
+		org.name as "departmentName"
+		FROM t_tz_changer cer
+		left join
+		t_tz_changer_log log on
+		cer.change_id=log.change_id
+		left join tz.t_tz_customer a on
+		a.customer_code=cer.change_code
+		left join t_gl_dict dict on dict.value=cer.dict_change_state and dict.type='tz_lenderchg_state' 
+		<include refid="lenderChangeJoins" />
+		left join t_gl_org org on org.id = a.org_code
+		left join t_gl_org team on team.id = a.team_org_id
+		<where>
+			<!--申请人登入获取已办 -->
+			cer.create_by=#{createBy} 
+			and
+			(cer.change_type=#{dictChangeType} or
+			cer.change_type=#{changeTypePhone} or
+			cer.change_type=#{changeTypeAccOff})
+
+			<if test="custName != null and custName != ''">
+				AND a.customer_name LIKE '%'||#{custName}||'%'<!-- 姓名 -->
+			</if>
+			<if test="addrCity != null and addrCity != ''">
+			    AND org.PROVINCE_ID||'_'||org.CITY_ID SIMILAR TO '%' || replace(#{addrCity},',','%|%') || '%' <!-- 城市 -->
+				
+			</if>
+
+			<if test="custCode != null and custCode != ''">
+				AND a.customer_code LIKE '%'||#{custCode}||'%'<!-- 客户编码 -->
+			</if>
+			 
+		</where>
+	</select>
+
+	<!--出借信息人变更查询 -->
+	<select id="queryList" resultType="com.creditharmony.fortune.change.lender.apply.entity.ext.CustomerExSearch">
+
+		SELECT distinct 
+		cer.apply_id applyId,
+		cer.dict_change_state dictChangeState ,
+		cer.modify_time dictApprovalStartDate,
+		cer.change_after lenderAfter,
+        cer.change_begin lenderBegin,
+        org.name departmentName,
+		a.customer_name as "custName",
+		a.customer_code as
+		"custCode",
+		cer.create_time as "createTime",
+		a.customer_ename as
+		"custEname",
+		u.name    as "managerName",
+		a.manager_code as "managerId",
+		org.province_id as "addrProvince",
+		org.city_id as "addrCity",
+		a.dict_customer_source as "dictCustSource",
+		a.trusteeship_no as "trusteeshipNo",
+		u.id as managerId,
+		team.name as "teamName",
+		teamUser.name as "teamManagerName",
+		org.name as "departmentName"
+		FROM tz.t_tz_changer cer
+		left join
+		t_tz_changer_log log
+		on
+		cer.change_id=log.change_id
+		left join tz.t_tz_customer a on
+		a.customer_code=cer.change_code
+		<include refid="lenderChangeJoins" />
+		left join t_gl_org org on org.id = a.org_code
+		left join t_gl_org team on team.id = a.team_org_id
+		<where>
+
+			(cer.change_type=#{dictChangeType} or
+			cer.change_type=#{changeTypePhone} or
+			cer.change_type=#{changeTypeAccOff})
+
+			<if test="custName != null and custName != ''">
+				AND a.customer_name LIKE '%'||#{custName}||'%'<!-- 姓名 -->
+			</if>
+			<if test="applyIds != null and applyIds.size() > 0 ">
+  				cer.apply_id in 
+		    	<foreach collection="applyIds" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+  			</if>
+			<if test="addrCity != null and addrCity != ''">
+				AND org.PROVINCE_ID || '_' || org.CITY_ID SIMILAR TO '%' || replace(#{addrCity},',','%|%') || '%' <!-- 城市 -->
+			</if>
+
+			<if test="custCode != null and custCode != ''">
+				AND a.customer_code LIKE '%'||#{custCode}||'%'<!-- 客户编码 -->
+			</if>
+			<if test="dictChangeState != null and dictChangeState != ''">
+				AND cer.dict_change_state = #{dictChangeState} <!-- 变更状态 -->
+			</if>
+			<if test="orgIds !=null and orgIds.size() > 0 ">
+		 	AND a.org_code in 
+		 	<foreach collection="orgIds" index="index" item="item" open="(" separator="," close=")">  
+	            '${item}'   <!-- 营业部 -->
+            </foreach> 
+		 	</if>
+			<if test="dictApprovalStartDate != null and dictApprovalStartDate !='' ">
+  				and cer.modify_time::DATE <![CDATA[>=]]> #{dictApprovalStartDate}   <!-- 审核通过初始日期 -->
+  			</if>
+  			<if test="dictApprovalEndDate != null and dictApprovalEndDate !='' ">
+  				and cer.modify_time::DATE <![CDATA[<=]]> #{dictApprovalEndDate}   <!-- 审核通过结束日期 -->
+  			</if>
+  			${sqlMap.dataRights}
+		</where>
+	</select>
+	
+	<!--出借信息人查询根据变更ID -->
+	<select id="getChangeInfoById" resultType="com.creditharmony.fortune.change.lender.apply.entity.LenderChangeInfo">
+
+	  SELECT 
+	        change_begin, 
+	        change_after,
+	        dict_change_state, 
+	        modify_time, 
+	        modify_by,
+	       change_type dictChangeType,
+	       apply_id applyId
+	  FROM t_tz_changer
+		<where>
+            change_id=#{changeId}
+		</where>
+	</select>
+	
+	<!--出借人信息导出列表查询根据申请ID -->
+	<select id="queryExport" resultType="com.creditharmony.fortune.change.lender.apply.entity.ext.CustomerExSearch">
+
+		SELECT distinct 
+		cer.apply_id applyId,
+		cer.dict_change_state dictChangeState ,
+		cer.modify_time dictApprovalStartDate,
+		cer.change_after lenderAfter,
+        cer.change_begin lenderBegin,
+        org.name departmentName,
+		<include refid="lenderChangeColumns" />
+		FROM tz.t_tz_changer cer
+		left join
+		t_tz_changer_log log
+		on
+		cer.change_id=log.change_id
+		left join tz.t_tz_customer a on
+		a.customer_code=cer.change_code
+		<include refid="lenderChangeJoins" />
+		left join t_gl_org org on org.id = a.org_code
+		left join t_gl_org team on team.id = a.team_manager_code
+		<where>
+
+			(cer.change_type= #{dictChangeType}or
+			cer.change_type=#{changeTypePhone} or
+			cer.change_type=#{changeTypeAccOff})<!-- change_type 变更类型 -->
+
+			<if test="custName != null and custName != ''">
+				AND a.customer_name LIKE '%'||#{custName}||'%'<!-- 姓名 -->
+			</if>
+			<if test="applyIds != null and applyIds.size() > 0 ">
+  				AND cer.apply_id in 
+		    	<foreach collection="applyIds" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+  			</if>
+			<if test="addrCity != null and addrCity != ''">
+				AND org.PROVINCE_ID || '_' || org.CITY_ID SIMILAR TO '%' || replace(#{addrCity},',','%|%') || '%' <!-- 城市 -->
+			</if>
+            <if test="orgIds !=null and orgIds.size() > 0 ">
+		 	AND a.org_code in 
+		 	<foreach collection="orgIds" index="index" item="item" open="(" separator="," close=")">  
+	            '${item}'   <!-- 营业部 -->
+            </foreach> 
+		 	</if>
+			<if test="custCode != null and custCode != ''">
+				AND a.customer_code LIKE '%'||#{custCode}||'%'<!-- 客户编码 -->
+			</if>
+			<if test="dictChangeState != null and dictChangeState != ''">
+				AND cer.dict_change_state = #{dictChangeState} <!-- 变更状态 -->
+			</if>
+			<if test="dictApprovalStartDate != null and dictApprovalStartDate !='' ">
+  				and cer.modify_time::DATE <![CDATA[>=]]> #{dictApprovalStartDate}   <!-- 审核通过初始日期 -->
+  			</if>
+  			<if test="dictApprovalEndDate != null and dictApprovalEndDate !='' ">
+  				and cer.modify_time::DATE <![CDATA[<=]]> #{dictApprovalEndDate}   <!-- 审核通过结束日期 -->
+  			</if>
+		</where>
+		${sqlMap.dataRights}
+	</select>
+	
+	<!--判断金账户是否可以销户 -->
+	<select id="isAccountOff" resultType="String">
+	 SELECT count(customer_code) 
+  	FROM t_tz_loan_apply 
+		<where>
+             customer_code=#{custCode} and dict_apply_end_state=#{dictApplyEndState} and apply_pay = #{applyPay}
+		</where>
+	</select>
+	
+	<!-- 更新托管状态 -->
+	<update id="updateApplyHostedStatus">
+
+		UPDATE tz.t_tz_customer SET
+		apply_hosted_status=#{applyHostedStatus},
+		modify_by=#{modifyBy},
+		modify_time=#{modifyTime}
+		WHERE
+		  customer_code=#{custCode}
+	</update>
+	
+	<select id="getAttachmentByApplyIds" parameterType="java.util.Map" resultType="com.creditharmony.fortune.common.entity.Attachment">
+	    select b.atta_filepath as attaFilepath,atta_id as attaId from  t_tz_changer a left join t_tz_attachment b
+	    on b.atta_table_id=a.change_id
+	    <where>
+	    	 <!-- 所属表，所属表ID -->
+	    	<if test="attaTableId != null and attaTableId != ''">
+		    	 b.atta_table_id = '${attaTableId}'
+		    </if>
+		   <!-- 附件所属表 -->
+	    	<if test="attaFileOwner != null and attaFileOwner != ''">
+		    	and b.atta_file_owner = '${attaFileOwner}'
+
+		    </if>
+		     <!-- 附件类型标示 -->
+		    <if test="dictAttaFlag != null and dictAttaFlag != ''">
+		    	and a.change_type = '${dictAttaFlag}'
+		    	
+		    </if>
+		    and
+		      a.apply_id in (
+		    <foreach item="id" index="index" collection="ids"
+             separator=","> #{id,jdbcType=VARCHAR} 
+     		</foreach>
+		   )
+	    </where>
+</select>
+
+<!--根据客户手机号码获取客户信息 -->
+<select id="findListbyphone" resultType="com.creditharmony.fortune.customer.entity.Customer">
+   SELECT 
+   customer_code custCode, 
+   customer_name custName, 
+   customer_realname custRealname, 
+   dict_customer_sex dictCustSex, 
+   dict_customer_source dictCustSource,
+   customer_mobilephone custMobilephone, 
+   customer_tel custPhone, 
+   customer_email custEmail, 
+   customer_unitname custUnitname, 
+   customer_industry custIndustry, 
+   customer_post custPost, 
+   customer_fax custFax, 
+   dict_customer_cert_type custCertType, 
+   customer_cert_num custCertNum, 
+   customer_cert_org custCertOrg, 
+   customer_cert_issueday custCertIssuedate, 
+   customer_cert_failuredate custCertFailuredate, 
+   customer_cert_permanent custCertPermanent, 
+   customer_ename custEname, 
+   dict_customer_education custEducation, 
+   dict_customer_marriage custMarriage, 
+   customer_birthday custBirthday, 
+   customer_mother_name custMotherName, 
+   customer_first_contactday custFirstContactdate, 
+   customer_occupation custOccupation, 
+   customer_work_experience custWorkExperience, 
+   customer_unit_scale custUnitScale, 
+   add_id addId, 
+   dict_customer_state custState, 
+   customer_lending custLending, 
+   manager_code managerCode, 
+   create_by createBy, 
+   create_time createTime, 
+   modify_by modifyBy, 
+   modify_time modifyTime, 
+   org_code orgCode, 
+   trusteeship_no trusteeshipNo, 
+   apply_hosted_status applyHostedStatus 
+  FROM t_tz_customer c
+   <where>
+    c.customer_mobilephone = #{custMobilephone}
+   </where>
+</select>
+<!--根据客户手机号码删除客户信息 -->
+<delete id="deletecustmoerbyphone" >
+    DELETE FROM t_tz_customer c
+      WHERE c.customer_code = #{custCode}
+</delete>
+</mapper>

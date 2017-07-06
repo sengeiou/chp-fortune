@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.config.rate.dao.ProductMatchingRateDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.creditor.config.rate.entity.ProductMatchingRate" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="product_code" property="productCode" jdbcType="VARCHAR" />
+    <result column="matching_rate_upper" property="matchingRateUpper" jdbcType="NUMERIC" />
+    <result column="matching_rate_lower" property="matchingRateLower" jdbcType="NUMERIC" />
+    <result column="apply_lendday_upper" property="applyLenddayUpper" jdbcType="DATE" />
+    <result column="apply_lendday_lower" property="applyLenddayLower" jdbcType="DATE" />
+    <result column="apply_lend_money_upper" property="applyLendMoneyUpper" jdbcType="NUMERIC" />
+    <result column="apply_lend_money_lower" property="applyLendMoneyLower" jdbcType="NUMERIC" />
+    <result column="matching_bill_day" property="matchingBillDay" jdbcType="NUMERIC" />
+    <result column="matching_interest_start" property="matchingInterestStart" jdbcType="DATE" />
+    <result column="use_flag" property="useFlag" jdbcType="VARCHAR" />
+    <result column="bill_type" property="billType" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, product_code, use_flag, create_by, create_time, modify_by, modify_time, bill_type, 
+    matching_rate_upper, matching_rate_lower, apply_lendday_upper, apply_lendday_lower, apply_lend_money_upper, 
+    apply_lend_money_lower, matching_bill_day, matching_interest_start
+
+  </sql>
+  <select id="findList" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_product_matching_rate
+    where 1=1
+      <if test="productCode != null" >
+        AND product_code in
+        	<foreach item="item" collection="productCode" open="(" separator="," close=")"> 
+        		#{item,jdbcType=VARCHAR} 
+     		</foreach>
+      </if>
+       <if test="billType != null" >
+        AND bill_type in
+        	<foreach item="item" collection="billType" open="(" separator="," close=")"> 
+        		#{item,jdbcType=VARCHAR} 
+     		</foreach>
+      </if>
+      <if test="applyLenddayLower != null ">
+      and apply_lendday_lower <![CDATA[>=]]> to_date(#{applyLenddayLower},'yyyy-MM-dd')
+      </if>
+       <if test="applyLenddayUpper != null ">
+      	and apply_lendday_upper <![CDATA[<=]]> to_date(#{applyLenddayUpper},'yyyy-MM-dd')
+      </if>
+        <if test="matchingRateLower != null ">
+      	and matching_rate_lower <![CDATA[>=]]> #{matchingRateLower}
+      </if>
+       <if test="matchingRateUpper != null ">
+      	and matching_rate_upper <![CDATA[<=]]> #{matchingRateUpper}
+      </if>
+      <if test="applyLendMoneyLower != null ">
+      	and apply_lend_money_lower = #{applyLendMoneyLower}
+      </if>
+      <if test="applyLendMoneyUpper != null ">
+      	and apply_lend_money_upper = #{applyLendMoneyUpper}
+      </if>
+       <if test="matchingInterestStart != null ">
+      	and matching_interest_start = to_date(#{matchingInterestStart},'yyyy-MM-dd')
+      </if>
+      <if test="matchingBillDayStr != null ">
+      	and matching_bill_day in 
+      	<foreach item="item" collection="matchingBillDayStr" open="(" separator="," close=")"> 
+        		${item} 
+     		</foreach>
+      </if>
+      <if test="useFlag != null ">
+      	and use_flag in 
+      	<foreach item="item" collection="useFlag" open="(" separator="," close=")"> 
+        		#{item} 
+     		</foreach>
+      </if>
+      <if test="applyLenddayLower != null ">
+      	and apply_lendday_lower<![CDATA[>=]]> to_date(#{applyLenddayLower},'yyyy-MM-dd')
+      </if>
+      <if test="applyLenddayUpper != null ">
+      	and apply_lendday_upper <![CDATA[<=]]> to_date(#{applyLenddayUpper},'yyyy-MM-dd')
+      </if>
+      order by create_time desc
+  </select>
+ <insert id="insert" parameterType="com.creditharmony.fortune.creditor.config.rate.entity.ProductMatchingRate" >
+    insert into t_tz_product_matching_rate
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="productCode != null" >
+        product_code,
+      </if>
+      <if test="useFlag != null" >
+        use_flag,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+      <if test="billType != null" >
+        bill_type,
+      </if>
+      <if test="matchingRateUpper != null" >
+        matching_rate_upper,
+      </if>
+      <if test="matchingRateLower != null" >
+        matching_rate_lower,
+      </if>
+      <if test="applyLenddayUpper != null" >
+        apply_lendday_upper,
+      </if>
+      <if test="applyLenddayLower != null" >
+        apply_lendday_lower,
+      </if>
+      <if test="applyLendMoneyUpper != null" >
+        apply_lend_money_upper,
+      </if>
+      <if test="applyLendMoneyLower != null" >
+        apply_lend_money_lower,
+      </if>
+      <if test="matchingBillDay != null" >
+        matching_bill_day,
+      </if>
+      <if test="matchingInterestStart != null" >
+        matching_interest_start,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="productCode != null" >
+        #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="useFlag != null" >
+        #{useFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="billType != null" >
+        #{billType,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingRateUpper != null" >
+        #{matchingRateUpper,jdbcType=NUMERIC},
+      </if>
+      <if test="matchingRateLower != null" >
+        #{matchingRateLower,jdbcType=NUMERIC},
+      </if>
+      <if test="applyLenddayUpper != null" >
+        #{applyLenddayUpper,jdbcType=DATE},
+      </if>
+      <if test="applyLenddayLower != null" >
+        #{applyLenddayLower,jdbcType=DATE},
+      </if>
+      <if test="applyLendMoneyUpper != null" >
+        #{applyLendMoneyUpper,jdbcType=NUMERIC},
+      </if>
+      <if test="applyLendMoneyLower != null" >
+        #{applyLendMoneyLower,jdbcType=NUMERIC},
+      </if>
+      <if test="matchingBillDay != null" >
+        #{matchingBillDay,jdbcType=INTEGER},
+      </if>
+      <if test="matchingInterestStart != null" >
+        #{matchingInterestStart,jdbcType=DATE},
+      </if>
+    </trim>
+  </insert>
+  <!-- 更新状态处理 -->
+  <update id="updateStatusByIds" parameterType="java.lang.String" >
+    update t_tz_product_matching_rate
+    set use_flag = 1- cast(use_flag as INTEGER)
+    where id 
+    in (
+     <foreach item="id" index="index" collection="array"  
+           separator=","> #{id,jdbcType=VARCHAR} 
+     </foreach>
+    )
+  </update>
+  <!-- 删除处理 -->
+  <delete id="deleteByIds" parameterType="java.lang.String" >
+      delete from t_tz_product_matching_rate where id 
+      in (
+	      <foreach item="id" index="index" collection="array"  
+	            separator=","> #{id,jdbcType=VARCHAR} 
+	      </foreach>
+      )
+  </delete>
+  
+ <select id="beforDelete" parameterType="java.lang.String" resultType="java.lang.Integer">
+ 	select count(*)  from t_tz_product_matching_rate where id 
+      in ( 
+	      <foreach item="id" index="index" collection="array"  
+	            separator=","> #{id,jdbcType=VARCHAR} 
+	      </foreach>
+      ) and use_flag ='1' 
+ </select>
+ <select id="beforSaveCheck" parameterType="java.util.Map" resultType="java.lang.Integer">
+ 	select count(*)  from t_tz_product_matching_rate where product_code = #{productCode}
+ 	 <if test="applyLenddayLower != null and applyLenddayLower !='' " >
+     		 AND (
+        apply_lendday_lower BETWEEN to_date(
+            #{applyLenddayLower},
+            'YYYY-MM-DD'
+        ) AND to_date(
+            #{applyLenddayUpper},
+            'YYYY-MM-DD'
+        )
+        OR apply_lendday_upper BETWEEN to_date(
+             #{applyLenddayLower},
+            'YYYY-MM-DD'
+        ) AND to_date(
+             #{applyLenddayUpper},
+            'YYYY-MM-DD'
+        )
+        OR(
+            apply_lendday_lower <![CDATA[<]]> to_date(
+                 #{applyLenddayLower},
+                'YYYY-MM-DD'
+            )
+            AND apply_lendday_upper > to_date(
+                 #{applyLenddayUpper},
+                'YYYY-MM-DD'
+            )
+        )
+   	 )
+     	 </if>
+     	  <if test="applyLendMoneyLower != null and applyLendMoneyLower !='' " >
+     		 AND (
+        	apply_lend_money_lower BETWEEN #{applyLendMoneyLower} AND   #{applyLendMoneyUpper}
+       	    OR apply_lend_money_upper BETWEEN  #{applyLendMoneyLower} AND #{applyLendMoneyUpper} 
+            OR( apply_lend_money_lower <![CDATA[<]]> #{applyLendMoneyLower}  AND apply_lend_money_upper <![CDATA[>]]>  #{applyLendMoneyUpper})
+   			 )
+     	 </if>
+    	  <if test="billType != null and billType !='' " >
+     		 AND bill_type =#{billType}
+     	 </if>
+     	  <if test="matchingInterestStart != null and matchingInterestStart !='' " >
+     		and  matching_interest_start <![CDATA[=]]> to_date(#{matchingInterestStart},'YYYY-MM-DD' )
+     	 </if>
+     	  <if test="matchingBillDay != null and matchingBillDay !='' " >
+     		and  matching_bill_day =#{matchingBillDay}
+     	 </if>
+ </select>
+  <!-- 获取匹配利率 -->
+  <select id="getProductMatchRate" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_product_matching_rate
+    where 1=1 
+    		and product_code =#{productCode,jdbcType=VARCHAR}
+        	and (apply_lend_money_lower <![CDATA[<=]]> #{applyLendMoney,jdbcType=NUMERIC} or apply_lend_money_lower is null) 
+        	and (apply_lend_money_upper <![CDATA[>=]]> #{applyLendMoney,jdbcType=NUMERIC} or apply_lend_money_upper is null)
+        	and (apply_lendday_lower <![CDATA[<=]]> to_timestamp(#{applyLendDay},'YYYY-MM-DD') or apply_lendday_lower is null) 
+        	and (apply_lendday_upper <![CDATA[>=]]> to_timestamp(#{applyLendDay},'YYYY-MM-DD') or apply_lendday_upper is null)
+    	 <if test="billType != null" >
+          and bill_type =#{billType,jdbcType=VARCHAR}
+     	 </if>
+     	 <if test="matchingBillDay != null" >
+          and matching_bill_day =#{matchingBillDay}
+     	 </if>
+     	 <if test="matchingInterestStart != null and matchingInterestStart !=''" >
+        	and  matching_interest_start <![CDATA[=]]> to_timestamp(#{matchingInterestStart},'YYYY-MM-DD')
+     	 </if>
+     	  <if test="useFlag != null" >
+     	and  use_flag =#{useFlag}
+      </if>
+	order by modify_time desc
+	limit 1
+  </select>
+  <!-- 批量启用停用 -->
+  <update id="updateBatchStatusByIds" parameterType="java.lang.String" >
+    update t_tz_product_matching_rate
+    set use_flag = #{useFlag,jdbcType=VARCHAR}
+    where id 
+    in (
+     <foreach item="id" index="index" collection="updateIds"  
+           separator=","> #{id,jdbcType=VARCHAR} 
+     </foreach>
+    )
+  </update>
+</mapper>

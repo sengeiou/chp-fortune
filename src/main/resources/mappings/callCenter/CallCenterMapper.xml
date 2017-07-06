@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.callcenter.dao.CallCenterDao">
+
+	<resultMap id="BaseResultMap"	type="com.creditharmony.fortune.callcenter.entity.CallCenterCustomer">
+		<result column="id" property="id" jdbcType="VARCHAR" />
+		<result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+		<result column="dict_customer_sex" property="dictCustomerSex" jdbcType="VARCHAR" />
+		<result column="customer_mobilephone" property="customerMobilephone" jdbcType="VARCHAR" />
+		<result column="customer_tel" property="customerTel" jdbcType="VARCHAR" />
+		<result column="dict_customer_cert_type" property="dictCustomerCertType" jdbcType="VARCHAR" />
+		<result column="customer_cert_num" property="customerCertNum" jdbcType="VARCHAR" />
+		<result column="province" property="province" jdbcType="VARCHAR" />
+		<result column="city" property="city" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="VARCHAR" />
+		<result column="city_manager_id" property="cityManagerId" jdbcType="VARCHAR" />
+		<result column="store_org_id" property="storeOrgId" jdbcType="VARCHAR" />
+		<result column="store_manager_id" property="storeManagerId" jdbcType="VARCHAR" />
+		<result column="team_id" property="teamId" jdbcType="VARCHAR" />
+		<result column="team_manager_id" property="teamManagerId" jdbcType="VARCHAR" />
+		<result column="manager_id" property="managerId" jdbcType="VARCHAR" />
+		<result column="create_by" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="VARCHAR" />
+		<result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+		<result column="modify_time" property="modifyTime" jdbcType="VARCHAR" />
+		<result column="dict_customer_sex_name" property="dictCustomerSexName" jdbcType="VARCHAR" />
+		<result column="province_name" property="provinceName" jdbcType="VARCHAR" />
+		<result column="city_name" property="cityName" jdbcType="VARCHAR" />
+		<result column="store_org_name" property="storeOrgName" jdbcType="VARCHAR" />
+		<result column="team_name" property="teamName" jdbcType="VARCHAR" />
+		<result column="manager_name" property="managerName" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	
+	<!-- 添加呼叫中心客户 -->
+	<insert id="addCustomerInfo4CallCenter" parameterType="com.creditharmony.fortune.callcenter.entity.CallCenterCustomer">
+	 insert into tz.t_tz_customer_call_center (
+      id, 
+      customer_name, 
+      dict_customer_sex,
+      customer_mobilephone,
+      customer_tel,
+      dict_customer_cert_type,
+      customer_cert_num,
+      province,
+      city,
+      status,
+      city_manager_id,
+      store_org_id,
+      store_manager_id,
+      team_id,
+      team_manager_id,
+      manager_id,
+      create_by,
+      create_time,
+      modify_by,
+      modify_time
+      )	
+    values (
+    	#{id,jdbcType=VARCHAR}, 
+    	#{customerName,jdbcType=VARCHAR},
+    	#{dictCustomerSex,jdbcType=VARCHAR},
+    	#{customerMobilephone,jdbcType=VARCHAR},
+    	#{customerTel,jdbcType=VARCHAR},
+    	#{dictCustomerCertType,jdbcType=VARCHAR},
+    	#{customerCertNum,jdbcType=VARCHAR},
+    	#{province,jdbcType=VARCHAR},             
+    	#{city,jdbcType=VARCHAR},
+    	#{status,jdbcType=VARCHAR},
+    	#{cityManagerId,jdbcType=VARCHAR},
+    	#{storeOrgId,jdbcType=VARCHAR},
+    	#{storeManagerId,jdbcType=VARCHAR},
+    	#{teamId,jdbcType=VARCHAR},
+    	#{teamManagerId,jdbcType=VARCHAR},
+    	#{managerId,jdbcType=VARCHAR},
+    	#{createBy,jdbcType=VARCHAR},
+    	#{createTime,jdbcType=VARCHAR},
+    	#{modifyBy,jdbcType=VARCHAR},
+    	#{modifyTime,jdbcType=VARCHAR}
+        )
+  </insert>
+  
+	<!-- 查询呼叫中心客户 -->
+	<select id="getCallCenterCustomerList"  parameterType="com.creditharmony.fortune.callcenter.entity.CallCenterCustomer" resultMap="BaseResultMap" >
+		SELECT ccc.id, ccc.customer_name,  ccc.dict_customer_sex,
+		    ccc.customer_mobilephone, ccc.customer_tel, ccc.dict_customer_cert_type,
+		    ccc.customer_cert_num, ccc.province, ccc.city,
+		    ccc.status, ccc.city_manager_id, ccc.store_org_id,
+		    ccc.store_manager_id, ccc.team_id, ccc.team_manager_id,
+		    ccc.manager_id, ccc.create_by, ccc.create_time, 
+		    ccc.modify_by, ccc.modify_time, ucity.name as city_manager_name,
+		    ustore.name as store_manager_name, uteam.name as team_manager_name, mana.name as manager_name,
+		    so.name as store_name, torg.name as team_name, pr.area_name as province_name, 
+		    city.area_name as city_name, sex.label as dict_customer_sex_name
+		FROM
+		    tz.t_tz_customer_call_center ccc
+		    left join tz.t_gl_user ucity on ccc.city_manager_id = ucity.id
+		    left join t_gl_user ustore on ccc.store_manager_id = ustore.id
+		    left join t_gl_user uteam on ccc.team_manager_id = uteam.id
+		    left join t_gl_user mana on ccc.manager_id = mana.id
+		    left join tz.t_gl_province_city pr on ccc.province = pr.id
+		    left join tz.t_gl_province_city city on ccc.city = city.id
+		    left join tz.t_gl_org so on ccc.store_org_id = so.id
+		    left join tz.t_gl_org torg on ccc.team_id = torg.id
+		    left join (select dict.value, dict.label from tz.t_gl_dict dict where dict.type = 'sex' ) sex on ccc.dict_customer_sex = sex.value
+		WHERE 1 =1 
+		   <if test=" id != null and id != ''">
+			    and ccc.id = #{id, jdbcType=VARCHAR}
+		   </if>
+		    <if test=" customerName!= null and customerName != ''">
+			    and ccc.customer_name = #{customerName, jdbcType=VARCHAR}
+		   </if>
+		    <if test="customerMobilephone != null and  customerMobilephone != ''">
+			    and ccc.customer_mobilephone = #{customerMobilephone, jdbcType=VARCHAR}
+		   </if>
+		    <if test=" customerTel != null and customerTel != ''">
+			    and ccc.customer_tel = #{customerTel, jdbcType=VARCHAR}
+		   </if>
+		    <if test=" dictCustomerSex != null and dictCustomerSex != ''">
+			    and ccc.dict_customer_sex = #{dictCustomerSex, jdbcType=VARCHAR}
+		   </if>
+		    <if test="province != null and province != ''">
+			    and ccc.province = #{province, jdbcType=VARCHAR}
+		   </if>
+		    <if test="city != null and city != ''">
+			    and ccc.city = #{city, jdbcType=VARCHAR}
+		   </if>
+		    <if test="status != null and status != ''">
+			    and ccc.status = #{status, jdbcType=VARCHAR}
+		   </if>
+		    <if test="managerId != null and managerId != ''">
+			    and ccc.manager_id = #{managerId, jdbcType=VARCHAR}
+		   </if>
+		   <if test="storeOrgId != null and storeOrgId != ''">
+			    and ccc.store_org_id = #{storeOrgId, jdbcType=VARCHAR}
+		   </if>
+		    <if test="teamId != null and teamId != ''">
+			    and ccc.team_id = #{teamId, jdbcType=VARCHAR}
+		   </if>
+		    <if test="cityManagerId != null and cityManagerId != ''">
+			    and ccc.city_manager_id = #{cityManagerId, jdbcType=VARCHAR}
+		   </if>
+		   <if test="cityList != null ">
+			    and ccc.city in (
+			    <foreach collection="cityList" item="item"  separator=",">
+			    	#{item, jdbcType=VARCHAR}
+			    </foreach>
+			    )
+		   </if>
+		   
+	</select>
+	
+	<!--  城市经理查询 -->
+	<select id="getCallCenterCustomerList4City"  parameterType="com.creditharmony.fortune.callcenter.entity.CallCenterCustomer" resultMap="BaseResultMap" >
+		SELECT ccc.id, ccc.customer_name,  ccc.dict_customer_sex,
+		    ccc.customer_mobilephone, ccc.customer_tel, ccc.dict_customer_cert_type,
+		    ccc.customer_cert_num, ccc.province, ccc.city,
+		    ccc.status, ccc.city_manager_id, ccc.store_org_id,
+		    ccc.store_manager_id, ccc.team_id, ccc.team_manager_id,
+		    ccc.manager_id, ccc.create_by, ccc.create_time, 
+		    ccc.modify_by, ccc.modify_time, ucity.name as city_manager_name,
+		    ustore.name as store_manager_name, uteam.name as team_manager_name, mana.name as manager_name,
+		    so.name as store_name, torg.name as team_name, pr.area_name as province_name, 
+		    city.area_name as city_name, sex.label as dict_customer_sex_name
+		FROM
+		    tz.t_tz_customer_call_center ccc
+		    left join tz.t_gl_user ucity on ccc.city_manager_id = ucity.id
+		    left join t_gl_user ustore on ccc.store_manager_id = ustore.id
+		    left join t_gl_user uteam on ccc.team_manager_id = uteam.id
+		    left join t_gl_user mana on ccc.manager_id = mana.id
+		    left join tz.t_gl_province_city pr on ccc.province = pr.id
+		    left join tz.t_gl_province_city city on ccc.city = city.id
+		    left join tz.t_gl_org so on ccc.store_org_id = so.id
+		    left join tz.t_gl_org torg on ccc.team_id = torg.id
+		    left join (select dict.value, dict.label from tz.t_gl_dict dict where dict.type = 'sex' ) sex on ccc.dict_customer_sex = sex.value
+		WHERE 1 =1 
+		   <if test=" id != null and id != ''">
+			    and ccc.id = #{id, jdbcType=VARCHAR}
+		   </if>
+		    <if test=" customerName!= null and customerName != ''">
+			    and ccc.customer_name = #{customerName, jdbcType=VARCHAR}
+		   </if>
+		    <if test="customerMobilephone != null and  customerMobilephone != ''">
+			    and ccc.customer_mobilephone = #{customerMobilephone, jdbcType=VARCHAR}
+		   </if>
+		    <if test=" customerTel != null and customerTel != ''">
+			    and ccc.customer_tel = #{customerTel, jdbcType=VARCHAR}
+		   </if>
+		    <if test=" dictCustomerSex != null and dictCustomerSex != ''">
+			    and ccc.dict_customer_sex = #{dictCustomerSex, jdbcType=VARCHAR}
+		   </if>
+		    <if test="province != null and province != ''">
+			    and ccc.province = #{province, jdbcType=VARCHAR}
+		   </if>
+		    <if test="city != null and city != ''">
+			    and ccc.city = #{city, jdbcType=VARCHAR}
+		   </if>
+		    <if test="status != null and status != ''">
+			    and ccc.status = #{status, jdbcType=VARCHAR}
+		   </if>
+		    <if test="managerId != null and managerId != ''">
+			    and ccc.manager_id = #{managerId, jdbcType=VARCHAR}
+		   </if>
+		   <if test="storeOrgId != null and storeOrgId != ''">
+			    and ccc.store_org_id = #{storeOrgId, jdbcType=VARCHAR}
+		   </if>
+		    <if test="teamId != null and teamId != ''">
+			    and ccc.team_id = #{teamId, jdbcType=VARCHAR}
+		   </if>
+		    <if test="cityManagerId != null and cityManagerId != ''">
+			    and ccc.city_manager_id = #{cityManagerId, jdbcType=VARCHAR}
+		   </if>
+		   <if test="cityList != null and cityList.size > 0">
+		   		and ccc.city in (
+				    <foreach collection="cityList" item="item"  separator=",">
+				    	#{item, jdbcType=VARCHAR}
+				    </foreach>
+		    	)
+		   </if>
+		    
+		   
+	</select>
+	
+	
+	<!--  部门经理查询 -->
+	<select id="getCallCenterCustomerList4Store"  parameterType="com.creditharmony.fortune.callcenter.entity.CallCenterCustomer" resultMap="BaseResultMap" >
+		SELECT ccc.id, ccc.customer_name,  ccc.dict_customer_sex,
+		    ccc.customer_mobilephone, ccc.customer_tel, ccc.dict_customer_cert_type,
+		    ccc.customer_cert_num, ccc.province, ccc.city,
+		    ccc.status, ccc.city_manager_id, ccc.store_org_id,
+		    ccc.store_manager_id, ccc.team_id, ccc.team_manager_id,
+		    ccc.manager_id, ccc.create_by, ccc.create_time, 
+		    ccc.modify_by, ccc.modify_time, ucity.name as city_manager_name,
+		    ustore.name as store_manager_name, uteam.name as team_manager_name, mana.name as manager_name,
+		    so.name as store_name, torg.name as team_name, pr.area_name as province_name, 
+		    city.area_name as city_name, sex.label as dict_customer_sex_name
+		FROM
+		    tz.t_tz_customer_call_center ccc
+		    left join tz.t_gl_user ucity on ccc.city_manager_id = ucity.id
+		    left join t_gl_user ustore on ccc.store_manager_id = ustore.id
+		    left join t_gl_user uteam on ccc.team_manager_id = uteam.id
+		    left join t_gl_user mana on ccc.manager_id = mana.id
+		    left join tz.t_gl_province_city pr on ccc.province = pr.id
+		    left join tz.t_gl_province_city city on ccc.city = city.id
+		    left join tz.t_gl_org so on ccc.store_org_id = so.id
+		    left join tz.t_gl_org torg on ccc.team_id = torg.id
+		    left join (select dict.value, dict.label from tz.t_gl_dict dict where dict.type = 'sex' ) sex on ccc.dict_customer_sex = sex.value
+		WHERE 1 =1 
+		   <if test=" id != null and id != ''">
+			    and ccc.id = #{id, jdbcType=VARCHAR}
+		   </if>
+		    <if test=" customerName!= null and customerName != ''">
+			    and ccc.customer_name = #{customerName, jdbcType=VARCHAR}
+		   </if>
+		    <if test="customerMobilephone != null and  customerMobilephone != ''">
+			    and ccc.customer_mobilephone = #{customerMobilephone, jdbcType=VARCHAR}
+		   </if>
+		    <if test=" customerTel != null and customerTel != ''">
+			    and ccc.customer_tel = #{customerTel, jdbcType=VARCHAR}
+		   </if>
+		    <if test=" dictCustomerSex != null and dictCustomerSex != ''">
+			    and ccc.dict_customer_sex = #{dictCustomerSex, jdbcType=VARCHAR}
+		   </if>
+		    <if test="province != null and province != ''">
+			    and ccc.province = #{province, jdbcType=VARCHAR}
+		   </if>
+		    <if test="city != null and city != ''">
+			    and ccc.city = #{city, jdbcType=VARCHAR}
+		   </if>
+		    <if test="status != null and status != ''">
+			    and ccc.status = #{status, jdbcType=VARCHAR}
+		   </if>
+		    <if test="managerId != null and managerId != ''">
+			    and ccc.manager_id = #{managerId, jdbcType=VARCHAR}
+		   </if>
+		   <if test="storeOrgId != null and storeOrgId != ''">
+			    and ccc.store_org_id = #{storeOrgId, jdbcType=VARCHAR}
+		   </if>
+		    <if test="teamId != null and teamId != ''">
+			    and ccc.team_id = #{teamId, jdbcType=VARCHAR}
+		   </if>
+		    <if test="cityManagerId != null and cityManagerId != ''">
+			    and ccc.city_manager_id = #{cityManagerId, jdbcType=VARCHAR}
+		   </if>
+		   <if test="orgList != null and orgList.size > 0">
+	   			 and ccc.store_org_id in (
+				    <foreach collection="orgList" item="item"  separator=",">
+				    	#{item, jdbcType=VARCHAR}
+				    </foreach>
+	    		)
+		   </if>
+	</select>
+	
+	<!-- 获取用户部门所在的城市信息 -->
+	<select id="getUserCity" parameterType="java.util.Map"  resultType="java.util.Map">
+		select uro.user_id as userid, uro.org_id as orgid, org.province_id as provinceid, org.city_id as cityid 
+		from tz.t_gl_user_role_org uro
+		        left join tz.t_gl_org org on uro.org_id = org.id
+		where 1=1
+		<if test="roleId != null and roleId != ''">
+		  	and uro.role_id = #{roleId}
+		</if>
+		<if test="userId != null and userId != ''">
+		  	and uro.user_id = #{userId}
+		</if>
+	</select>
+	
+	<!-- 获取当前用户部门的子部门（下一级） -->
+	<select id="getChildrenOrg" parameterType="java.util.Map" resultType="com.creditharmony.fortune.common.entity.Org">
+		select org.id as id, org.name as name 
+		from tz.t_gl_org org
+		where org.parent_id in (
+		   <foreach collection="list" item="item"  separator=",">
+		    	#{item, jdbcType=VARCHAR}
+		    </foreach>
+		    )
+	</select>
+	
+	<!-- 更新呼叫中心客户  -->
+	<update id="update" parameterType="com.creditharmony.fortune.callcenter.entity.CallCenterCustomer">
+		UPDATE
+		    t_tz_customer_call_center
+		SET
+		   <if test=" customerName!= null and customerName != ''">
+			    customer_name = #{customerName, jdbcType=VARCHAR},
+		   </if>
+		   <if test="customerMobilephone != null and  customerMobilephone != ''">
+			    customer_mobilephone = #{customerMobilephone, jdbcType=VARCHAR},
+		   </if>
+		    <if test=" customerTel != null and customerTel != ''">
+			    customer_tel = #{customerTel, jdbcType=VARCHAR},
+		   </if>
+		    <if test="status != null and status != ''">
+			    status = #{status, jdbcType=VARCHAR},
+		   </if>
+		    <if test="cityManagerId != null and cityManagerId != ''">
+			    city_manager_id = #{cityManagerId, jdbcType=VARCHAR},
+		   </if>
+		   <if test="storeOrgId != null and storeOrgId != ''">
+			    store_org_id = #{storeOrgId, jdbcType=VARCHAR},
+		   </if>
+		   <if test="storeManagerId != null and storeManagerId != ''">
+			    store_manager_id = #{storeManagerId, jdbcType=VARCHAR},
+		   </if>
+		    <if test="teamId != null and teamId != ''">
+			    team_id = #{teamId, jdbcType=VARCHAR},
+		   </if>
+		    
+		    <if test="teamManagerId != null and teamManagerId != ''">
+		    	team_manager_id = #{teamManagerId, jdbcType=VARCHAR},
+		    </if>
+		    <if test="managerId != null and managerId != ''">
+			   manager_id = #{managerId, jdbcType=VARCHAR},
+		   </if>
+		    modify_by = #{modifyBy, jdbcType=VARCHAR},
+		    modify_time = #{modifyTime, jdbcType=VARCHAR}
+		where id = #{id} 
+	</update>
+	
+	<!-- 查询下属的理财经理  -->
+	<select id="getSubFinancialManagerList" parameterType="java.util.Map"  resultType="com.creditharmony.core.users.entity.User">
+		SELECT  u.id, u.name
+		from tz.t_gl_user_role_org uro
+		    left join tz.t_gl_user u on uro.user_id = u.id
+		where 1 =1
+			and uro.role_id  in (
+			  <foreach collection="roleIdList" item="item" separator=",">
+			  	 #{item}
+			  </foreach>
+		  	)
+		  and uro.org_id in (
+		  	<foreach collection="orgList" item="item" separator=" union all ">
+		        select org.id from tz.t_gl_org org where org.parent_ids like '%'|| #{item}||',%' or org.id = #{item}
+		   	</foreach>     
+		   )
+	</select>		
+	
+	<!-- 查询回访的客户信息（呼叫中心） -->
+	<select id="getFeedBackList" parameterType="java.util.Map" resultType="java.util.Map">
+		select cus.customer_name, cus.dict_customer_sex, sex.label sex_name, cus.customer_cert_num, 
+		        cus.customer_email, cus.customer_mobilephone, app.product_code, pro.product_name,
+		        app.apply_lend_money, app.apply_deduct_day , app.apply_lend_day,
+		        app.apply_expire_day,app.manager_code, mu.name manager_name, app.team_manager_code team_user_id, tu.name team_user_name,
+		        org.parent_id store_id, orgp.name store_name
+		from tz.t_tz_customer cus
+		    left join tz.t_tz_loan_apply app on cus.customer_code = app.customer_code
+		    left join tz.t_gl_org org on cus.org_code = org.id
+		    inner join ( select ali.lend_code, max(ali.check_time)
+		        from t_tz_loan_apply api join tz.t_tz_apply_log ali on api.lend_code = ali.lend_code
+		        where api.lend_status = #{lendStatus}
+		          and ali.check_time   BETWEEN   to_date(#{startDateTime}, 'yyyy-MM-dd HH24:mi:ss') and  to_date(#{endDateTime} , 'yyyy-MM-dd HH24:mi:ss')
+		        group by ali.lend_code )apl on apl.lend_code = app.lend_code
+		    left join (select di.value, di.label from tz.t_gl_dict di where di.type = 'sex') sex on sex.value = cus.dict_customer_sex
+		    left join tz.t_gl_tz_product pro on app.product_code = pro.product_code
+		    left join t_gl_user mu on mu.id = cus.manager_code
+		    left join t_gl_user tu on tu.id = app.team_manager_code
+		    left join tz.t_gl_org orgp on orgp.id = org.parent_id
+		where app.lend_status = #{lendStatus}
+	</select>	    
+	
+	<!-- 	 查询客户信息（呼叫中心）    -->
+	<select id="getCustomerInfo4CallCenter"  parameterType="java.util.Map" resultType="com.creditharmony.adapter.service.csh.bean.Csh_SearchCustomerDeatilByCFOutBean">
+		select cus.customer_name as customername,  sex.label as customersex, cus.customer_cert_num as customercertnum, 
+		        cus.customer_email as customeremail, cus.customer_mobilephone as customerphone, pro.product_name as productname,
+		         app.apply_deduct_day as applydeductday, app.apply_lend_day applylendday, app.apply_lend_money applylendmoney,
+		         app.apply_billday as paybackday, ce.emer_name as coborrowername, app.apply_expire_day as actualday,
+		         backs.label as dictbackstatus, bmp.back_money_day as backmoneyday, bmp.back_money as backmoney, 
+		         mu.name as managername, orgp.name as storesname, r.redemption_time as redemptiontime,  
+		         r.linit_day as linitday,  bmp.back_actualback_money as backactualbackmoney, bip.back_real_money as  phaseinterestcur, 
+		         bip.back_money_actual_day as backmoneyactualday,     bank.label as accountbank, tca.account_no as accountno,  
+		         payt.label as applypay,    app.apply_agreement_edition as contractversion, app.apply_contract_no as contractcode,  
+		         lbr.label as loanbillrecv, app.product_rate * 12 as expectprofit, lnds.label as lendstatus
+		from tz.t_tz_customer cus
+		    left join tz.t_tz_customer_emergency ce on ce.customer_code = cus.customer_code
+		    left join tz.t_tz_loan_apply app on cus.customer_code = app.customer_code
+		    left join tz.t_tz_loan_info lif on lif.customer_code = cus.customer_code
+		    left join tz.t_gl_org org on cus.org_code = org.id
+		    left join (select di.value, di.label from tz.t_gl_dict di where di.type = 'sex') sex on sex.value = cus.dict_customer_sex
+		    left join tz.t_gl_tz_product pro on app.product_code = pro.product_code
+		    left join t_gl_user mu on mu.id = cus.manager_code
+		    left join t_gl_user tu on tu.id = app.team_manager_code
+		    left join tz.t_gl_org orgp on orgp.id = org.parent_id
+		    left join tz.t_tz_back_money_pool bmp on bmp.lend_code = app.lend_code
+		    left join tz.t_tz_redemption r on r.lend_code = app.lend_code
+		    left join tz.t_tz_back_interest_pool bip on bip.lend_code = app.lend_code
+		    left join tz.t_tz_customer_account tca on tca.id = app.receiving_id
+		    left join (select di.value, di.label from tz.t_gl_dict di where di.type = 'tz_back_state') backS on backS.value = bmp.dict_back_status
+		    left join (select di.value, di.label from tz.t_gl_dict di where di.type = 'tz_back_state') bank on bank.value = tca.account_bank
+		    left join (select di.value, di.label from tz.t_gl_dict di where di.type = 'tz_pay_type') payT on payT.value = app.apply_pay
+		    left join (select di.value, di.label from tz.t_gl_dict di where di.type = 'tz_lend_state') lndS on lndS.value = app.lend_status
+		    left join (select di.value, di.label from tz.t_gl_dict di where di.type = 'tz_billtaken_mode') lbr on lbr.value = lif.loan_bill_recv
+		where 1 = 1
+			<if test="customerName != null and customerName != ''">
+			  		and cus.customer_name = #{customerName}
+		  	</if>
+		  	<if test="phone != null and phone != ''">
+				  and cus.customer_mobilephone = #{phone}    
+		  	</if>
+		  	<if test="certNum != null and certNum != ''">
+				  and cus.customer_cert_num = #{certNum}
+		  	</if>
+		  	<if test="accountNo != null and accountNo != ''">
+				  and tca.account_no = #{accountNo}
+		  	</if>
+		  	<if test="storeName != null and storeName != ''">
+				  and orgp.name = #{storeName}
+		  	</if>
+	</select>
+</mapper>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.callcenter.dao.CshPhoneSalesDao">
+
+	<!-- 	 查询客户信息（电销）gaoxu  2016-8-31 09:50:51    start-->
+	<select id="getCustomerInfoByMap"  parameterType="java.util.Map" resultType="java.util.Map">
+				select 
+					c.id,
+					c.customer_name, 
+					c.customer_realname,
+					c.customer_code, 
+					c.dict_customer_sex,
+					sex_d.label customer_sex_str, 
+					a.addr_province addr_province_id,
+					pc1.area_name addr_province, 
+					a.addr_city addr_city_id,
+					pc2.area_name addr_city, 
+					c.customer_mobilephone, 
+					c.dict_customer_cert_type,
+					dict1.label certTypeStr, 
+					c.customer_cert_num, 
+					dict2.label custome_lend_str,
+					c.customer_lending,
+					c.manager_code,
+					to_char(c.create_time, 'yyyy-MM-dd hh:mm:ss') create_time,
+					'CHP' platform
+					from tz.t_tz_customer c
+					left join tz.t_tz_addr a on c.add_id=a.id 
+					left join (select distinct value,label from tz.t_gl_dict where type='tz_sex') sex_d on c.dict_customer_sex=sex_d.value 
+					left join tz.t_gl_province_city pc1 on pc1.id=a.addr_province 
+					left join tz.t_gl_province_city pc2 on pc2.id=a.addr_city 
+					left join (select distinct value,label from tz.t_gl_dict where type='com_certificate_type') dict1 on c.dict_customer_cert_type=dict1.value 
+					left join (select distinct value,label from tz.t_gl_dict where type='tz_invest_state') dict2 on c.customer_lending=dict2.value 
+					where c.manager_code in (select id from tz.t_gl_user where user_code=#{user_code, jdbcType=VARCHAR}) 
+						  and   c.id not in(select tes.id from tz.t_tz_electric_send tes)
+						order by c.create_time desc
+					limit #{countNum}
+
+	</select>
+	<!-- 	 查询客户信息（电销）gaoxu  2016-8-31 09:50:51    end-->
+	<!-- 	 插入客户信息（电销）历史表gaoxu  2016-8-31 09:50:51    Start-->
+	<insert id="addElectricSend" parameterType="java.util.Map">
+	INSERT INTO tz.t_tz_electric_send
+		("id", "customer_name", "customer_realname", "customer_code", 
+		"dict_customer_sex", "customer_sex_str", "addr_province_id",
+		"addr_province", "addr_city_id", "addr_city",
+		"customer_mobilephone", "dict_customer_cert_type",
+		"dict_customer_cert_typestr", "customer_cert_num", 
+		"custome_lend_str", "customer_lending", "manager_code", 
+		"create_time", "platform", "send_time")
+		select 
+		c.id,
+		customer_name, 
+		customer_realname,
+		customer_code, 
+		c.dict_customer_sex,
+		sex_d.label customer_sex_str, 
+		a.addr_province addr_province_id,
+		pc1.area_name addr_province, 
+		a.addr_city addr_city_id,
+		pc2.area_name addr_city,
+		customer_mobilephone, 
+		c.dict_customer_cert_type,
+		dict1.label certTypeStr, 
+		customer_cert_num, 
+		dict2.label custome_lend_str,
+		c.customer_lending,
+		manager_code,
+		c.create_time,
+		'CHP' platform,
+		now()
+		from tz.t_tz_customer c
+		left join tz.t_tz_addr a on c.add_id=a.id 
+		left join (select distinct value,label from tz.t_gl_dict where type='tz_sex') sex_d on c.dict_customer_sex=sex_d.value 
+		left join tz.t_gl_province_city pc1 on pc1.id=a.addr_province 
+		left join tz.t_gl_province_city pc2 on pc2.id=a.addr_city 
+		left join (select distinct value,label from tz.t_gl_dict where type='com_certificate_type') dict1 on c.dict_customer_cert_type=dict1.value 
+		left join (select distinct value,label from tz.t_gl_dict where type='tz_invest_state') dict2 on c.customer_lending=dict2.value 
+		where manager_code in (select id from tz.t_gl_user where user_code=#{user_code, jdbcType=VARCHAR}) 
+		 		and   c.id not in(select tes.id from tz.t_tz_electric_send tes)
+		 		order by c.create_time desc
+		limit #{countNum}
+  </insert>
+  <!-- 	 插入客户信息（电销）历史表gaoxu  2016-8-31 09:50:51    end-->
+</mapper>

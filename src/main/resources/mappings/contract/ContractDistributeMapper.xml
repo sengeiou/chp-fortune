@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.contract.dao.ContractDistributeDao">
+<!-- 合同派发列表 -->
+ <select id="findAllList" parameterType="com.creditharmony.fortune.contract.entity.ContractDistribute" resultType="ContractDistribute">
+  	SELECT
+  		p.id,
+  		p.cont_stores_id,
+  		c.org_name,
+  		p.dist_express_no,
+  		p.dist_start_no,
+  		p.dist_end_no,
+  		p.dist_box,
+  		t.apply_no,
+  		p.dist_contract_no,
+  		p.cont_version,
+  		t.apply_day,
+  		p.dist_date,
+  		p.dist_status,
+  		p.sign_status
+  	FROM
+  		 t_tz_contract_distribute p
+  		LEFT JOIN t_gl_org c ON c.id = p.cont_stores_id
+  		LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+  	<where>
+  		<if test="contStoresId != null and contStoresId != ''">
+  			and p.cont_stores_id=#{contStoresId}
+  		</if>
+  		<if test="orgName != null and orgName != ''">
+  			and c.org_name=#{orgName}
+  		</if>
+  		<if test="distStartNo != null and distStartNo != ''">
+  			and p.dist_start_no=#{distStartNo}
+  		</if>
+  		<if test="contVersion != null and contVersion != ''">
+  			and p.cont_version=#{contVersion}
+  		</if>
+  		<if test="distExpressNo != null and distExpressNo != ''">
+  			and p.dist_express_no=#{distExpressNo}
+  		</if>
+  		<if test="distStatus != null and distStatus != ''">
+  			and p.dist_status=#{distStatus}
+  		</if>
+  	</where>
+  </select>
+ <select id="manager" parameterType="java.lang.String" resultType="com.creditharmony.fortune.contract.entity.ContractDistribute">
+ 	SELECT
+ 		p.id,
+ 		P.cont_stores_id,
+ 		c.org_name,
+ 		p.dist_express_no,
+ 		p.dist_start_no,
+ 		p.dist_end_no,
+ 		p.dist_box,
+ 		t.apply_no,
+ 		p.dist_contract_no,
+ 		p.cont_version,
+ 		t.apply_day,
+ 		p.dist_date,
+ 		p.dist_status,
+ 		p.sign_status
+ 	FROM
+ 		t_tz_contract_distribute p
+ 		LEFT JOIN t_gl_org c ON c.id = p.cont_stores_id
+ 		LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+ 	where p.id = #{id}
+ </select>
+ <!--合同派发查看页-->
+ <select id="detailed" parameterType="com.creditharmony.fortune.contract.entity.ContractDistribute" resultType="com.creditharmony.fortune.contract.entity.ContractDistribute">
+  	SELECT
+  		p.cont_stores_id,
+  		p.dist_start_no,
+  		p.dist_express_no,
+  		p.cont_version,
+  		p.dist_end_no,
+  		p.dist_box,
+  		p.dist_contract_no,
+  		t.apply_day,
+  		p.dist_date,
+  		p.sign_status
+  	FROM t_tz_contract_distribute p
+  	LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+  </select>
+  
+  
+  <insert id="insertContractDistribute" parameterType="com.creditharmony.fortune.contract.entity.ContractDistribute" >
+   insert into t_tz_contract_distribute
+   <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+          id,
+      </if>
+       <if test="contractId != null" >
+          contract_id,
+      </if>
+       <if test="contStoresId != null" >
+          cont_stores_id,
+      </if>
+       <if test="contVersion != null" >
+          cont_version,
+      </if>
+      <if test="distStatus != null" >
+          dist_status,
+      </if>
+      <if test="signStatus != null" >
+          sign_status,
+      </if>
+      <if test="distType != null" >
+          dist_type,
+      </if>
+      <if test="distExpressNo != null" >
+      dist_express_no,
+      </if>
+       <if test="distStartNo != null" >
+      dist_start_no,
+      </if>
+       <if test="distEndNo != null" >
+      dist_end_no,
+      </if>
+       <if test="distBox != null" >
+      dist_box,
+      </if>
+       <if test="distContractNo != null" >
+      dist_contract_no,
+      </if>
+       <if test="distDate != null" >
+      dist_date,
+      </if>
+         <if test="assignedId != null" >
+      assigned_id,
+      </if>
+      <if test="createBy != null" >
+          create_by,
+      </if>
+      <if test="createTime != null" >
+          create_time,
+      </if>
+      <if test="modifyBy != null" >
+          modify_by,
+      </if>
+      <if test="modifyTime != null" >
+          modify_time
+      </if>
+   </trim>
+   <trim prefix=" values (" suffix=")" suffixOverrides="," >
+       <if test="id != null" >
+           #{id,jdbcType=VARCHAR},
+      </if>
+       <if test="contractId != null" >
+           #{contractId,jdbcType=VARCHAR},
+      </if>
+       <if test="contStoresId != null" >
+          #{contStoresId,jdbcType=VARCHAR},
+      </if>
+       <if test="contVersion != null" >
+           #{contVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="distStatus != null" >
+           #{distStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="signStatus != null" >
+           #{signStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="distType != null" >
+          #{distType,jdbcType=VARCHAR},
+      </if>
+      <if test="distExpressNo != null" >
+            #{distExpressNo,jdbcType=VARCHAR},
+      </if>
+       <if test="distStartNo != null" >
+          #{distStartNo,jdbcType=VARCHAR},
+      </if>
+       <if test="distEndNo != null" >
+          #{distEndNo,jdbcType=VARCHAR},
+      </if>
+       <if test="distBox != null" >
+          #{distBox,jdbcType=INTEGER},
+      </if>
+       <if test="distContractNo != null" >
+          #{distContractNo,jdbcType=INTEGER},
+      </if>
+       <if test="distDate != null" >
+           #{distDate,jdbcType=DATE},
+      </if>
+      <if test="assignedId != null" >
+          #{assignedId,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+          #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+          #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+          #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+          #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </trim>
+</insert>
+
+<!-- 添加批量派发记录 -->
+<insert id="insertContractDistributeList" parameterType="java.util.Map" >
+   INSERT INTO t_tz_contract_distribute
+   (id, contract_id, cont_stores_id, cont_version,dist_status,sign_status,dist_type, create_by, create_time,  modify_by, modify_time) 
+   SELECT t.contract_id,t.contract_id,t.cont_stores_id,t.cont_version,#{dist.distStatus,jdbcType=VARCHAR},#{dist.signStatus,jdbcType=VARCHAR},#{dist.distType,jdbcType=VARCHAR},#{dist.createBy,jdbcType=VARCHAR},  #{dist.createTime,jdbcType=TIMESTAMP}, #{dist.modifyBy,jdbcType=VARCHAR},#{dist.modifyTime,jdbcType=TIMESTAMP}
+   FROM t_tz_contract_apply t
+   where t.contract_id in 
+   <foreach collection="contract_id" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+   </foreach>
+</insert>
+
+<!-- 派发记录列表 分页 -->
+ <select id="listContractDistribute" parameterType="com.creditharmony.fortune.contract.view.ContractDistributeParamView" resultType="com.creditharmony.fortune.contract.view.ContractDistributeView">
+  	SELECT
+  		p.*,
+  		c.name as org_name,
+  		t.apply_no,
+  		t.apply_day
+  	FROM (
+  	   select b.id,b.contract_id,b.cont_stores_id,b.dist_express_no,b.dist_start_no,
+  	   b.dist_end_no,b.dist_box,b.dist_contract_no,
+  	   b.cont_version,b.dist_date,b.dist_status,b.sign_status
+  	   from t_tz_contract_distribute b where b.dist_type =#{distType,jdbcType=VARCHAR}
+ 		<if test="distStatus != null and distStatus != ''">
+ 			and dist_status=#{distStatus,jdbcType=VARCHAR}
+		</if>
+  		<if test="contVersion != null and contVersion != ''">
+	  		and cont_version=#{contVersion,jdbcType=VARCHAR}
+	    </if>
+	    <if test="contStoresId != null and contStoresId != ''">
+	  		and cont_stores_id=#{contStoresId,jdbcType=VARCHAR}
+	    </if>
+	    <if test="(distStartNo != null and distStartNo != '') or (distExpressNo != null and distExpressNo != '')">
+  			and exists ( 
+              select contract_id  from t_tz_contract_distribute where dist_type !=#{distType,jdbcType=VARCHAR}
+	             <if test="distStartNo != null and distStartNo != ''">
+		  			and dist_start_no=#{distStartNo}
+		  		</if>
+		  		<if test="distExpressNo != null and distExpressNo != ''">
+		  			and dist_express_no=#{distExpressNo}
+		  		</if>
+		  		<if test="contStoresId != null and contStoresId != ''">
+			  		and cont_stores_id=#{contStoresId,jdbcType=VARCHAR}
+			    </if>
+  		        and contract_id=b.contract_id 
+            )
+  		</if>
+  	) p LEFT JOIN t_gl_org c ON c.id = p.cont_stores_id
+  		LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+  	<where>
+  		<if test="orgName != null and orgName != ''">
+  			and c.name like '%'||#{orgName,jdbcType=VARCHAR}||'%'
+  		</if>
+  	</where>
+  </select>
+  
+  
+  <!-- 导出合同派发记录  -->
+ <select id="listDistribute" resultType="com.creditharmony.fortune.contract.view.ContractDistributeExcelView">
+  	SELECT
+  	    p.*,
+  		c.name,
+  		t.apply_no,
+  		t.apply_day,
+  		t.apply_shipping_addr,
+  		t.apply_contacts,
+  		t.apply_tel,
+  		t.apply_explain
+  	FROM (
+  		select contract_id,cont_stores_id,cont_version, dist_date
+  		from t_tz_contract_distribute 
+  		where dist_type =#{distType,jdbcType=VARCHAR} and dist_status !=#{distStatus,jdbcType=VARCHAR} 
+  		<if test="contVersion != null and contVersion != ''">
+  			and cont_version=#{contVersion}
+  		</if>
+  	)  p
+  		LEFT JOIN t_gl_org c ON c.id = p.cont_stores_id
+  		LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+  	<where>
+  		<if test="orgName != null and orgName != ''">
+  			and c.name like '%'||#{orgName,jdbcType=VARCHAR}||'%'
+  		</if>
+  	</where>
+  </select>
+  
+    <!--  根据ID导出合同派发记录  --> 
+  <select id="listContractDistributeCheckout" resultType="com.creditharmony.fortune.contract.view.ContractDistributeExcelView">
+  	 SELECT
+  	    p.*,
+  		c.name,
+  		t.apply_no,
+  		t.apply_day,
+  		t.apply_shipping_addr,
+  		t.apply_contacts,
+  		t.apply_tel,
+  		t.apply_explain
+  	FROM (
+  		select id,contract_id,cont_stores_id,cont_version from t_tz_contract_distribute where dist_type =#{distType,jdbcType=VARCHAR} and dist_status !=#{distStatus,jdbcType=VARCHAR} 
+  		<if test="contVersion != null and contVersion != ''">
+  			and cont_version=#{contVersion}
+  		</if>
+  	)  p
+  		LEFT JOIN t_gl_org c ON c.id = p.cont_stores_id
+  		LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+  	 where p.id in 
+     <foreach collection="id" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+  
+  <!-- 根据主键获取信息 -->
+  <select id="getContractDistribute" parameterType="java.lang.String" resultType="ContractDistribute">
+  	SELECT
+  		p.id,
+  		p.cont_stores_id,
+  		p.contract_id,
+  		c.name,
+  		p.dist_express_no,
+  		p.dist_start_no,
+  		p.dist_end_no,
+  		p.dist_box,
+  		t.apply_no,
+  		p.dist_contract_no,
+  		p.cont_version,
+  		t.apply_day,
+  		p.dist_date,
+  		p.dist_status,
+  		p.sign_status
+  	FROM
+  		 t_tz_contract_distribute p
+  		LEFT JOIN t_gl_org c ON c.id = p.cont_stores_id
+  		LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+  	  where p.id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 修改派发和签收状态 -->
+  <update id="updateContractDistribute" parameterType="com.creditharmony.fortune.contract.entity.ContractDistribute" >
+   update t_tz_contract_distribute 
+   <set>
+      <if test="distStatus != null" >
+      dist_status = #{distStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="signStatus != null" >
+      sign_status = #{signStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="distDate != null" >
+      dist_date = #{distDate,jdbcType=DATE},
+      </if>
+      <if test="assignedId != null" >
+      assigned_id = #{assignedId,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyBy != null" >
+          modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+          modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </set>
+   where id = #{id,jdbcType=VARCHAR} 
+</update>
+
+  <!-- 修改派发信息 -->
+  <update id="updateDistribute" parameterType="com.creditharmony.fortune.contract.entity.ContractDistribute" >
+   update t_tz_contract_distribute 
+   <set>
+      <if test="distExpressNo != null" >
+      dist_express_no = #{distExpressNo,jdbcType=VARCHAR},
+      </if>
+       <if test="distStartNo != null" >
+      dist_start_no = #{distStartNo,jdbcType=VARCHAR},
+      </if>
+       <if test="distEndNo != null" >
+      dist_end_no = #{distEndNo,jdbcType=VARCHAR},
+      </if>
+       <if test="distBox != null" >
+      dist_box = #{distBox,jdbcType=INTEGER},
+      </if>
+       <if test="distContractNo != null" >
+      dist_contract_no = #{distContractNo,jdbcType=INTEGER},
+      </if>
+       <if test="distDate != null" >
+      dist_date = #{distDate,jdbcType=DATE},
+      </if>
+      <if test="distStatus != null" >
+      dist_status = #{distStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+       create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+       modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+       modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </set>
+   where contract_id = #{contractId,jdbcType=VARCHAR} and dist_type =#{distType,jdbcType=VARCHAR}
+</update>
+
+
+  <!-- 根据合同申请id获取信息 -->
+  <select id="getContractDistributeByContractId" parameterType="java.lang.String" resultType="ContractDistribute">
+  	SELECT
+  	    c.name,
+  		t.apply_no,
+  		t.apply_day,
+  		p.*
+	  	FROM (
+	  	   select id,contract_id,cont_stores_id,dist_express_no,dist_start_no,dist_end_no,dist_box,dist_contract_no,cont_version,dist_date,dist_status,sign_status
+	  	   from t_tz_contract_distribute where contract_id = #{id,jdbcType=VARCHAR} and dist_type =#{distType,jdbcType=VARCHAR}
+	  	) p
+  		LEFT JOIN t_gl_org c ON c.id = p.cont_stores_id
+  		LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+  </select>
+  
+<!-- 单条派发记录列表 -->
+ <select id="getContractDistributeView" parameterType="java.lang.String" resultType="com.creditharmony.fortune.contract.view.ContractDistributeView">
+  	SELECT
+  		p.id,
+  		p.cont_stores_id,
+  		c.name as org_name,
+  		p.dist_express_no,
+  		p.dist_start_no,
+  		p.dist_end_no,
+  		p.dist_box,
+  		t.apply_no,
+  		p.dist_contract_no,
+  		p.cont_version,
+  		t.apply_day,
+  		p.dist_date,
+  		p.dist_status,
+  		p.sign_status
+  	FROM
+  		 t_tz_contract_distribute p
+  		LEFT JOIN t_gl_org c ON c.id = p.cont_stores_id
+  		LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+  	where p.id = #{id,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <!-- 根据申请id查询派发记录 -->
+ <select id="listDistributeSubSet" parameterType="java.util.Map" resultType="com.creditharmony.fortune.contract.view.ContractDistributeView">
+  	SELECT
+  		p.*,
+  		c.name as org_name,
+  		t.apply_no,
+  		t.apply_day
+  	FROM (
+  	   select id,contract_id,cont_stores_id,dist_express_no,dist_start_no,dist_end_no,dist_box,dist_contract_no,cont_version,dist_date,dist_status,sign_status
+  	   from t_tz_contract_distribute where dist_type =#{distType,jdbcType=VARCHAR} and contract_id =#{contractId,jdbcType=VARCHAR} order by dist_date desc
+  	) p LEFT JOIN t_gl_org c ON c.id = p.cont_stores_id
+  		LEFT JOIN t_tz_contract_apply t ON t.contract_id = p.contract_id
+  </select>
+  
+  
+</mapper>

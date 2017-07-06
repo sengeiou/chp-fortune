@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.money.common.dao.InterestRateConfigDao" >
+
+	<select id="getProperRate" parameterType="java.util.Map" resultType="com.creditharmony.fortune.back.money.common.entity.InterestRateConfig">
+		SELECT * FROM tz.t_tz_interest_rate_config conf
+		WHERE 
+			conf.product_code = #{productCode}
+			and conf.apply_lend_day_from <![CDATA[<=]]> #{applyLendDay}
+			and conf.apply_lend_day_to <![CDATA[>=]]> #{applyLendDay}
+			and conf.lower_limit <![CDATA[<=]]> #{applyLendMoney}
+			and conf.upper_limit <![CDATA[>]]> #{applyLendMoney}
+			<if test="xinhebaoType != null and xinhebaoType != ''">
+				and conf.xinhebao_type = #{xinhebaoType}
+			</if>
+			ORDER BY conf.create_time desc, conf.apply_lend_day_from desc
+			LIMIT 1
+	</select>
+	
+	<select id="getYxtOrXhyzProperRate" parameterType="java.util.Map" resultType="com.creditharmony.fortune.back.money.job.entity.ProductProfit">
+		SELECT * FROM tz.t_gl_product_profit conf
+		WHERE 
+			conf.product_code = #{productCode}
+			and conf.start_day <![CDATA[<=]]> #{applyLendDay}
+			and conf.close_day <![CDATA[>=]]> #{applyLendDay}
+			and conf.product_money_upper <![CDATA[>]]> #{applyLendMoney}
+			and conf.product_money_lowe  <![CDATA[<=]]> #{applyLendMoney}
+			and conf.status = '1'
+	</select>
+	
+	<select id="getProperRateCX" resultType="com.creditharmony.fortune.back.money.job.entity.ProductProfit">
+		select matching_rate_lower AS productRate  from  tz.t_gl_tz_product a where a.product_code=#{value}
+	</select>
+	
+	<select id="countInterest" resultType="com.creditharmony.fortune.back.money.common.view.ResultView">
+		select sum(back_real_money)  sunInterestMoney from  tz.t_tz_back_interest_pool inte 
+		where inte.lend_code=#{lendCode} 
+		and inte.interest_return is null
+		and	inte.back_money_status in ('9','10','11','12','5','6','7');
+	</select>
+</mapper>

@@ -1,0 +1,1048 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.borrow.dao.BorrowCancelDao">
+<!-- 查询债权撤销列表 -->
+ 	<select id="findBorrowCancel" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelView">
+		SELECT
+		*,
+		count(1) over() totalCount,
+		sum(applyLendMoney) over() sumMoney
+		FROM
+		(select
+		<include refid="queryField" />
+		FROM
+		<include refid="joinField" />
+		)
+		<include refid="termQueryField" />
+		limit ${limit} offset ${offset}
+ 	</select>
+ 	
+ 	<!-- 查询债权撤销列表for待替换 -->
+ 	<select id="findBorrowCancelForNo" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelView">
+	 	<include refid="queryBorrowCancelForNo" />
+				limit ${limit} offset ${offset}
+ 	</select>
+ 	
+ 	<!-- 查询债权撤销列表for已替换 -->
+ 	<select id="findBorrowCancelForYes" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelView">
+	 	<include refid="queryBorrowCancelForYes" />
+				limit ${limit} offset ${offset}
+ 	</select>
+ 	
+ 	<!-- 查询债权撤销列表for全选 -->
+ 	<select id="findBorrowCancelForAll" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelView">
+		select 
+			lendCode,
+			matchingId, 
+			matchingInterestStart, 
+			replaceDay,
+			matchingFirstdayFlag, 
+			applyLendDay,
+			applyLendMoney, 
+			applyExpireDay, 
+			applyBillday, 
+			storeOrgId, 
+			customerName, 
+			orgName,
+			provinceId, 
+			cityId, 
+			procuctName,
+			toPageReplaceStatus, 
+			count(1) over() totalCount,
+			sum(applyLendMoney) over() sumMoney
+		from
+		(
+			 <include refid="queryBorrowCancelForNo" />
+			 UNION ALL 
+			 <include refid="queryBorrowCancelForYes" />
+		 )
+				limit ${limit} offset ${offset}
+ 	</select>
+ 	
+ 	<!-- 查询本期待替换总金额for待替换 -->
+ 	<select id="findSumCCLMoneyForNo" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelView">
+ 		<include refid="queryBorrowCancelForNo" />
+ 	</select>
+ 	
+ 	<!-- 查询本期待替换总金额for已替换 -->
+ 	<select id="findSumCCLMoneyForYes" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelView">
+ 		<include refid="queryBorrowCancelForYes" />
+ 	</select>
+ 	
+ 	<!--查询本期待替换总金额for全选  -->
+ 	<select id="findSumCCLMoneyForAll" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelView">
+		select 
+			lendCode,
+			matchingId, 
+			matchingInterestStart, 
+			replaceDay,
+			matchingFirstdayFlag, 
+			applyLendDay,
+			applyLendMoney, 
+			applyExpireDay, 
+			applyBillday, 
+			storeOrgId, 
+			customerName, 
+			orgName,
+			provinceId, 
+			cityId, 
+			procuctName,
+			toPageReplaceStatus, 
+			count(1) over() totalCount,
+			sum(applyLendMoney) over() sumMoney
+		from
+		(
+			 <include refid="queryBorrowCancelForNo" />
+			 UNION ALL 
+			 <include refid="queryBorrowCancelForYes" />
+		 )
+	 	
+ 	</select>
+ 	
+ 	
+ 	
+ 	<!-- 导出债权撤销列表for待替换 -->
+ 	<select id="outExcelForNo" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelExcel">
+ 		<include refid="queryBorrowCancelForNo" />
+ 	</select>
+ 	
+ 	<!-- 导出债权撤销列表for已替换 -->
+ 	<select id="outExcelForYes" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelExcel">
+ 		<include refid="queryBorrowCancelForYes" />
+ 	</select>
+ 	
+ 	<!--导出债权撤销列表for全选  -->
+ 	<select id="outExcelForAll" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.view.BorrowCancelExcel">
+		select 
+			lendCode,
+			matchingId, 
+			matchingInterestStart, 
+			replaceDay,
+			matchingFirstdayFlag, 
+			applyLendDay,
+			applyLendMoney, 
+			applyExpireDay, 
+			applyBillday, 
+			storeOrgId, 
+			customerName, 
+			orgName,
+			provinceId, 
+			cityId, 
+			procuctName,
+			toPageReplaceStatus, 
+			count(1) over() totalCount,
+			sum(applyLendMoney) over() sumMoney
+		from
+		(
+			 <include refid="queryBorrowCancelForNo" />
+			 UNION ALL 
+			 <include refid="queryBorrowCancelForYes" />
+		 )
+	 	
+ 	</select>
+ <sql id="queryBorrowCancelForNo">
+SELECT
+	a.lend_code AS lendCode,
+	c.matching_id AS matchingId, 
+	To_CHAR(C.matching_interest_start,'yyyy-MM-dd') AS matchingInterestStart,
+	C.matching_firstday_flag AS	matchingFirstdayFlag, 
+	To_CHAR(C.replace_day,'yyyy-MM-dd') AS replaceDay,
+	a.apply_lend_day AS applyLendDay,
+	a.apply_lend_money AS applyLendMoney, 
+	a.apply_expire_day AS applyExpireDay, 
+	a.apply_billday AS applyBillday, 
+	a.store_org_id AS storeOrgId, 
+	f.customer_name AS customerName, 
+	o.name AS orgName,
+	o.province_id AS provinceId, 
+	o.city_id AS cityId, 
+	p.product_name AS procuctName,
+	'1' as toPageReplaceStatus, 
+	count(1) over() totalCount,
+	sum(a.apply_lend_money) over() sumMoney
+FROM
+    (SELECT matchingid FROM mview_freeze_borrow) mview 
+INNER JOIN(
+        SELECT
+            matching_id,
+            lend_code,
+            matching_firstday_flag,
+            matching_interest_start,
+            replace_day
+        FROM
+            tz."t_tz_matching_creditor"
+        WHERE
+            matching_status IN(
+                '100',
+                '103',
+                '160'
+            )
+            <!-- 账单日 -->
+			<if test="applyBillday != null and applyBillday != '' ">
+				AND matching_bill_day in
+				<foreach collection="applyBillday" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 账单类型 -->
+			<if test="matchingFirstdayFlag != null and matchingFirstdayFlag != '' ">
+				AND matching_firstday_flag in
+				<foreach collection="matchingFirstdayFlag" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 出借编号 -->
+			<if test="lendCode != null and lendCode != '' ">
+				AND lend_code = #{lendCode}
+			</if>
+			<!-- 替换日期 -->
+			<if test="replaceDayFrom !=null and replaceDayFrom != '' ">
+ 	 			AND To_CHAR(replace_day,'yyyy-MM-dd') <![CDATA[>=]]> To_CHAR(to_timestamp(#{replaceDayFrom},'yyyy-MM-dd'),'yyyy-MM-dd')
+ 	 		</if>
+ 	 		<if test="replaceDayTo !=null and replaceDayTo != '' ">
+ 	 			AND To_CHAR(replace_day,'yyyy-MM-dd') <![CDATA[<=]]> To_CHAR(to_timestamp(#{replaceDayTo},'yyyy-MM-dd'),'yyyy-MM-dd')
+ 	 		</if>
+ 	 		<!-- 判断lendCode是否为空 -->
+			<if test="listLendCode != null and listLendCode.size()>0">
+	         and lend_code in
+	          <foreach collection="listLendCode" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     	</if>
+ 	 		
+    ) C ON mview.matchingId = c.matching_id 
+INNER JOIN(
+        SELECT
+            lend_code,
+            customer_code,
+            apply_lend_day,
+            apply_lend_money,
+            apply_billday,
+            apply_expire_day,
+            store_org_id,
+            product_code
+        FROM
+            tz.t_tz_loan_apply
+		where 1=1
+			<!-- 出借编号 -->
+			<if test="lendCode != null and lendCode != '' ">
+				AND lend_code = #{lendCode}
+			</if>
+			<!-- 账单日 -->
+			<if test="applyBillday != null and applyBillday != '' ">
+				AND apply_billday in
+				<foreach collection="applyBillday" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 计划出借日期 -->
+			<if test="lendDateFrom != null and lendDateFrom != '' ">
+				AND apply_lend_day <![CDATA[>=]]> #{lendDateFrom}
+			</if>
+			<if test="lendDateTo != null and lendDateTo != '' ">
+				AND apply_lend_day <![CDATA[<=]]> #{lendDateTo}
+			</if>
+			<!-- 产品类型 -->
+			<if test="procuctId != null and procuctId != '' ">
+				AND product_code in
+				<foreach collection="procuctId" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 营业部编号 -->
+			<if test="orgCode != null and orgCode != '' ">
+				AND store_org_id in
+				<foreach collection="orgCode" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			
+    ) A ON a.lend_code = c.lend_code 
+INNER JOIN(
+        SELECT
+            customer_code,
+            customer_name
+        FROM
+            tz.t_tz_customer
+        where 1=1
+        	<!-- 客户名称 -->
+			<if test="customerName != null and customerName != '' ">
+				AND customer_name like '%${customerName}%'
+			</if>
+    ) f ON a.customer_code = f.customer_code 
+INNER JOIN(
+        SELECT
+            id,
+            NAME,
+            province_id,
+            city_id
+        FROM
+            tz.t_gl_org
+            where 1=1
+            <!-- 城市 -->
+			<if test="addrCity != null">
+				and province_id||'_'||city_id SIMILAR TO #{addrCity}
+			</if>
+    ) o ON a.store_org_id = o.id 
+INNER JOIN(
+        SELECT
+            product_code,
+            product_name
+        FROM
+            tz.t_gl_tz_product
+            where 1=1
+            <!-- 产品类型 -->
+			<if test="procuctId != null and procuctId != '' ">
+				AND product_code in
+				<foreach collection="procuctId" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+    ) p ON a.product_code = p.product_code
+ WHERE 
+ EXISTS 
+   (
+	 select '1' 
+	 from(select matching_id,phase_mate_id,loan_code,phase_beginday_cur from tz.t_tz_loanphase) a
+		inner join (select trade_id,credit_code from tz.t_tz_creditor_trade where dict_trade_credit_status in('0','1') and credit_node='0') b on a.phase_mate_id=b.trade_id and a.loan_code=b.credit_code 
+		inner join (select credit_value_id,loan_freeze_day from tz.t_tz_borrow where dict_loan_free_flag='2') c on b.credit_code=c.credit_value_id  
+		where matching_id=matchingId and c.loan_freeze_day <![CDATA[<]]> a.phase_beginday_cur
+	)
+    AND matching_interest_start <![CDATA[<=]]> now()
+ 	</sql>
+ 	 <sql id="queryBorrowCancelForYes">
+SELECT
+	a.lend_code AS lendCode,
+	c.matching_id AS matchingId, 
+	To_CHAR(C.matching_interest_start,'yyyy-MM-dd') AS matchingInterestStart,
+	C.matching_firstday_flag AS	matchingFirstdayFlag,
+	To_CHAR(C.replace_day,'yyyy-MM-dd') AS replaceDay, 
+	a.apply_lend_day AS applyLendDay,
+	a.apply_lend_money AS applyLendMoney, 
+	a.apply_expire_day AS applyExpireDay, 
+	a.apply_billday AS applyBillday, 
+	a.store_org_id AS storeOrgId, 
+	f.customer_name AS customerName, 
+	o.name AS orgName,
+	o.province_id AS provinceId, 
+	o.city_id AS cityId, 
+	p.product_name AS procuctName,
+	'2' as toPageReplaceStatus, 
+	count(1) over() totalCount,
+	sum(a.apply_lend_money) over() sumMoney
+FROM
+    (SELECT matchingid FROM mview_freeze_borrow) mview 
+INNER JOIN(
+        SELECT
+            matching_id,
+            lend_code,
+            matching_firstday_flag,
+            matching_interest_start,
+            replace_day
+        FROM
+            tz."t_tz_matching_creditor"
+        WHERE
+            matching_status IN(
+                '100',
+                '103',
+                '160'
+            )
+            <!-- 账单日 -->
+			<if test="applyBillday != null and applyBillday != '' ">
+				AND matching_bill_day in
+				<foreach collection="applyBillday" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 账单类型 -->
+			<if test="matchingFirstdayFlag != null and matchingFirstdayFlag != '' ">
+				AND matching_firstday_flag in
+				<foreach collection="matchingFirstdayFlag" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 出借编号 -->
+			<if test="lendCode != null and lendCode != '' ">
+				AND lend_code = #{lendCode}
+			</if>
+			<!-- 替换日期 -->
+			<if test="replaceDayFrom !=null and replaceDayFrom != '' ">
+ 	 			AND To_CHAR(replace_day,'yyyy-MM-dd') <![CDATA[>=]]> To_CHAR(to_timestamp(#{replaceDayFrom},'yyyy-MM-dd'),'yyyy-MM-dd')
+ 	 		</if>
+ 	 		<if test="replaceDayTo !=null and replaceDayTo != '' ">
+ 	 			AND To_CHAR(replace_day,'yyyy-MM-dd') <![CDATA[<=]]> To_CHAR(to_timestamp(#{replaceDayTo},'yyyy-MM-dd'),'yyyy-MM-dd')
+ 	 		</if>
+ 	 		<!-- 判断lendCode是否为空 -->
+			<if test="listLendCode != null and listLendCode.size()>0">
+	         and lend_code in
+	          <foreach collection="listLendCode" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     	</if>
+ 	 		
+    ) C ON mview.matchingId = c.matching_id 
+INNER JOIN(
+        SELECT
+            lend_code,
+            customer_code,
+            apply_lend_day,
+            apply_lend_money,
+            apply_billday,
+            apply_expire_day,
+            store_org_id,
+            product_code
+        FROM
+            tz.t_tz_loan_apply
+		where 1=1
+			<!-- 出借编号 -->
+			<if test="lendCode != null and lendCode != '' ">
+				AND lend_code = #{lendCode}
+			</if>
+			<!-- 账单日 -->
+			<if test="applyBillday != null and applyBillday != '' ">
+				AND apply_billday in
+				<foreach collection="applyBillday" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 计划出借日期 -->
+			<if test="lendDateFrom != null and lendDateFrom != '' ">
+				AND apply_lend_day <![CDATA[>=]]> #{lendDateFrom}
+			</if>
+			<if test="lendDateTo != null and lendDateTo != '' ">
+				AND apply_lend_day <![CDATA[<=]]> #{lendDateTo}
+			</if>
+			<!-- 产品类型 -->
+			<if test="procuctId != null and procuctId != '' ">
+				AND product_code in
+				<foreach collection="procuctId" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 营业部编号 -->
+			<if test="orgCode != null and orgCode != '' ">
+				AND store_org_id in
+				<foreach collection="orgCode" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+    ) A ON a.lend_code = c.lend_code 
+INNER JOIN(
+        SELECT
+            customer_code,
+            customer_name
+        FROM
+            tz.t_tz_customer
+        where 1=1
+        	<!-- 客户名称 -->
+			<if test="customerName != null and customerName != '' ">
+				AND customer_name like '%${customerName}%'
+			</if>
+    ) f ON a.customer_code = f.customer_code 
+INNER JOIN(
+        SELECT
+            id,
+            NAME,
+            province_id,
+            city_id
+        FROM
+            tz.t_gl_org
+            where 1=1
+            <!-- 城市 -->
+			<if test="addrCity != null">
+				and province_id||'_'||city_id SIMILAR TO #{addrCity}
+			</if>
+    ) o ON a.store_org_id = o.id 
+INNER JOIN(
+        SELECT
+            product_code,
+            product_name
+        FROM
+            tz.t_gl_tz_product
+            where 1=1
+            <!-- 产品类型 -->
+			<if test="procuctId != null and procuctId != '' ">
+				AND product_code in
+				<foreach collection="procuctId" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+    ) p ON a.product_code = p.product_code
+ WHERE 
+ NOT EXISTS 
+   (
+	 select '1' 
+	 from (select matching_id,phase_mate_id,loan_code,phase_beginday_cur from t_tz_loanphase where matching_id=matchingId) a 
+	 inner join (select trade_id,credit_code from t_tz_creditor_trade where dict_trade_credit_status in('0','1') and credit_node='0') b on a.phase_mate_id=b.trade_id and a.loan_code=b.credit_code 
+	 inner join (select credit_value_id,loan_freeze_day from t_tz_borrow where dict_loan_free_flag='2') c on b.credit_code=c.credit_value_id  where  c.loan_freeze_day<![CDATA[<]]>a.phase_beginday_cur
+	
+	) 
+    AND matching_interest_start <![CDATA[<=]]> now()
+ 	</sql>
+ <!--查询总记录数  -->
+ 	<select id="findCount" parameterType="java.util.Map" resultType="int">
+		SELECT
+		count(lendCode)
+		FROM
+		(select
+		<include refid="queryField" />
+		FROM
+		<include refid="joinField" />
+		)
+		<include refid="termQueryField" />
+ 	</select>
+ <!--查询总金额  -->
+	 <select id="findCountMoney" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+		SELECT
+		sum(applyLendMoney)
+		FROM
+		(select
+		<include refid="queryField" />
+		FROM
+		<include refid="joinField" />
+		)
+		<include refid="termQueryField" />
+	 </select>
+ <!--根据出借编号和最大的期数查询带推荐信息  -->
+ <select id="findMatchingCreditorByMaxMatchingNow" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" parameterType="java.util.Map">
+  select 
+  <include refid="matchingSql"/>
+  from t_tz_matching_creditor where lend_code = #{lendCode} and matching_now in
+  (SELECT max(matching_now) FROM t_tz_matching_creditor where lend_code = #{lendCode});
+ </select>
+ 
+ <!-- 查询最大的带推荐信息 -->
+ <select id="findMaxMatchingCreditor" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" parameterType="java.util.Map">
+ SELECT
+    <include refid="matchingSql"/>
+FROM
+    T_TZ_MATCHING_CREDITOR A INNER JOIN (SELECT
+        MAX(matching_now) AS maxNum,
+        lend_code AS lendCode
+    FROM
+        T_TZ_MATCHING_CREDITOR
+    GROUP by lendCode
+    )b
+    on a.lend_code=b.lendCode and b.maxNum=a.matching_now
+    where matching_status<![CDATA[<>]]>#{matchingStatus}
+    and matching_endday>=now()
+    <if test="lendCode != null and lendCode != '' ">
+    and	lend_code=#{lendCode}
+    </if>
+ </select>
+ <!-- 根据带推荐查询可用债权 -->
+ <select id="findExistingBorrow" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.entity.Borrow">
+ SELECT 
+  <include refid="queryField2"/>
+	FROM tz.t_tz_creditor_trade a
+	left join tz.t_tz_borrow d on a.credit_code = d.credit_value_id
+	where a.lend_code=#{lendCode} and d.dict_loan_free_flag = #{borrowFreeFlag}
+	and d.loan_months_surplus<![CDATA[>=]]>0
+ </select>
+ <!--根据交易获得带推荐债权  -->
+ <select id="findMatchingCreditorBycreditorTrade" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.entity.ex.BorrowCanceEx">
+	SELECT
+	a.matching_id as matchingId,
+	b.matching_expire_day as matchingExpireDay,
+	b.matching_borrow_quota as oldCreditLines
+	FROM tz.t_tz_creditor_trade a
+	LEFT join tz.t_tz_matching_creditor b on a.matching_id = b.matching_id
+	where a.lend_code=#{lendCode}
+ </select>
+<!--查询可替换债权  -->
+<select id="findBorrowReplace" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.entity.ex.BorrowReplaceEx">
+select 
+<include refid="queryField1"/>
+from
+<include refid="joinField1"/>
+<!-- where
+a.lend_code=#{lendCode} and a.credit_node=#{creditNode} and c.dict_loan_free_flag=#{flag} 
+and (a.dict_trade_credit_status = #{statusZcwks} or a.dict_trade_credit_status = #{statusKshkz}) -->
+</select>
+<!--根据id数组查询可用债权  -->
+<select id="getBorrowList" resultType="com.creditharmony.fortune.borrow.entity.ex.BorrowReplaceEx" parameterType="java.lang.String">
+	select 
+	<include refid="queryField2"/>
+	from
+	tz.t_tz_borrow d
+	where
+	<if test="array!=null and array!= '' ">
+		d.credit_value_id in <foreach collection="array" index="index" item="item" open="(" separator="," close=")">  
+	            #{item}   
+	    </foreach>
+    </if> 
+</select>
+<!-- 查询出借信息 -->
+<select id="findLoanApplyEx" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.entity.ex.LoanApplyEx">
+	select
+	b.customer_name as custName,
+	c.name as orgName,
+	d.product_name as procuctName,
+	d.product_code as productCode,
+	a.product_rate as productRate,
+	a.lend_code as applyCode,
+	a.apply_lend_day as lendDate,
+	a.apply_lend_money as lendMoney
+	from
+	tz.t_tz_loan_apply a
+	left join tz.t_tz_customer b on a.customer_code = b.customer_code
+	left join tz.t_gl_org c on a.store_org_id= c.id
+	left join tz.t_gl_tz_product d on d.product_code = a.product_code
+	<where>
+	 <if test="lendCode!=null and lendCode!= '' ">
+		a.lend_code=#{lendCode}
+	 </if>
+	</where>
+</select>
+<!--修改本期债权带推荐信息表  -->
+<update id="updateMatchingCreditorByMatchingId" parameterType="java.util.Map">
+	UPDATE t_tz_matching_creditor
+   	SET 
+       matching_borrow_quota = #{matchingBorrowQuota,jdbcType=NUMERIC}, 
+       matching_match_money = #{matchingMatchMoney,jdbcType=NUMERIC},
+       dict_matching_filesend_status = #{dictMatchingFilesendStatus,jdbcType=VARCHAR},
+       replace_day = #{replaceDay,jdbcType=DATE}
+ 	WHERE  matching_id = #{matchingId};
+</update>
+
+<!-- 修改待替换状态 -->
+<update id="updateTopageReplaceStatus">
+	UPDATE t_tz_creditor_trade 
+	SET
+		dict_trade_credit_status = '2'
+	WHERE trade_id in (select b.trade_id 
+	FROM tz."t_tz_loan_apply" A INNER JOIN t_tz_creditor_trade B
+	ON a.lend_code = b.lend_code WHERE 
+	a.apply_expire_day = trunc(sysdate)
+	)
+	
+</update>
+
+<!-- 修改替换日期 -->
+<update id="updateReplaceDay" parameterType="java.util.Map">
+	UPDATE tz."t_tz_matching_creditor"
+   	SET 
+       replace_day = #{replaceDay,jdbcType=DATE}
+ 	WHERE  lend_code IN(
+        SELECT
+            a.lend_code
+        FROM
+            tz."t_tz_loan_apply" a,
+            tz."t_tz_matching_creditor" c
+        WHERE
+            a.lend_code = c.lend_code
+            AND a.lend_code IN(
+                SELECT a.lend_code
+                FROM tz."t_tz_loan_apply" A 
+                INNER JOIN tz."t_tz_creditor_trade" B
+                ON a.lend_code = b.lend_code
+                WHERE
+                    a.apply_expire_day = trunc(sysdate)
+            )
+    )
+	
+</update>
+
+ <!--封装sql快  -->
+ <!--连接字段  -->
+ <sql id="joinField">
+    (SELECT matchingid
+  FROM mview_freeze_borrow) mview INNER JOIN(
+        SELECT
+            matching_id,
+            lend_code,
+            matching_firstday_flag,
+            matching_interest_start
+        FROM
+            tz."t_tz_matching_creditor"
+        WHERE
+            matching_status IN(
+                '100',
+                '103',
+                '160'
+            )
+            <!-- 账单日 -->
+			<if test="applyBillday != null and applyBillday != '' ">
+				AND matching_bill_day in
+				<foreach collection="applyBillday" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 账单类型 -->
+			<if test="matchingFirstdayFlag != null and matchingFirstdayFlag != '' ">
+				AND matching_firstday_flag in
+				<foreach collection="matchingFirstdayFlag" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 出借编号 -->
+			<if test="lendCode != null and lendCode != '' ">
+				AND lend_code = #{lendCode}
+			</if>
+			
+    ) C
+        ON mview.matchingId = c.matching_id INNER JOIN(
+        SELECT
+            lend_code,
+            customer_code,
+            apply_lend_day,
+            apply_lend_money,
+            apply_billday,
+            apply_expire_day,
+            store_org_id,
+            product_code
+        FROM
+            tz.t_tz_loan_apply
+		where 1=1
+			<!-- 出借编号 -->
+			<if test="lendCode != null and lendCode != '' ">
+				AND lend_code = #{lendCode}
+			</if>
+			<!-- 账单日 -->
+			<if test="applyBillday != null and applyBillday != '' ">
+				AND apply_billday in
+				<foreach collection="applyBillday" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 计划出借日期 -->
+			<if test="lendDateFrom != null and lendDateFrom != '' ">
+				AND apply_lend_day <![CDATA[>=]]> #{lendDateFrom}
+			</if>
+			<if test="lendDateTo != null and lendDateTo != '' ">
+				AND apply_lend_day <![CDATA[<=]]> #{lendDateTo}
+			</if>
+			<!-- 产品类型 -->
+			<if test="procuctId != null and procuctId != '' ">
+				AND product_code in
+				<foreach collection="procuctId" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<!-- 营业部编号 -->
+			<if test="orgCode != null and orgCode != '' ">
+				AND store_org_id in
+				<foreach collection="orgCode" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+    ) A
+        ON a.lend_code = c.lend_code INNER JOIN(
+        SELECT
+            customer_code,
+            customer_name
+        FROM
+            tz.t_tz_customer
+        where 1=1
+        	<!-- 客户名称 -->
+			<if test="customerName != null and customerName != '' ">
+				AND customer_name like '%${customerName}%'
+			</if>
+    ) f
+        ON a.customer_code = f.customer_code INNER JOIN(
+        SELECT
+            id,
+            NAME,
+            province_id,
+            city_id
+        FROM
+            tz.t_gl_org
+            where 1=1
+            <!-- 城市 -->
+			<if test="addrCity != null">
+				and province_id||'_'||city_id SIMILAR TO #{addrCity}
+			</if>
+    ) o
+        ON a.store_org_id = o.id INNER JOIN(
+        SELECT
+            product_code,
+            product_name
+        FROM
+            tz.t_gl_tz_product
+            where 1=1
+            <!-- 产品类型 -->
+			<if test="procuctId != null and procuctId != '' ">
+				AND product_code in
+				<foreach collection="procuctId" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+    ) p
+        ON a.product_code = p.product_code
+ </sql>
+ <!--条件查询  -->
+ <sql id="termQueryField">
+ 	<where>
+ 		1=1
+ 		and matchingInterestStart <![CDATA[<=]]>now()
+		<!-- 交易状态 -->
+		<if test="replaceStatus!=null and replaceStatus!= '' ">
+			AND toPageReplaceStatus in
+			<foreach collection="replaceStatus" index="index" item="item"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+ 		<!-- 客户名称 -->
+		<!-- <if test="customerName != null and customerName != '' ">
+			AND customerName like '%${customerName}%'
+		</if> -->
+ 		<!-- 账单日 -->
+		<!-- <if test="applyBillday != null and applyBillday != '' ">
+			AND applyBillday in
+			<foreach collection="applyBillday" index="index" item="item"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if> -->
+		<!-- 计划出借日期 -->
+		<!-- <if test="lendDateFrom != null and lendDateFrom != '' ">
+			AND applyLendDay <![CDATA[>=]]> #{lendDateFrom}
+		</if>
+		<if test="lendDateTo != null and lendDateTo != '' ">
+			AND applyLendDay <![CDATA[<]]> #{lendDateTo}
+		</if> -->
+		<!-- 账单类型 -->
+		<!-- <if test="matchingFirstdayFlag != null and matchingFirstdayFlag != '' ">
+			AND matchingFirstdayFlag in
+			<foreach collection="matchingFirstdayFlag" index="index" item="item"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if> -->
+		<!-- 产品类型 -->
+		<!-- <if test="procuctId != null and procuctId != '' ">
+			AND productCode in
+			<foreach collection="procuctId" index="index" item="item"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if> -->
+		<!-- 出借编号 -->
+		<!-- <if test="lendCode != null and lendCode != '' ">
+			AND lendCode = #{lendCode}
+		</if> -->
+		<!-- 城市 -->
+		<!-- <if test="addrCity != null">
+			and provinceId||'_'||cityId SIMILAR TO #{addrCity}
+		</if> -->
+		<!-- 部门编号 -->
+		<!-- <if test="orgCode != null and orgCode != '' ">
+			AND storeOrgId in
+			<foreach collection="orgCode" index="index" item="item"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if> -->
+ 	</where>
+</sql>
+ <sql id="queryField1">
+ 	d.creditValueId,
+    d.loanCode,
+    d.loanName,
+    d.dictLoanType,
+    d.loanJob,
+    d.loanMiddleMan,
+    d.loanPurpose,
+    d.loanBackmoneyFirday,
+    d.loanBackmoneyLastday,
+    d.loanMonths,
+    d.loanMonthsSurplus,
+    d.loanQuota,
+    d.loanCreditValue,
+    d.loanMonthRate,
+    d.loanBackmoneyDay,
+    d.loanFreezeDay,
+    b.phase_beginday_cur AS phaseBegindayCur,
+    b.phase_endday_cur AS phaseEnddayCur,
+    b.phase_number AS phaseNumber,
+    b.phase_principal_surplus AS phasePrincipalSurplus,
+    e.matching_firstday_flag AS matchingFirstdayFlag,
+    a.trade_mate_money AS creditLines,
+    a.matching_id AS matchingId
+ </sql>
+ <sql id="joinField1">
+	(SELECT
+	matching_id,
+	credit_code,
+	trade_mate_money,
+	trade_id
+	FROM
+	T_TZ_CREDITOR_TRADE
+	WHERE
+	lend_code = #{lendCode}
+	AND credit_node = #{creditNode}
+	AND(
+	dict_trade_credit_status = #{statusZcwks}
+	OR dict_trade_credit_status = #{statusKshkz}
+	)
+	) A INNER JOIN(
+	SELECT
+	matching_id,
+	phase_mate_id,
+	loan_code,
+	phase_beginday_cur,
+	phase_endday_cur,
+	phase_number,
+	phase_principal_surplus
+	FROM
+	T_TZ_LOANPHASE
+	WHERE
+	lend_code = #{lendCode}
+	AND phase_discard_status =#{phaseDiscardStatus}
+	AND matching_id = #{matchingId}
+	) b
+	ON a.trade_id = b.phase_mate_id and a.credit_code = b.loan_code INNER JOIN(
+        SELECT
+            credit_value_id AS creditValueId,
+            loan_code AS loanCode,
+            loan_name AS loanName,
+            dict_loan_type AS dictLoanType,
+            loan_job AS loanJob,
+            loan_middle_man AS loanMiddleMan,
+            loan_purpose AS loanPurpose,
+            loan_backmoney_firday AS loanBackmoneyFirday,
+            loan_backmoney_lastday AS loanBackmoneyLastday,
+            loan_months AS loanMonths,
+            loan_months_surplus AS loanMonthsSurplus,
+            loan_quota AS loanQuota,
+            loan_credit_value AS loanCreditValue,
+            loan_month_rate AS loanMonthRate,
+            loan_backmoney_day AS loanBackmoneyDay,
+            loan_freeze_day AS loanFreezeDay
+        FROM
+            tz.t_tz_borrow
+        WHERE
+            dict_loan_free_flag = #{flag}
+    ) d
+        ON d.creditValueId = a.credit_code  INNER JOIN(
+        SELECT
+        	matching_id,
+            matching_firstday_flag,
+            matching_interest_start
+        FROM
+            T_TZ_MATCHING_CREDITOR
+        where lend_code = #{lendCode} 
+        and now()>= matching_interest_start    
+    ) e on e.matching_id = b.matching_id  
+ </sql>
+ <sql id="queryField2">
+  	d.credit_value_id AS creditValueId,
+ 	 d.loan_name AS loanName,
+ 	 d.loan_idcard As loanIdcard,
+ 	 d.dict_loan_type AS dictLoanType,
+ 	 d.loan_job AS loanJob,
+ 	 d.loan_middle_man AS loanMiddleMan,
+ 	 d.loan_purpose AS loanPurpose,
+ 	 d.loan_backmoney_firday AS loanBackmoneyFirday,
+ 	 d.loan_backmoney_lastday AS loanBackmoneyLastday,
+ 	 d.loan_months AS loanMonths,
+ 	 d.loan_months_surplus AS loanMonthsSurplus,
+ 	 d.loan_quota AS loanQuota,
+ 	 d.loan_credit_value AS loanCreditValue,
+ 	 d.loan_month_rate AS loanMonthRate,
+ 	 d.loan_backmoney_day AS loanBackmoneyDay,
+ 	 d.loan_freeze_day AS loanFreezeDay,
+ 	 d.loan_trustee_flag AS loanTrusteeFlag,
+ 	 d.dict_loan_free_flag AS dictLoanFreeFlag,
+ 	 extract(epoch from d.modify_time) as "verTime"
+ </sql>
+ <sql id="matchingSql">
+ 	matching_id AS matchingId,
+    lend_code AS lendCode,
+    matching_firstday_flag AS matchingFirstdayFlag,
+    matching_interest_start AS matchingInterestStart, 
+    matching_bill_day AS matchingBillDay,
+    matching_borrow_quota AS matchingBorrowQuota,
+    matching_status AS matchingStatus,
+    matching_endday AS matchingEndday,
+    matching_match_money AS matchingMatchMoney,
+    dict_matching_file_status AS dictMatchingFileStatus,
+    dict_matching_filesend_status AS dictMatchingFilesendStatus,
+    matching_total AS matchingTotal,
+    matching_now AS matchingNow,
+    matching_expire_day AS matchingExpireDay,
+    matching_coss_time AS matchingCossTime,
+    matching_make_day AS matchingMakeDay,
+    matching_hk_day AS matchingHkDay,
+    matching_firstbill_day AS matchingFirstbillDay,
+    matching_order_status AS matchingOrderStatus,
+    matching_pay_status AS matchingPayStatus
+ </sql>
+ <!--查询字段  -->
+ <sql id="queryField">
+ 	<!-- tempTable.matchingId AS matchingId,
+    tempTable.lendCode AS lendCode,
+    tempTable.matchingInterestStart AS matchingInterestStart, 
+    tempTable.matchingFirstdayFlag AS matchingFirstdayFlag,
+    tempTable.matchingBorrowQuota AS matchingBorrowQuota,
+    tempTable.tradeCreditStatus AS tradeCreditStatus,
+    tempTable.creditValueId AS creditValueId, 
+    c.matching_id AS matchingId,
+    C.matching_interest_start AS matchingInterestStart,
+    C.matching_firstday_flag AS matchingFirstdayFlag,
+    a.apply_lend_day AS applyLendDay,
+    a.apply_lend_money AS applyLendMoney,
+    a.apply_expire_day AS applyExpireDay,
+    a.apply_billday AS applyBillday,
+    a.store_org_id AS storeOrgId,
+    f.customer_name AS customerName,
+    o.name AS orgName,
+    o.province_id AS provinceId,
+    o.city_id AS cityId,
+    p.product_name AS procuctName,
+    Case 
+when
+ (select count(*) from (select matching_id,phase_mate_id,loan_code from t_tz_loanphase where matching_id='100000113534074') a  inner join (select trade_id,credit_code,credit_node,dict_trade_credit_status from t_tz_creditor_trade where dict_trade_credit_status in('0','1') ) b on a.phase_mate_id=b.trade_id and a.loan_code=b.credit_code inner join (select credit_value_id from t_tz_borrow where dict_loan_free_flag='2') c on b.credit_code=c.credit_value_id and b.credit_node='0' where a.matching_id=matchingId)>0 
+then
+'1'
+else
+'2'
+end
+as tradeCreditStatus-->
+	a.lend_code AS lendCode,
+	c.matching_id AS matchingId, 
+	C.matching_interest_start AS matchingInterestStart, 
+	C.matching_firstday_flag AS	matchingFirstdayFlag, 
+	a.apply_lend_day AS applyLendDay,
+	a.apply_lend_money AS applyLendMoney, 
+	a.apply_expire_day AS applyExpireDay, 
+	a.apply_billday AS applyBillday, 
+	a.store_org_id AS storeOrgId, 
+	f.customer_name AS customerName, 
+	o.name AS orgName,
+	o.province_id AS provinceId, 
+	o.city_id AS cityId, 
+	p.product_name AS procuctName,
+	Case
+	when
+	(select count(1) from 
+	(select matching_id,phase_mate_id,loan_code,phase_beginday_cur from t_tz_loanphase where matching_id=matchingId) a 
+	inner join (select trade_id,credit_code from t_tz_creditor_trade where dict_trade_credit_status in('0','1') and credit_node='0') b on a.phase_mate_id=b.trade_id and a.loan_code=b.credit_code 
+	inner join (select credit_value_id,loan_freeze_day from t_tz_borrow where dict_loan_free_flag='2') c on b.credit_code=c.credit_value_id  where a.matching_id=matchingId and c.loan_freeze_day<![CDATA[<]]>a.phase_beginday_cur)>0
+	then
+	'1'
+	else
+	'2'
+	end
+	as toPageReplaceStatus
+ </sql>
+</mapper>

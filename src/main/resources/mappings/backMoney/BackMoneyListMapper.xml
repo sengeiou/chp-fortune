@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.money.common.dao.BackMoneyListDao" >
+
+	<sql id="searchSql">
+		FROM
+			t_tz_back_money_pool pool
+		LEFT JOIN
+			t_tz_loan_apply loan ON pool.lend_code=loan.lend_code
+		LEFT JOIN
+			t_gl_tz_product p ON p.product_code=loan.product_code
+		LEFT JOIN
+			t_gl_org org ON org.id=loan.store_org_id
+		LEFT JOIN
+			t_gl_province_city pc ON pc.id=org.city_id
+		LEFT JOIN
+			t_gl_user usr ON usr.id=loan.manager_code
+		LEFT JOIN
+			t_tz_customer_account acc ON acc.id=loan.receiving_id
+		LEFT JOIN
+			t_gl_province_city pc1 ON pc1.id=acc.account_addrprovince
+		LEFT JOIN
+			t_gl_province_city pc2 ON pc2.id=acc.account_addrcity
+		LEFT JOIN
+			t_tz_fy_area_code fpc1 ON fpc1.area_code=acc.account_addrprovince
+		LEFT JOIN
+			t_tz_fy_area_code fpc2 ON fpc2.area_code=acc.account_addrcity
+		LEFT JOIN
+			t_tz_customer cust ON cust.customer_code=loan.customer_code
+		LEFT JOIN (
+			select al.lend_code,al.check_time 
+			from tz.t_tz_apply_log al
+			left join tz.t_tz_loan_apply la on al.lend_code = la.lend_code 
+			where la.apply_pay = '7' and la.lend_status != '5' and al.dict_apply_status = '3'
+		) atime on atime.lend_code = pool.lend_code
+		<!-- 包含userID时，用于查看个人已办 -->
+		<if test="userId != null and userId != ''">
+			LEFT JOIN
+				t_tz_back_money_log bl ON bl.backm_id=pool.backm_id
+			INNER JOIN
+				(SELECT 
+					backm_id, MAX(create_time) crttm 
+				FROM 
+					t_tz_back_money_log blog
+				GROUP BY backm_id) y ON y.crttm=bl.create_time AND y.backm_id=bl.backm_id
+		</if>
+		<where>
+			<if test="userId != null and userId != ''">
+				AND bl.create_by=#{userId}
+			</if>
+			<if test="backmIds != null and backmIds !='' ">
+  				AND pool.backm_id IN 
+		    	<foreach collection="backmIds" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+  			</if>
+  			<if test="priorityBack != null and priorityBack !='' ">
+  				AND pool.priority_back = #{priorityBack}
+  			</if>
+			<if test="customerNameList !=null">
+	      		AND
+				<foreach collection="customerNameList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_name like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="customerCodeList !=null">
+				AND
+				<foreach collection="customerCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="workingStateAcList !=null">
+				AND  pool.working_state  IN
+		    	<foreach collection="workingStateAcList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="lendCodeList !=null">
+				AND 
+				<foreach collection="lendCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		loan.lend_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="applyLendDay !=null and applyLendDay !=''">
+				AND loan.apply_lend_day &gt;= #{applyLendDay}
+			</if>
+			<if test="applyLendDayTo !=null and applyLendDayTo !=''">
+	            AND loan.apply_lend_day &lt;= #{applyLendDayTo}
+			</if>
+			<if test="finalLinitDate !=null and finalLinitDate !=''">
+				AND final_linit_date &gt;= #{finalLinitDate}
+			</if>
+			<if test="finalLinitDateTo !=null and finalLinitDateTo !=''">
+	            AND final_linit_date &lt;= #{finalLinitDateTo}
+			</if>
+			<if test="backMoneyDay !=null and backMoneyDay !=''">
+				AND pool.back_money_day &gt;= #{backMoneyDay}
+			</if>
+			<if test="backMoneyDayTo !=null and backMoneyDayTo !=''">
+	            AND pool.back_money_day &lt;= #{backMoneyDayTo}
+			</if>
+			<if test="applyDeductDay !=null and applyDeductDay !=''">
+				AND loan.apply_deduct_day &gt;= #{applyDeductDay}
+			</if>
+			<if test="applyDeductDayTo !=null and applyDeductDayTo !=''">
+	            AND loan.apply_deduct_day &lt;= #{applyDeductDayTo}
+			</if>
+			<if test="approveDateStart !=null and approveDateStart !=''">
+				AND loan.approve_date &gt;= #{approveDateStart}
+			</if>
+			<if test="approveDateEnd !=null and approveDateEnd !=''">
+	            AND loan.approve_date &lt;= #{approveDateEnd}
+			</if>
+			<if test="interestDay !=null and interestDay !=''">
+				AND pool.interest_day = #{interestDay}
+			</if>
+			<if test="applyLendMoney !=null and applyLendMoney !=''">
+				AND loan.apply_lend_money &gt;= #{applyLendMoney}
+			</if>
+			<if test="applyLendMoneyTo !=null and applyLendMoneyTo !=''">
+	            AND loan.apply_lend_money &lt;= #{applyLendMoneyTo}
+			</if>
+			<if test="productList !=null ">
+				AND loan.product_code IN
+				<foreach collection="productList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="applyPayList !=null ">
+				AND apply_pay IN
+				<foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="bankList !=null ">
+				AND acc.account_bank IN
+				<foreach collection="bankList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<choose>
+				<!-- 筛选金账户数据 -->
+				<when test="isJZH == 1">
+					AND apply_pay IN ('${exclude}')
+				</when>
+				<!-- 筛选非金账户数据 -->
+				<when test="isJZH == 2">
+					AND apply_pay NOT IN ('${exclude}')
+				</when>
+			</choose>
+			<if test="platformList !=null ">
+				AND pool.platform_id IN
+				<foreach collection="platformList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="city !=null and city != ''">
+				AND acc.account_addrprovince||'_'||acc.account_addrcity SIMILAR TO #{city}
+			</if>
+			<if test="orgList !=null ">
+				AND loan.store_org_id IN
+				<foreach collection="orgList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="cobList !=null ">
+				AND acc.account_card_or_booklet IN
+				<foreach collection="cobList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="editionList !=null ">
+				AND loan.apply_agreement_edition IN
+				<foreach collection="editionList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="manager !=null and manager !=''">
+				AND usr.name = #{manager}
+			</if>
+			<if test="backMoney !=null and backMoney !=''">
+				AND pool.back_money = #{backMoney}
+			</if>
+			<if test="statusList !=null ">
+				AND pool.dict_back_status IN
+				<foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="statusAcList !=null ">
+				AND pool.dict_back_status IN
+				<foreach collection="statusAcList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="backMoneyTypeList !=null ">
+				AND pool.back_money_type IN
+				<foreach collection="backMoneyTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="backResultList !=null ">
+				AND pool.back_result IN
+				<foreach collection="backResultList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="exPlatformList != null">
+				AND pool.ex_platform IN
+				<foreach collection="exPlatformList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="channelList != null">
+				AND pool.dict_fortunechannelflag IN
+				<foreach collection="channelList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="findFlagList != null">
+				AND acc.find_flag IN
+				<foreach collection="findFlagList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<!-- 申请列表过滤完结状态：未完结或null -->
+			<if test="listFlag =='apply'">
+				AND (loan.dict_apply_end_state = '1' or loan.dict_apply_end_state is null)  
+			</if>
+			<if test="zzApproveDateStart !=null and zzApproveDateStart !=''">
+				AND TO_CHAR(atime.check_time,'YYYY-MM-DD') &gt;= TO_CHAR(to_timestamp(#{zzApproveDateStart},'YYYY-MM-DD'),'YYYY-MM-DD')
+			</if>
+			<if test="zzApproveDateEnd !=null and zzApproveDateEnd !=''">
+	            AND TO_CHAR(atime.check_time,'YYYY-MM-DD') &lt;= TO_CHAR(to_timestamp(#{zzApproveDateEnd},'YYYY-MM-DD'),'YYYY-MM-DD')
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 导出查询SQL -->
+	<sql id="exportSearchSql">
+		FROM
+			t_tz_back_money_pool pool
+		LEFT JOIN
+			t_tz_loan_apply loan ON pool.lend_code=loan.lend_code
+		LEFT JOIN
+			t_gl_tz_product p ON p.product_code=loan.product_code
+		LEFT JOIN
+			t_gl_org org ON org.id=loan.store_org_id
+		LEFT JOIN
+			t_gl_province_city pc ON pc.id=org.city_id
+		LEFT JOIN
+			t_gl_user usr ON usr.id=loan.manager_code
+		LEFT JOIN
+			t_tz_customer_account acc ON acc.id=loan.receiving_id
+		LEFT JOIN
+			t_gl_province_city pc1 ON pc1.id=acc.account_addrprovince
+		LEFT JOIN
+			t_gl_province_city pc2 ON pc2.id=acc.account_addrcity
+		LEFT JOIN
+			t_tz_customer cust ON cust.customer_code=loan.customer_code
+		LEFT JOIN
+			t_tz_redemption rdmp ON rdmp.lend_code=loan.lend_code
+		LEFT JOIN (
+			select ti.lend_code_parent,ti.lend_code_childe,c.customer_name 
+			from tz.t_tz_transfer_relation  ti
+					join tz.t_tz_loan_apply l on ti.lend_code_childe = l.lend_code
+					left join tz.t_tz_customer c on l.customer_code = c.customer_code
+					where l.apply_pay = '7' and l.lend_status != '5' and ti.transfer_state = '2'
+		) srr on srr.lend_code_parent = loan.lend_code
+		LEFT JOIN (
+			select al.lend_code,al.check_time 
+			from tz.t_tz_apply_log al
+			left join tz.t_tz_loan_apply la on al.lend_code = la.lend_code 
+			where la.apply_pay = '7' and la.lend_status != '5' and al.dict_apply_status = '3'
+		) atime on atime.lend_code = pool.lend_code
+		<if test="userId != null and userId != ''">
+			LEFT JOIN
+				t_tz_back_money_log bl ON bl.backm_id=pool.backm_id
+			INNER JOIN
+				(SELECT 
+					backm_id, MAX(create_time) crttm 
+				FROM 
+					t_tz_back_money_log blog
+				GROUP BY backm_id) y ON y.crttm=bl.create_time AND y.backm_id=bl.backm_id
+		</if>
+		<where>
+			<if test="userId != null and userId != ''">
+				AND bl.create_by=#{userId}
+			</if>
+			<if test="backmIds != null and backmIds !='' ">
+  				AND pool.backm_id IN 
+		    	<foreach collection="backmIds" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+  			</if>
+  			<if test="priorityBack != null and priorityBack !='' ">
+  				AND pool.priority_back = #{priorityBack}
+  			</if>
+			<if test="customerNameList !=null">
+	      		AND
+				<foreach collection="customerNameList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_name like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="customerCodeList !=null">
+				AND
+				<foreach collection="customerCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_code like '%${item}%'
+		    	</foreach>
+			</if>
+			
+			<if test="workingStateAcList !=null">
+				AND  pool.working_state  IN
+		    	<foreach collection="workingStateAcList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			
+			<if test="lendCodeList !=null">
+				AND 
+				<foreach collection="lendCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		loan.lend_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="applyLendDay !=null and applyLendDay !=''">
+				AND loan.apply_lend_day &gt;= to_timestamp(#{applyLendDay},'YYYY-MM-DD')
+			</if>
+			<if test="applyLendDayTo !=null and applyLendDayTo !=''">
+	            AND loan.apply_lend_day &lt;= to_timestamp(#{applyLendDayTo},'YYYY-MM-DD')
+			</if>
+			<if test="finalLinitDate !=null and finalLinitDate !=''">
+				AND final_linit_date &gt;= to_timestamp(#{finalLinitDate},'YYYY-MM-DD')
+			</if>
+			<if test="finalLinitDateTo !=null and finalLinitDateTo !=''">
+	            AND final_linit_date &lt;= to_timestamp(#{finalLinitDateTo},'YYYY-MM-DD')
+			</if>
+			<if test="backMoneyDay !=null and backMoneyDay !=''">
+				AND pool.back_money_day &gt;= to_timestamp(#{backMoneyDay},'YYYY-MM-DD')
+			</if>
+			<if test="backMoneyDayTo !=null and backMoneyDayTo !=''">
+	            AND pool.back_money_day &lt;= to_timestamp(#{backMoneyDayTo},'YYYY-MM-DD')
+			</if>
+			<if test="applyDeductDay !=null and applyDeductDay !=''">
+				AND loan.apply_deduct_day &gt;= to_timestamp(#{applyDeductDay},'YYYY-MM-DD')
+			</if>
+			<if test="applyDeductDayTo !=null and applyDeductDayTo !=''">
+	            AND loan.apply_deduct_day &lt;= to_timestamp(#{applyDeductDayTo},'YYYY-MM-DD')
+			</if>
+			<if test="approveDateStart !=null and approveDateStart !=''">
+				AND loan.approve_date &gt;= #{approveDateStart}
+			</if>
+			<if test="approveDateEnd !=null and approveDateEnd !=''">
+	            AND loan.approve_date &lt;= #{approveDateEnd}
+			</if>
+			<if test="interestDay !=null and interestDay !=''">
+				AND pool.interest_day = #{interestDay}
+			</if>
+			<if test="applyLendMoney !=null and applyLendMoney !=''">
+				AND loan.apply_lend_money &gt;= #{applyLendMoney}
+			</if>
+			<if test="applyLendMoneyTo !=null and applyLendMoneyTo !=''">
+	            AND loan.apply_lend_money &lt;= #{applyLendMoneyTo}
+			</if>
+			<if test="productList !=null ">
+				AND loan.product_code IN
+				<foreach collection="productList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="applyPayList !=null ">
+				AND apply_pay IN
+				<foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="bankList !=null ">
+				AND acc.account_bank IN
+				<foreach collection="bankList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<choose>
+				<!-- 筛选金账户数据 -->
+				<when test="isJZH == 1">
+					AND apply_pay IN ('${exclude}')
+				</when>
+				<!-- 筛选非金账户数据 -->
+				<when test="isJZH == 2">
+					AND apply_pay NOT IN ('${exclude}')
+				</when>
+			</choose>
+			<if test="platformList !=null ">
+				AND pool.platform_id IN
+				<foreach collection="platformList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="city !=null and city != ''">
+				AND acc.account_addrprovince||'_'||acc.account_addrcity SIMILAR TO #{city}
+			</if>
+			<if test="orgList !=null ">
+				AND loan.store_org_id IN
+				<foreach collection="orgList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="cobList !=null ">
+				AND acc.account_card_or_booklet IN
+				<foreach collection="cobList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="editionList !=null ">
+				AND loan.apply_agreement_edition IN
+				<foreach collection="editionList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="manager !=null and manager !=''">
+				AND usr.name = #{manager}
+			</if>
+			<if test="backMoney !=null and backMoney !=''">
+				AND pool.back_money = #{backMoney}
+			</if>
+			<if test="statusList !=null ">
+				AND pool.dict_back_status IN
+				<foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="statusAcList !=null ">
+				AND pool.dict_back_status IN
+				<foreach collection="statusAcList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="backMoneyTypeList !=null ">
+				AND pool.back_money_type IN
+				<foreach collection="backMoneyTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="backResultList !=null ">
+				AND pool.back_result IN
+				<foreach collection="backResultList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="exPlatformList != null">
+				AND pool.ex_platform IN
+				<foreach collection="exPlatformList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="channelList != null">
+				AND pool.dict_fortunechannelflag IN
+				<foreach collection="channelList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="findFlagList != null">
+				AND acc.find_flag IN
+				<foreach collection="findFlagList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<!-- 申请列表过滤完结状态：未完结或null -->
+			<if test="listFlag =='apply'">
+				AND (loan.dict_apply_end_state = '1' or loan.dict_apply_end_state is null)  
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 获取分页对象列表 -->
+	<select id="findByParams" resultType="com.creditharmony.fortune.back.money.common.view.ListItemView">
+		SELECT
+			pool.backm_id,
+			pool.ex_platform,
+			pool.dict_fortunechannelflag,
+			pool.is_supplemented ,
+			pool.debt_transfer_date,
+			pool.working_state,
+			pool.interest_day,
+			pool.supplemented_days,
+			pool.priority_back,
+			ROUND(back_money,2) back_money,
+			ROUND(back_actualback_money,2) back_actualback_money,
+			ROUND(supplemented_money,2) supplemented_money,
+			dict_back_status,
+			final_linit_date,
+			back_money_day,
+			back_money_type,
+			dict_back_money_error,
+			back_result,
+			back_reason,
+			back_bank,
+			back_day as backResultDay,
+			ROUND(success_money,2) success_money,
+			fail_money,
+			reback_flag,
+			
+			loan.lend_code,
+			loan.apply_agreement_edition,
+			loan.approve_date,
+			apply_lend_day,
+			ROUND(apply_lend_money,2) apply_lend_money,
+			apply_pay,
+			
+			product_name,
+			
+			org.name as orgName,
+			
+			usr.name as manager,
+			user_code,
+			
+			pc1.area_name as accountAddrprovince,
+			pc2.area_name as accountAddrcity,
+			fpc1.area_name as faccountAddrprovince,
+			fpc2.area_name as faccountAddrcity,
+			
+			cust.customer_code,
+			cust.customer_name,
+			
+			extract(epoch from pool.modify_time) as "verTime",
+			atime.check_time as zzApproveDate
+		<include refid="searchSql"></include>
+	</select>
+	
+	<select id="findIdList" resultType="java.lang.String">
+		SELECT
+			pool.backm_id
+		<include refid="searchSql"></include>
+	</select>
+	
+	<select id="findDataList" parameterType="com.creditharmony.fortune.back.money.common.view.ListItemView" 
+		resultType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		SELECT
+			pool.backm_id,
+			pool.lend_code,
+			pool.back_result,
+			pool.dict_fortunechannelflag,
+			pool.back_actualback_money,
+			loan.switch_approve_status,
+			extract(epoch from pool.modify_time) as "verTime"
+		<include refid="searchSql"></include>
+	</select>
+	
+	<!-- 获取回款列表，导出数据 -->
+	<select id="findExportList" resultType="com.creditharmony.fortune.back.money.common.entity.ext.ExportBean">
+		SELECT
+			cust.customer_name,
+			cust.customer_code,
+			cust.dict_customer_cert_type,
+			cust.customer_cert_num,
+			cust.customer_mobilephone,
+			cust.customer_email,
+			cust.trusteeship_no,
+
+			loan.lend_code,
+			loan.approve_date,
+			apply_lend_day,
+			ROUND(apply_lend_money,2) apply_lend_money,
+			apply_billday,
+			apply_pay,
+			ROUND(apply_transfer_money,2) apply_transfer_money,
+			f_apply_code,
+			apply_agreement_edition,
+
+			product_name,
+
+			pc.area_name as city,
+
+			usr.name as manager,
+			
+			org.name as orgName,
+			
+			pc1.area_name as accountAddrprovince,
+			pc2.area_name as accountAddrcity,
+			account_bank,
+			account_name,
+			account_branch,
+			account_no,
+			account_card_or_booklet,
+			acc.bank_code,
+
+			pool.backm_id,
+			ROUND(pool.back_money,2) back_money,
+			ROUND(pool.back_actualback_money,2) back_actualback_money,
+			pool.back_money_day,
+			ROUND(pool.supplemented_money,2) supplemented_money,
+			pool.final_linit_date,
+			pool.dict_back_status,
+			pool.back_money_type,
+			pool.platform_id,
+			pool.back_money_remarks,
+			ROUND(pool.success_money,2) success_money,
+			ROUND(pool.fail_money,2) fail_money,
+			pool.is_supplemented,
+			pool.dict_fortunechannelflag,
+			pool.working_state,
+			pool.interest_day,
+			pool.supplemented_days,
+
+			redemption_rece_type,
+			ROUND(feedback_money,2) feedback_money,
+			feedback_remark,
+			extract(epoch from pool.modify_time) as "verTime",
+			
+			srr.lend_code_childe srr_lendcode,
+			srr.customer_name srr_customer_name,
+			
+			atime.check_time as zzApproveDate
+		<include refid="exportSearchSql"></include>
+	</select>
+	
+	<!-- 操作线上回款所需数据 -->
+	<select id="findBackMoneyDataList" resultType="com.creditharmony.fortune.back.money.common.entity.ext.ExportBean">
+		SELECT
+			cust.customer_cert_num,
+			cust.dict_customer_cert_type,
+			cust.customer_mobilephone,
+			cust.trusteeship_no,
+
+			loan.lend_code,
+			apply_pay,
+
+			pc1.area_name as accountAddrprovince,
+			pc2.area_name as accountAddrcity,
+			account_bank,
+			account_branch,
+			account_name,
+			account_no,
+			account_card_or_booklet,
+			acc.bank_code as branchCode,
+
+			backm_id,
+			back_actualback_money,
+			success_money,
+			back_money_type,
+			extract(epoch from pool.modify_time) as "verTime"
+		<include refid="exportSearchSql"></include>
+	</select>
+	
+	<select id="getSuplementList" parameterType="com.creditharmony.fortune.back.money.common.view.ListItemView"
+			resultType="com.creditharmony.fortune.back.money.common.view.ListItemView">
+		SELECT
+			pool.backm_id,
+			pool.lend_code,
+			ROUND(pool.back_actualback_money,2) back_actualback_money,
+			ROUND(pool.back_money,2) back_money,
+			pool.final_linit_date,
+			pool.back_money_day,
+			pool.back_money_type,
+			ROUND(pool.supplemented_money,2) supplemented_money,
+			pool.priority_back AS priorityBack, 
+			loan.product_code,
+			loan.apply_lend_day,
+			loan.apply_lend_money,
+			loan.xinhebao_type,
+			loan.apply_billday,
+			extract(epoch from pool.modify_time) as "verTime"
+		<include refid="searchSql"></include>
+	</select>
+	
+	<select id="countExport" resultType="int">
+		SELECT
+			count(1)
+		<include refid="exportSearchSql"></include>
+	</select>
+	
+	<!-- 获取累计实际回款金额 -->
+	<select id="getTotalAcutalbackmoney" resultType="java.math.BigDecimal">
+		SELECT
+			sum(ROUND(back_actualback_money,2))
+		<include refid="searchSql"></include>
+	</select>
+	
+	<!-- 获取累计出借金额 -->
+	<select id="getTotalLendMoney" resultType="java.math.BigDecimal">
+		SELECT
+			sum(ROUND(apply_lend_money,2))
+		<include refid="searchSql"></include>
+	</select>
+	
+	<!-- 获取累计应回款金额 -->
+	<select id="getTotalBackmoney" resultType="java.math.BigDecimal">
+		SELECT
+			sum(ROUND(back_money,2))
+		<include refid="searchSql"></include>
+	</select>
+	
+	<!-- 获取累计应成功金额 -->
+	<select id="getTotalSuccessMoney" resultType="java.math.BigDecimal">
+		SELECT
+			sum(ROUND(success_money,2))
+		<include refid="searchSql"></include>
+	</select>
+	
+	<!-- 获取累计补息后回款金额 -->
+	<select id="getTotalSupplementedMoney" resultType="java.math.BigDecimal">
+		SELECT
+			sum(ROUND(supplemented_money,2))
+		<include refid="searchSql"></include>
+	</select>
+	
+	<!-- 获取最大回款日期 -->
+	<select id="getMaxBackMoneyDay" resultType="java.util.Date">
+		SELECT
+			max(pool.back_money_day)
+		<include refid="searchSql"></include>
+	</select>
+	
+	<!-- 获取数据不同回款日期的天数 -->
+	<select id="getDiffBackMoneyDays" resultType="int">
+		SELECT count(1) 
+		FROM (SELECT
+			distinct pool.back_money_day
+		<include refid="searchSql"></include>)
+	</select>
+</mapper>

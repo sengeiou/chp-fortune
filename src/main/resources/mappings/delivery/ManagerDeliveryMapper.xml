@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.delivery.dao.ManagerDeliveryDao">
+<select id="getCustListByManagerCode" resultType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+    select 
+        customer_code as "custCode"
+    from tz.t_tz_customer
+    where 
+        manager_code = #{fManagerCode,jdbcType=VARCHAR}
+</select>
+<update id="updateCustomerManager" parameterType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+    update tz.t_tz_customer
+    <trim prefix="SET" suffixOverrides=",">
+         <if test="isDelivery != null ">is_delivery = #{isDelivery,jdbcType=VARCHAR},</if>
+         <if test="nfManagerCode != null">manager_code = #{nfManagerCode,jdbcType=VARCHAR},</if>
+         <if test="modifyBy != null">modify_by = #{modifyBy,jdbcType=VARCHAR},</if>
+         <if test="modifyTime != null">modify_time = #{modifyTime,jdbcType=TIMESTAMP},</if>
+     </trim>
+     where 
+         manager_code = #{fManagerCode,jdbcType=VARCHAR}
+</update>
+<select id="managerAchievementList" resultType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+    select  
+        customer_code as "custCode",
+        lend_code as "lendCode"
+    from tz.t_tz_loan_apply
+    where
+        manager_code = #{fManagerCode,jdbcType=VARCHAR}
+</select>
+<update id="updateLendManager" parameterType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+    update tz.t_tz_loan_apply
+    <trim prefix="SET" suffixOverrides=",">
+         <if test="nfManagerCode != null">manager_code = #{nfManagerCode,jdbcType=VARCHAR},</if>
+         <if test="modifyBy != null">modify_by = #{modifyBy,jdbcType=VARCHAR},</if>
+         <if test="modifyTime != null">modify_time = #{modifyTime,jdbcType=TIMESTAMP},</if>
+     </trim>
+    <where>
+        <if test="fManagerCode != null and fManagerCode !='' ">
+            and manager_code = #{fManagerCode,jdbcType=VARCHAR}
+        </if>
+        <if test="startTime != null and startTime != '' and endTime != null and endTime != '' ">
+            and apply_lend_day &gt;= #{startTime,jdbcType=TIMESTAMP}  
+            and apply_lend_day &lt;= #{endTime,jdbcType=TIMESTAMP}
+         </if>
+    </where>
+</update>
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.money.job.dao.ProductProfitDao" >
+
+	
+	<select id="getByLoanApply" parameterType="com.creditharmony.fortune.customer.entity.LoanApply" 
+		resultType="com.creditharmony.fortune.back.money.job.entity.ProductProfit">
+		SELECT * FROM tz.t_gl_product_profit 
+		WHERE 
+			status = '1'
+	    	and product_code = #{productCode}
+	    	and start_day <![CDATA[<=]]> #{lendDate} 
+	    	and close_day <![CDATA[>=]]> #{lendDate}
+	    	and product_money_lowe <![CDATA[<=]]> #{lendMoney} 
+	    	and product_money_upper <![CDATA[>=]]> #{lendMoney}
+	    ORDER BY create_time desc, start_day desc
+	    LIMIT 1
+	</select>
+	
+	
+
+	
+	
+</mapper>

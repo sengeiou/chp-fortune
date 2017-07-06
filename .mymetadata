@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="chp-fortune"
+  id="myeclipse.1496888201177"
+  context-root="/chp-fortune"
+  j2ee-spec="1.7"
+  archive="chp-fortune.war">
+  <attributes>
+    <attribute name="webrootdir" value="src/main/webapp" />
+  </attributes>
+</project-module>
+

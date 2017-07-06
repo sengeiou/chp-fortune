@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.change.lend.apply.dao.BranchBankCodeDao">
+	 <select id="selectBranchCode" parameterType="java.util.HashMap" 
+	 	resultType="com.creditharmony.fortune.change.lend.apply.entity.BranchBankCode">
+	 	select 
+	 		id id,
+	 		flag1 flag1,
+	 		bank_code bankCode,
+	 		code2 code2,
+	 		bank_name bankName,
+	 		code3 code3,
+	 		flag2 flag2
+	 	from tz.t_tz_branch_bank_code
+	 	<where>
+	 		1=1
+	 		<if test="branchName != null and branchName != ''">
+	 			and bank_name like '%'||#{branchName}||'%'
+	 		</if>
+	 	</where>
+	 </select>
+</mapper>

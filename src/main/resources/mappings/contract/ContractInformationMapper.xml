@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.contract.dao.ContractInformationDao">
+<!-- 合同派发列表 -->
+ <select id="manager" parameterType="com.creditharmony.fortune.contract.view.ContractView" resultType="com.creditharmony.fortune.contract.view.ContractView">
+	  	SELECT
+	  		m.cont_code,
+	  		m.cont_version,
+	  		m.dict_cont_status,
+	  		m.cont_income_day,
+	  		b.change_in_stores_id,
+	  		b.change_out_stores_id,
+	  		m.cont_tranfer_day
+	  	FROM t_tz_contract m
+	  	LEFT JOIN t_tz_contract_changest b ON b.cont_code = m.cont_code
+  </select>
+</mapper>

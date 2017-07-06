@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.obligatory.dao.CreditLocationListDao" >
+ 	
+  <!-- 初始化可用债权配置列表 -->
+  <select id="loadCreditLocationList" parameterType="java.util.Map" resultType="com.creditharmony.fortune.obligatory.entity.CreditOkListObj">
+    SELECT  
+  		a.id,
+    	a.config_loan_code,
+    	a.config_loan_name,
+    	a.config_zdr
+    	
+    FROM t_tz_creditorper_config a
+    <choose>
+	    <when test="loanMonthRate !=null">
+	      inner join t_tz_borrow b on a.config_loan_code = b.loan_code
+	    </when>
+	    <when test="loanBackmoneyDay != null">
+	       inner join t_tz_borrow b on a.config_loan_code = b.loan_code
+	    </when>
+  	</choose> 
+	<where>
+			a.del_flag = #{coo.delFlag,jdbcType=VARCHAR}
+			
+		  	<if test="coo.configLoanName !=null and coo.configLoanName!=''">
+  				AND a.config_loan_name like '%${coo.configLoanName}%'
+  			</if>
+  			<if test="coo.configZdr !=null and coo.configZdr !=''">
+  				AND  a.config_zdr like '%${coo.configZdr}%'
+  			</if>
+  			<if test="loanMonthRate!=null">
+  				AND b.loan_month_rate <![CDATA[=]]> ${loanMonthRate}
+  			</if>
+			<if test="loanBackmoneyDay != null">
+				AND b.loan_backmoney_day  in <foreach collection="loanBackmoneyDay" index="index" item="item" open="(" separator="," close=")">  
+				        #{item}   
+					</foreach> 
+			</if>
+  			<if test="billType != null">
+				AND a.config_type in
+				<foreach collection="billType" index="index" item="item"
+					open="(" separator="," close=")">
+					#{item}
+			</foreach>
+		</if>
+	</where> 
+  </select>
+  
+  <!-- 可用债权增加页面检索 -->
+  <select id="addPageSearch" parameterType="java.util.Map" resultType="com.creditharmony.fortune.obligatory.entity.CreditOkListObj">
+  	SELECT 
+  		credit_value_id, 
+  		loan_code,
+    	loan_name as config_loan_name,
+    	loan_idcard as config_zdr
+    	
+    FROM tz.t_tz_borrow
+ 		
+	<where>
+	      <if test="coo.configZdr != null and coo.configZdr != ''">
+	             loan_idcard like '%${coo.configZdr}%'
+	      </if>
+	      <if test="coo.configLoanName != null and coo.configLoanName !=''">
+	      		 and loan_name like '%${coo.configLoanName}%'
+	      </if>
+	       AND  loan_idcard not in
+		      (
+		      	select config_zdr FROM t_tz_creditorper_config
+		      	WHERE del_flag != #{flag}
+		      )
+		   AND dict_loan_free_flag = '1'
+		   AND loan_months_surplus > 0
+	</where> 
+  </select>
+  
+  <!-- 根据借款编号查询借款人信息 -->
+  <select id="selectLoanMsg" parameterType="java.lang.String" resultType="com.creditharmony.fortune.borrow.entity.Borrow">
+  	SELECT 
+  		loan_code,
+  		loan_name,
+  		loan_idcard
+  	FROM
+  		t_tz_borrow
+  	<where>
+  		credit_value_id = #{loanCode}
+  	
+  	</where>
+  </select>
+  
+  <!-- 新增可用债权配置信息 -->
+  <insert id="add" parameterType="com.creditharmony.fortune.obligatory.entity.CreditOkListObj">
+  	INSERT INTO t_tz_creditorper_config
+  		(id, config_loan_code, config_loan_name, dict_config_status, config_zdr,
+  			config_city, config_yy, config_type, del_flag, create_by,
+  		create_time,config_province
+  		) VALUES(
+  			#{id},#{configLoanCode},#{configLoanName},#{dictConfigStatus},#{configZdr},#{configCity},
+  			#{configYy},#{configType}, #{delFlag}, #{createBy},#{createTime},#{configProvince}
+  		)
+  
+  </insert>
+  
+  <!-- 初始化可用债权配置页数据 -->
+  <select id="goEdit" parameterType="java.lang.String" resultType="com.creditharmony.fortune.obligatory.entity.CreditOkListObj">
+  	SELECT
+  		c.id,
+  		c.config_loan_name,
+  		c.dict_config_status,
+  		c.config_zdr,
+  		z.area_name as config_city,
+  		x.area_name as config_province,
+  		c.config_yy,
+  		c.config_type
+  	FROM t_tz_creditorper_config c
+  	LEFT JOIN t_gl_province_city z ON  z.id = c.config_city
+  	LEFT JOIN t_gl_province_city x ON  x.id = c.config_province
+  	<where>
+  		c.id = #{id}
+  	</where>
+  </select>
+  
+  <!-- 更新可用债权配置修改 -->
+  <update id="updateMest" parameterType="com.creditharmony.fortune.obligatory.entity.CreditOkListObj">
+  		UPDATE 
+  			t_tz_creditorper_config
+  		SET
+			 config_loan_name = #{configLoanName},
+			 dict_config_status = #{dictConfigStatus},
+			 config_zdr = #{configZdr},
+			 modify_by = #{modifyBy},
+			 modify_time = #{modifyTime}
+  		WHERE id = #{id}
+  
+  </update>
+  
+  <!-- 批量删除 -->
+  <delete id="batchCreditDel" parameterType="java.util.Map">
+  	 UPDATE 
+  	 	t_tz_creditorper_config
+  	 SET
+  	 	del_flag = #{del,jdbcType=VARCHAR}
+  	 <where>
+  	 	id in
+  	 	<foreach collection="code" item="co" index="index" open="(" separator="," close=")">
+  	 		#{co}
+  	 	</foreach>
+  	 </where>
+  </delete>
+  
+  <select id="getloanIdCards" resultType="java.lang.String" parameterType="java.util.Map">
+  	select distinct config_zdr as zdr from t_tz_creditorper_config where 
+  	(config_city=#{configCity} and config_yy is null and (config_type=#{configType} or config_type is null ) )
+  	or 
+    (config_city=#{configCity} and ','||config_yy||','  like '%,'||#{configYy}||',%' and (config_type=#{configType} or config_type is null ) )
+  	 and del_flag='0'
+  </select>
+  
+  <!-- 根据城市ID获取营业部 -->
+  <select id="findOrgList" parameterType="java.util.Map" resultType="com.creditharmony.fortune.common.entity.Org">
+  	SELECT 
+  		id,
+  		city_id,
+  		name
+  	FROM 
+  		t_gl_org
+	<where>
+		type=#{type} 
+		and city_id in
+		<foreach collection="prctId" item="item" open="(" close=")" separator=",">
+			#{item}
+		</foreach>
+	</where>
+  </select>
+  
+	<!-- 根据省份ID获取营业部 -->
+	<select id="getOrgByProvince" parameterType="java.util.Map" resultType="com.creditharmony.fortune.common.entity.Org"> 
+		SELECT 
+	  		id,
+	  		city_id,
+	  		name
+  		FROM 
+  			t_gl_org
+		<where>
+			type=#{type} 
+			and province_id = #{provinceId}
+		</where>
+	</select>
+  
+  <!--  根据营业部Id或者营业部名称 -->
+  <select id="selectNameById" parameterType="java.lang.String" resultType="java.lang.String">
+  	SELECT 
+  		name
+  	FROM t_gl_org
+  	<where>
+  		id = #{string}
+  	</where>
+  </select>
+</mapper>

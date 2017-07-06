@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.redemption.common.dao.RedemptionLogDao" >
+	
+	
+	<insert id="insertRedemptionLog" parameterType="com.creditharmony.fortune.redemption.common.entity.RedemptionLog" >
+    INSERT INTO t_tz_redemption_log(
+            id, apply_id, redemption_id, dict_redemption_status, check_examine, 
+            check_examinetype, check_by_id, check_time, 
+            apply_by, apply_time, create_by, create_time, 
+            modify_by, modify_time)
+    VALUES ( #{id}, #{applyId}, #{redemptionId},  #{dictRedemptionStatus}, #{checkExamine}, 
+            #{checkExaminetype}, #{checkById}, #{checkTime}, 
+            #{applyBy}, #{applyTime}, #{createBy}, #{createTime}, 
+            #{modifyBy}, #{modifyTime});
+
+  </insert>
+
+</mapper>

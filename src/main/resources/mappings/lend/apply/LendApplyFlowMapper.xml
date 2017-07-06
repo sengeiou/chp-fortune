@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.customer.workflow.dao.LendApplyFlowDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.customer.workflow.entity.LendApplyFlow" >
+    <id column="apply_id" property="applyId" jdbcType="VARCHAR" />
+    <result column="apply_type" property="applyType" jdbcType="VARCHAR" />
+    <result column="customer_code" property="customerCode" jdbcType="VARCHAR" />
+    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+    <result column="manager_code" property="managerCode" jdbcType="VARCHAR" />
+    <result column="team_manager_code" property="teamManagerCode" jdbcType="VARCHAR" />
+    <result column="city_manager_code" property="cityManagerCode" jdbcType="VARCHAR" />
+    <result column="store_manager_code" property="storeManagerCode" jdbcType="VARCHAR" />
+    <result column="store_code" property="storeCode" jdbcType="VARCHAR" />
+    <result column="branch_manager" property="branchManager" jdbcType="VARCHAR" />
+    <result column="fortune_manager" property="fortuneManager" jdbcType="VARCHAR" />
+    <result column="org_id" property="orgId" jdbcType="VARCHAR" />
+    <result column="dict_status" property="dictStatus" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    apply_id, apply_type, customer_code, lend_code, manager_code, team_manager_code, 
+    city_manager_code, store_manager_code, store_code, branch_manager, fortune_manager, 
+    org_id, dict_status, create_by, create_time, modify_by, modify_time
+  </sql>
+  
+  <select id="get" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.customer.workflow.entity.LendApplyFlow" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_loan_workflow
+    <where>
+    	<if test="applyId != null and applyId != ''">
+    		apply_id = #{applyId,jdbcType=VARCHAR}
+    	</if>
+    	<if test="customerCode != null and customerCode != ''">
+    		customer_code = #{customerCode,jdbcType=VARCHAR}
+    	</if>
+    </where>
+  </select>
+  
+  <select id="getFlow" resultMap="BaseResultMap" parameterType="java.util.HashMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from tz.t_tz_loan_workflow
+    <where>
+    	<if test="applyId != null and applyId != ''">
+    		apply_id = #{applyId,jdbcType=VARCHAR}
+    	</if>
+    	<if test="customerCode != null and customerCode != ''">
+    		customer_code = #{customerCode,jdbcType=VARCHAR}
+    	</if>
+    	<if test="lendCode != null and lendCode != ''">
+    		lend_code = #{lendCode,jdbcType=VARCHAR}
+    	</if>
+    </where>
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_tz_loan_workflow
+    where apply_id = #{applyId,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.creditharmony.fortune.customer.workflow.entity.LendApplyFlow" >
+    insert into t_tz_loan_workflow (apply_id, apply_type, customer_code, 
+      lend_code, manager_code, team_manager_code, 
+      city_manager_code, store_manager_code, store_code, 
+      branch_manager, fortune_manager, org_id, 
+      dict_status, create_by, create_time, 
+      modify_by, modify_time)
+    values (#{applyId,jdbcType=VARCHAR}, #{applyType,jdbcType=VARCHAR}, #{customerCode,jdbcType=VARCHAR}, 
+      #{lendCode,jdbcType=VARCHAR}, #{managerCode,jdbcType=VARCHAR}, #{teamManagerCode,jdbcType=VARCHAR}, 
+      #{cityManagerCode,jdbcType=VARCHAR}, #{storeManagerCode,jdbcType=VARCHAR}, #{storeCode,jdbcType=VARCHAR}, 
+      #{branchManager,jdbcType=VARCHAR}, #{fortuneManager,jdbcType=VARCHAR}, #{orgId,jdbcType=VARCHAR}, 
+      #{dictStatus,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.customer.workflow.entity.LendApplyFlow" >
+    insert into t_tz_loan_workflow
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="applyId != null" >
+        apply_id,
+      </if>
+      <if test="applyType != null" >
+        apply_type,
+      </if>
+      <if test="customerCode != null" >
+        customer_code,
+      </if>
+      <if test="lendCode != null" >
+        lend_code,
+      </if>
+      <if test="managerCode != null" >
+        manager_code,
+      </if>
+      <if test="teamManagerCode != null" >
+        team_manager_code,
+      </if>
+      <if test="cityManagerCode != null" >
+        city_manager_code,
+      </if>
+      <if test="storeManagerCode != null" >
+        store_manager_code,
+      </if>
+      <if test="storeCode != null" >
+        store_code,
+      </if>
+      <if test="branchManager != null" >
+        branch_manager,
+      </if>
+      <if test="fortuneManager != null" >
+        fortune_manager,
+      </if>
+      <if test="orgId != null" >
+        org_id,
+      </if>
+      <if test="dictStatus != null" >
+        dict_status,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="applyId != null" >
+        #{applyId,jdbcType=VARCHAR},
+      </if>
+      <if test="applyType != null" >
+        #{applyType,jdbcType=VARCHAR},
+      </if>
+      <if test="customerCode != null" >
+        #{customerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="lendCode != null" >
+        #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="managerCode != null" >
+        #{managerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="teamManagerCode != null" >
+        #{teamManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityManagerCode != null" >
+        #{cityManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="storeManagerCode != null" >
+        #{storeManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="storeCode != null" >
+        #{storeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="branchManager != null" >
+        #{branchManager,jdbcType=VARCHAR},
+      </if>
+      <if test="fortuneManager != null" >
+        #{fortuneManager,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=VARCHAR},
+      </if>
+      <if test="dictStatus != null" >
+        #{dictStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.creditharmony.fortune.customer.workflow.entity.LendApplyFlow" >
+    update t_tz_loan_workflow
+    <set >
+      <if test="applyType != null" >
+        apply_type = #{applyType,jdbcType=VARCHAR},
+      </if>
+      <if test="customerCode != null" >
+        customer_code = #{customerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="lendCode != null" >
+        lend_code = #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="managerCode != null" >
+        manager_code = #{managerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="teamManagerCode != null" >
+        team_manager_code = #{teamManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="cityManagerCode != null" >
+        city_manager_code = #{cityManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="storeManagerCode != null" >
+        store_manager_code = #{storeManagerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="storeCode != null" >
+        store_code = #{storeCode,jdbcType=VARCHAR},
+      </if>
+      <if test="branchManager != null" >
+        branch_manager = #{branchManager,jdbcType=VARCHAR},
+      </if>
+      <if test="fortuneManager != null" >
+        fortune_manager = #{fortuneManager,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        org_id = #{orgId,jdbcType=VARCHAR},
+      </if>
+      <if test="dictStatus != null" >
+        dict_status = #{dictStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where apply_id = #{applyId,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="update" parameterType="com.creditharmony.fortune.customer.workflow.entity.LendApplyFlow" >
+    update t_tz_loan_workflow
+    set apply_type = #{applyType,jdbcType=VARCHAR},
+      customer_code = #{customerCode,jdbcType=VARCHAR},
+      lend_code = #{lendCode,jdbcType=VARCHAR},
+      manager_code = #{managerCode,jdbcType=VARCHAR},
+      team_manager_code = #{teamManagerCode,jdbcType=VARCHAR},
+      city_manager_code = #{cityManagerCode,jdbcType=VARCHAR},
+      store_manager_code = #{storeManagerCode,jdbcType=VARCHAR},
+      store_code = #{storeCode,jdbcType=VARCHAR},
+      branch_manager = #{branchManager,jdbcType=VARCHAR},
+      fortune_manager = #{fortuneManager,jdbcType=VARCHAR},
+      org_id = #{orgId,jdbcType=VARCHAR},
+      dict_status = #{dictStatus,jdbcType=VARCHAR},
+      modify_by = #{modifyBy,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    where apply_id = #{applyId,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateLendCode">
+  	   update tz.t_tz_loan_workflow set lend_code=#{newLendCode} where lend_code=#{oldLendCode}
+  </update>
+  
+</mapper>

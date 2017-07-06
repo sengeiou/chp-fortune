@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.delivery.dao.AchievementDeliveryHistoryDao">
+ <select id="findList" resultType="com.creditharmony.fortune.delivery.entity.ext.DeliveryEx">
+         select 
+             d.del_id,
+	         d.customer_code as "custCode",
+	         d.lend_code as "lendCode",
+	         c.customer_name as "custName",
+	         d.del_date as "delDate",
+	         l.apply_lend_day as "applyLendDay",
+	         l.apply_lend_money as "applyLendMoney",
+	         l.apply_pay as "applyPay",
+	         l.apply_expire_day as "applyExpireDay",
+	         l.lend_status as "lendStatus",
+	         l.dict_apply_end_state as "applyEndStatus",
+	         p.product_name as "productName",
+	         d.create_by as "modifyByName",
+             u.user_code as "fManagerCode",
+             u.name as "fManagerName",
+             tu1.user_code as "teamManagerCode",
+             tu1.name as "teamManagerName",
+             o.name as "orgName",
+             u2.user_code as "nfManagerCode",
+             u2.name as "nfManagerName",
+             tu2.user_code as "nTeamManagerCode",
+             tu2.name as "nTeamManagerName",
+             o2.name as "nOrgName",
+             o2.id
+        from tz.t_tz_delivery d
+	    left join tz.t_tz_customer c on c.customer_code = d.customer_code
+	    left join tz.t_tz_loan_apply l on d.lend_code = l.lend_code
+	    left join tz.t_gl_tz_product p on p.product_code = l.product_code
+        left join tz.t_gl_user u on u.id = d.fmanager_code
+        left join tz.t_gl_user u2 on u2.id = d.nfmanager_code
+        left join tz.t_gl_org o on o.id = d.n_org_code
+        left join tz.t_gl_org o2 on o2.id = d.org_code
+        left join tz.t_gl_user tu1 on tu1.id = d.team_manager_code
+        left join tz.t_gl_user tu2 on tu2.id = d.n_team_manager_code
+        
+	<where>
+	    <if test="delType != null and delType != ''">
+	         d.dict_del_type = #{delType}
+	    </if>
+	    <if test="custName != null and custName != ''">
+	        and	c.customer_name LIKE '%'||#{custName}||'%'
+	    </if>
+        <if test="custCode != null and custCode != ''">
+	        and	d.customer_code = #{custCode}
+	    </if>
+	    <if test="lendCode != null and lendCode != '' ">
+	        and d.lend_code = #{lendCode}
+	    </if>
+	    <if test="nfManagerCode != null and nfManagerCode != ''">
+	        and	 u2.user_code = #{nfManagerCode}
+	    </if>
+	    <if test="nfManagerName != null and nfManagerName != ''">
+	        and	 u2.name LIKE '%'||#{nfManagerName}||'%'
+	    </if>
+	    <if test="nTeamManagerCode != null and nTeamManagerCode != ''">
+	        and	tu2.user_code = #{nTeamManagerCode}
+	    </if>
+	    <if test="nTeamManagerName != null and nTeamManagerName != ''">
+	        and	tu2.name LIKE '%'||#{nTeamManagerName}||'%'
+	    </if>
+        <if test="endTime != null and endTime != '' ">
+            and to_date(TO_CHAR(d.del_date,'YYYY-MM-DD'),'YYYY-MM-DD') <![CDATA[<=]]> #{endTime,jdbcType=DATE}
+        </if>
+        <if test="startTime != null and startTime != ''">
+            and to_date(TO_CHAR(d.del_date,'YYYY-MM-DD'),'YYYY-MM-DD')<![CDATA[>=]]> #{startTime,jdbcType=DATE}
+        </if>
+	    <if test="orgId != null and orgId != ''">
+            and o2.id in 
+            <foreach collection="orgId" item="item"  index="index" open="(" separator="," close=")">  
+                 '${item}' 
+            </foreach>
+        </if>
+    </where>
+    order by d.del_date desc
+ </select>
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.interest.confrim.dao.BackInterestConfrimDao" >
+ 
+	<!-- 查询当前回息日期 -->
+	<select id="selectMesg" parameterType="java.lang.String" resultType='com.creditharmony.fortune.customer.entity.LoanApply'>
+		SELECT 
+  			matching_backinterest_day
+		FROM
+			t_tz_loan_apply
+		WHERE
+			lend_code = #{lendCode}
+	</select>
+	
+	<!-- 更新回息日期 -->
+	<update id="updateMesg" parameterType="com.creditharmony.fortune.customer.entity.LoanApply">
+		UPDATE 
+			t_tz_loan_apply
+		SET
+  			matching_backinterest_day = #{matchingBackinterestDay}
+		WHERE
+			lend_code = #{applyCode}
+	</update>
+</mapper>

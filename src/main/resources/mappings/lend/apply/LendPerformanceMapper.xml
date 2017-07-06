@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.lend.apply.dao.LendPerformanceDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.lend.apply.entity.LendPerformance" >
+    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+    <result column="manager_code" property="managerCode" jdbcType="VARCHAR" />
+    <result column="team_manager_code" property="teamManagerCode" jdbcType="VARCHAR" />
+    <result column="city_manager_code" property="cityManagerCode" jdbcType="VARCHAR" />
+    <result column="store_manager_code" property="storeManagerCode" jdbcType="VARCHAR" />
+    <result column="team_org_id" property="teamOrgId" jdbcType="VARCHAR" />
+    <result column="store_org_id" property="storeOrgId" jdbcType="VARCHAR" />
+    <result column="city_org_id" property="cityOrgId" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <insert id="insert" parameterType="com.creditharmony.fortune.lend.apply.entity.LendPerformance" >
+    insert into tz.t_tz_loan_performance (
+      lend_code, 
+      manager_code, 
+      team_manager_code, 
+      city_manager_code, 
+      store_manager_code, 
+      team_org_id, 
+      store_org_id, 
+      city_org_id, 
+      create_time,
+      modify_time,
+      create_by,
+      modify_by
+    )
+    values (
+      #{lendCode,jdbcType=VARCHAR}, 
+      #{managerCode,jdbcType=VARCHAR}, 
+      #{teamManagerCode,jdbcType=VARCHAR}, 
+      #{cityManagerCode,jdbcType=VARCHAR}, 
+      #{storeManagerCode,jdbcType=VARCHAR},
+      
+      #{teamOrgId,jdbcType=VARCHAR}, 
+      #{storeOrgId,jdbcType=VARCHAR}, 
+      #{cityOrgId,jdbcType=VARCHAR}, 
+      
+      #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyTime,jdbcType=TIMESTAMP},
+      #{createBy,jdbcType=VARCHAR}, 
+      #{modifyBy,jdbcType=VARCHAR}
+    )
+  </insert>
+  
+  <update id="update" parameterType="com.creditharmony.fortune.lend.apply.entity.LendPerformance">
+  	update tz.t_tz_loan_performance
+  	<set>
+  		<if test="lendCode != null" >
+	       lend_code = #{lendCode,jdbcType=VARCHAR},
+	    </if>
+	    <if test="managerCode != null" >
+	       manager_code = #{managerCode,jdbcType=VARCHAR},
+	    </if>
+	    <if test="teamManagerCode != null" >
+	       team_manager_code = #{teamManagerCode,jdbcType=VARCHAR},
+	    </if>
+	    <if test="cityManagerCode != null" >
+	       city_manager_code = #{cityManagerCode,jdbcType=VARCHAR},
+	    </if>
+	    <if test="storeManagerCode != null" >
+	       store_manager_code = #{storeManagerCode,jdbcType=VARCHAR},
+	    </if>
+	    <if test="teamOrgId != null" >
+	       team_org_id = #{teamOrgId,jdbcType=VARCHAR},
+	    </if>
+	    <if test="storeOrgId != null" >
+	       store_org_id = #{storeOrgId,jdbcType=VARCHAR},
+	    </if>
+	    <if test="cityOrgId != null" >
+	       city_org_id = #{cityOrgId,jdbcType=VARCHAR},
+	    </if>
+	    <if test="modifyBy != null" >
+           modify_by = #{modifyBy,jdbcType=VARCHAR},
+        </if>
+        <if test="modifyTime != null" >
+           modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+        </if>
+  	</set>
+  	where lend_code=#{lendCode}
+  </update>
+  
+</mapper>

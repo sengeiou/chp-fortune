@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.triple.system.dao.TripleLoanAskSyncDao">
+
+  <sql id="Base_Column_List" >
+    id, ask_id, customer_code, ask_day, ask_begin_day, ask_end_day, dict_ask_type, ask_product, 
+    ask_input_money, ask_input_day, ask_des, ask_next_day, ask_next_type, create_by, 
+    create_time, modify_by, modify_time, manager_id, send_status, send_type, send_time, 
+    operation, unique_num,manager_code,manager_name
+  </sql>
+  <!-- 插入咨询信息发送信息表 -->
+ <insert id="insertIntLoanAsk" parameterType="com.creditharmony.fortune.triple.system.entity.IntLoanAskBean" >
+    insert into tz.int_loan_ask
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="askId != null" >
+        ask_id,
+      </if>
+      <if test="customerCode != null" >
+        customer_code,
+      </if>
+      <if test="askDay != null" >
+        ask_day,
+      </if>
+      <if test="askBeginDay != null" >
+        ask_begin_day,
+      </if>
+      <if test="askEndDay != null" >
+        ask_end_day,
+      </if>
+      <if test="dictAskType != null" >
+        dict_ask_type,
+      </if>
+      <if test="askProduct != null" >
+        ask_product,
+      </if>
+      <if test="askInputMoney != null" >
+        ask_input_money,
+      </if>
+      <if test="askInputDay != null" >
+        ask_input_day,
+      </if>
+      <if test="askDes != null" >
+        ask_des,
+      </if>
+      <if test="askNextDay != null" >
+        ask_next_day,
+      </if>
+      <if test="askNextType != null" >
+        ask_next_type,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+      <if test="managerId != null" >
+        manager_id,
+      </if>
+      <if test="managerCode != null" >
+        manager_code,
+      </if>
+      <if test="managerName != null" >
+        manager_name,
+      </if>
+      <if test="sendStatus != null" >
+        send_status,
+      </if>
+      <if test="sendType != null" >
+        send_type,
+      </if>
+      <if test="sendTime != null" >
+        send_time,
+      </if>
+      <if test="operation != null" >
+        operation,
+      </if>
+      <if test="uniqueNum != null" >
+        unique_num,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="askId != null" >
+        #{askId,jdbcType=VARCHAR},
+      </if>
+      <if test="customerCode != null" >
+        #{customerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="askDay != null" >
+        #{askDay,jdbcType=DATE},
+      </if>
+      <if test="askBeginDay != null" >
+        #{askBeginDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="askEndDay != null" >
+        #{askEndDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dictAskType != null" >
+        #{dictAskType,jdbcType=VARCHAR},
+      </if>
+      <if test="askProduct != null" >
+        #{askProduct,jdbcType=VARCHAR},
+      </if>
+      <if test="askInputMoney != null" >
+        #{askInputMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="askInputDay != null" >
+        #{askInputDay,jdbcType=DATE},
+      </if>
+      <if test="askDes != null" >
+        #{askDes,jdbcType=VARCHAR},
+      </if>
+      <if test="askNextDay != null" >
+        #{askNextDay,jdbcType=DATE},
+      </if>
+      <if test="askNextType != null" >
+        #{askNextType,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="managerId != null" >
+        #{managerId,jdbcType=VARCHAR},
+      </if>
+      <if test="managerCode != null" >
+        #{managerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="managerName != null" >
+        #{managerName,jdbcType=VARCHAR},
+      </if>
+      <if test="sendStatus != null" >
+        #{sendStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="sendType != null" >
+        #{sendType,jdbcType=VARCHAR},
+      </if>
+      <if test="sendTime != null" >
+        #{sendTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operation != null" >
+        #{operation,jdbcType=VARCHAR},
+      </if>
+      <if test="uniqueNum != null" >
+        #{uniqueNum,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+ <!-- 根据三网消息反馈结果修改发送状态 -->
+    <update id="updateSendStatus" parameterType="com.creditharmony.fortune.triple.system.entity.IntLoanAskBean">
+	    update tz.int_loan_ask
+	    <trim prefix="SET" suffixOverrides=",">
+	         <if test="sendStatus != null and sendStatus != ''">send_status = #{sendStatus,jdbcType=VARCHAR},</if>
+	    </trim>
+	    <where>
+			<if test="uniqueNum != null and uniqueNum != ''">
+			      unique_num = #{uniqueNum,jdbcType=VARCHAR}
+			</if>
+	    </where>
+    </update>
+</mapper>

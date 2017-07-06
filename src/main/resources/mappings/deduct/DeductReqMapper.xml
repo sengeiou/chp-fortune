@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.deduct.dao.FortuneDeductReqDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.deduct.entity.FortuneDeductReq" >
+    <id column="sys_id" property="sysId" jdbcType="VARCHAR" />
+    <result column="request_id" property="requestId" jdbcType="VARCHAR" />
+    <result column="business_id" property="businessId" jdbcType="VARCHAR" />
+    <result column="bat_id" property="batId" jdbcType="VARCHAR" />
+    <result column="ref_id" property="refId" jdbcType="VARCHAR" />
+    <result column="deduct_flag" property="deductFlag" jdbcType="VARCHAR" />
+    <result column="rule" property="rule" jdbcType="VARCHAR" />
+    <result column="bank_id" property="bankId" jdbcType="VARCHAR" />
+    <result column="bank_prov" property="bankProv" jdbcType="VARCHAR" />
+    <result column="bank_city" property="bankCity" jdbcType="VARCHAR" />
+    <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
+    <result column="account_no" property="accountNo" jdbcType="VARCHAR" />
+    <result column="account_name" property="accountName" jdbcType="VARCHAR" />
+    <result column="id_type" property="idType" jdbcType="VARCHAR" />
+    <result column="id_no" property="idNo" jdbcType="VARCHAR" />
+    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
+    <result column="amount" property="amount" jdbcType="NUMERIC" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="failed_times" property="failedTimes" jdbcType="INTEGER" />
+    <result column="account_type" property="accountType" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    sys_id, request_id, business_id, bat_id, ref_id, deduct_flag, rule, bank_id, bank_prov, 
+    bank_city, bank_name, account_no, account_name, id_type, id_no, mobile, amount, status, 
+    failed_times, account_type
+  </sql>
+  <select id="get" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.deduct.entity.FortuneDeductReq" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_deduct_req
+    where sys_id = #{sysId,jdbcType=VARCHAR}
+      and request_id = #{requestId,jdbcType=VARCHAR}
+  </select>
+    <select id="findList" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.deduct.entity.FortuneDeductReq" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_deduct_req
+    <where>
+    	<![CDATA[failed_times  < 3 ]]>
+    	<if test="sysId != null and sysId != ''">
+    		and sys_id = #{sysId,jdbcType=VARCHAR}
+    	</if>
+    	<if test="requestId != null and requestId != ''">
+    		and request_id = #{requestId,jdbcType=VARCHAR}
+    	</if>
+    	<if test="status != null and status != ''">
+    		and status = #{status,jdbcType=VARCHAR}
+    	</if>
+    </where>
+        <if test="status != null and status != ''">
+    		limit 30
+    	</if>
+    
+  </select>
+  <delete id="delete" parameterType="com.creditharmony.fortune.deduct.entity.FortuneDeductReq" >
+    delete from t_tz_deduct_req
+    where sys_id = #{sysId,jdbcType=VARCHAR}
+      and request_id = #{requestId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.deduct.entity.FortuneDeductReq" >
+    insert into t_tz_deduct_req (sys_id, request_id, business_id, 
+      bat_id, ref_id, deduct_flag, 
+      rule, bank_id, bank_prov, 
+      bank_city, bank_name, account_no, 
+      account_name, id_type, id_no, 
+      mobile, amount, status, 
+      failed_times, account_type)
+    values (#{sysId,jdbcType=VARCHAR}, #{requestId,jdbcType=VARCHAR}, #{businessId,jdbcType=VARCHAR}, 
+      #{batId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, #{deductFlag,jdbcType=VARCHAR}, 
+      #{rule,jdbcType=VARCHAR}, #{bankId,jdbcType=VARCHAR}, #{bankProv,jdbcType=VARCHAR}, 
+      #{bankCity,jdbcType=VARCHAR}, #{bankName,jdbcType=VARCHAR}, #{accountNo,jdbcType=VARCHAR}, 
+      #{accountName,jdbcType=VARCHAR}, #{idType,jdbcType=VARCHAR}, #{idNo,jdbcType=VARCHAR}, 
+      #{mobile,jdbcType=VARCHAR}, #{amount,jdbcType=NUMERIC}, #{status,jdbcType=VARCHAR}, 
+      #{failedTimes,jdbcType=INTEGER}, #{accountType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.deduct.entity.FortuneDeductReq" >
+    insert into t_tz_deduct_req
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sysId != null" >
+        sys_id,
+      </if>
+      <if test="requestId != null" >
+        request_id,
+      </if>
+      <if test="businessId != null" >
+        business_id,
+      </if>
+      <if test="batId != null" >
+        bat_id,
+      </if>
+      <if test="refId != null" >
+        ref_id,
+      </if>
+      <if test="deductFlag != null" >
+        deduct_flag,
+      </if>
+      <if test="rule != null" >
+        rule,
+      </if>
+      <if test="bankId != null" >
+        bank_id,
+      </if>
+      <if test="bankProv != null" >
+        bank_prov,
+      </if>
+      <if test="bankCity != null" >
+        bank_city,
+      </if>
+      <if test="bankName != null" >
+        bank_name,
+      </if>
+      <if test="accountNo != null" >
+        account_no,
+      </if>
+      <if test="accountName != null" >
+        account_name,
+      </if>
+      <if test="idType != null" >
+        id_type,
+      </if>
+      <if test="idNo != null" >
+        id_no,
+      </if>
+      <if test="mobile != null" >
+        mobile,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="failedTimes != null" >
+        failed_times,
+      </if>
+      <if test="accountType != null" >
+        account_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sysId != null" >
+        #{sysId,jdbcType=VARCHAR},
+      </if>
+      <if test="requestId != null" >
+        #{requestId,jdbcType=VARCHAR},
+      </if>
+      <if test="businessId != null" >
+        #{businessId,jdbcType=VARCHAR},
+      </if>
+      <if test="batId != null" >
+        #{batId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null" >
+        #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="deductFlag != null" >
+        #{deductFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="rule != null" >
+        #{rule,jdbcType=VARCHAR},
+      </if>
+      <if test="bankId != null" >
+        #{bankId,jdbcType=VARCHAR},
+      </if>
+      <if test="bankProv != null" >
+        #{bankProv,jdbcType=VARCHAR},
+      </if>
+      <if test="bankCity != null" >
+        #{bankCity,jdbcType=VARCHAR},
+      </if>
+      <if test="bankName != null" >
+        #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="accountNo != null" >
+        #{accountNo,jdbcType=VARCHAR},
+      </if>
+      <if test="accountName != null" >
+        #{accountName,jdbcType=VARCHAR},
+      </if>
+      <if test="idType != null" >
+        #{idType,jdbcType=VARCHAR},
+      </if>
+      <if test="idNo != null" >
+        #{idNo,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=NUMERIC},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="failedTimes != null" >
+        #{failedTimes,jdbcType=INTEGER},
+      </if>
+      <if test="accountType != null" >
+        #{accountType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.creditharmony.fortune.deduct.entity.FortuneDeductReq" >
+    update t_tz_deduct_req
+    <set >
+      <if test="businessId != null" >
+        business_id = #{businessId,jdbcType=VARCHAR},
+      </if>
+      <if test="batId != null" >
+        bat_id = #{batId,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null" >
+        ref_id = #{refId,jdbcType=VARCHAR},
+      </if>
+      <if test="deductFlag != null" >
+        deduct_flag = #{deductFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="rule != null" >
+        rule = #{rule,jdbcType=VARCHAR},
+      </if>
+      <if test="bankId != null" >
+        bank_id = #{bankId,jdbcType=VARCHAR},
+      </if>
+      <if test="bankProv != null" >
+        bank_prov = #{bankProv,jdbcType=VARCHAR},
+      </if>
+      <if test="bankCity != null" >
+        bank_city = #{bankCity,jdbcType=VARCHAR},
+      </if>
+      <if test="bankName != null" >
+        bank_name = #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="accountNo != null" >
+        account_no = #{accountNo,jdbcType=VARCHAR},
+      </if>
+      <if test="accountName != null" >
+        account_name = #{accountName,jdbcType=VARCHAR},
+      </if>
+      <if test="idType != null" >
+        id_type = #{idType,jdbcType=VARCHAR},
+      </if>
+      <if test="idNo != null" >
+        id_no = #{idNo,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null" >
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=NUMERIC},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="failedTimes != null" >
+        failed_times = #{failedTimes,jdbcType=INTEGER},
+      </if>
+      <if test="accountType != null" >
+        account_type = #{accountType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where sys_id = #{sysId,jdbcType=VARCHAR}
+      and request_id = #{requestId,jdbcType=VARCHAR}
+  </update>
+  <update id="update" parameterType="com.creditharmony.fortune.deduct.entity.FortuneDeductReq" >
+    update t_tz_deduct_req
+    set business_id = #{businessId,jdbcType=VARCHAR},
+      bat_id = #{batId,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=VARCHAR},
+      deduct_flag = #{deductFlag,jdbcType=VARCHAR},
+      rule = #{rule,jdbcType=VARCHAR},
+      bank_id = #{bankId,jdbcType=VARCHAR},
+      bank_prov = #{bankProv,jdbcType=VARCHAR},
+      bank_city = #{bankCity,jdbcType=VARCHAR},
+      bank_name = #{bankName,jdbcType=VARCHAR},
+      account_no = #{accountNo,jdbcType=VARCHAR},
+      account_name = #{accountName,jdbcType=VARCHAR},
+      id_type = #{idType,jdbcType=VARCHAR},
+      id_no = #{idNo,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      amount = #{amount,jdbcType=NUMERIC},
+      status = #{status,jdbcType=VARCHAR},
+      failed_times = #{failedTimes,jdbcType=INTEGER},
+      account_type = #{accountType,jdbcType=VARCHAR}
+    where sys_id = #{sysId,jdbcType=VARCHAR}
+      and request_id = #{requestId,jdbcType=VARCHAR}
+  </update>
+</mapper>

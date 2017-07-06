@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.delivery.dao.TripleAchievementDeliveryDao">
+    <select id="findList" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+         select 
+	        l.customer_code as "customerCode",
+	        cust.customer_name as "loginName",
+	        l.lend_code as lendCode,
+	        p.product_name as "productName",
+		    l.apply_lend_day as "applyLendDay",
+		    l.apply_lend_money as "applyLendMoney",
+		    l.apply_pay as "applyPay",
+		    l.apply_expire_day as "applyExpireDay",
+		    l.lend_status as "lendStatus",
+		    l.dict_apply_end_state as "applyEndStatus",
+		    u.user_code as "empCode",
+		    u.name as "empName",
+	        u2.name as "teamManagerName",
+	        o.name as "orgName",
+	        extract(epoch from l.modify_time) as "verTime"
+	    from tz.t_tz_loan_apply l
+	    left join tz.t_tz_customer cust on cust.customer_code = l.customer_code
+	    left join tz.t_gl_tz_product p on p.product_code = l.product_code
+	    left join tz.t_tz_loan_performance lp on l.lend_code = lp.lend_code
+	    left join tz.t_gl_user u on u.id = lp.manager_code
+	    left join tz.t_gl_user u2 on u2.id = lp.team_manager_code
+	    left join tz.t_gl_org o on o.id = lp.store_org_id 
+	    <where>
+	        <if test="customerCode != null and customerCode != ''">
+		        and	l.customer_code = #{customerCode,jdbcType=VARCHAR}
+		    </if>
+		    <if test="lendCode != null and lendCode != ''">
+		        and l.lend_code = #{lendCode,jdbcType=VARCHAR}
+		    </if>
+		    <if test="startTime != null and startTime != ''">
+	                and to_char(l.apply_lend_day,'YYYY-MM-DD') <![CDATA[>=]]> #{startTime} 
+	        </if>
+	        <if test=" endTime != null and endTime != '' ">
+	                and to_char(l.apply_lend_day,'YYYY-MM-DD') <![CDATA[<=]]> #{endTime}
+	        </if>
+	        <if test="productCodeList != null and productCodeList != '' ">
+		        and l.product_code in
+		        <foreach collection="productCodeList" item="item"  open="(" separator="," close=")">  
+	                 '${item}'   
+	             </foreach>
+		    </if>
+	    </where>
+    </select>
+    <!-- 修改业绩交割表对应理财经理信息 -->
+   <update id="updateAchievement" parameterType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+       update tz.t_tz_loan_performance 
+		<trim prefix="SET" suffixOverrides=",">
+		    manager_code = #{newEmpCode,jdbcType=VARCHAR},
+		    team_manager_code = #{newTeamManagerCode,jdbcType=VARCHAR},
+		    store_manager_code = #{bussManager,jdbcType=VARCHAR},
+		    city_manager_code = #{cityManager,jdbcType=VARCHAR},
+		    team_org_id = #{teamId,jdbcType=VARCHAR},
+		    store_org_id = #{newOrgId,jdbcType=VARCHAR},
+		    city_org_id = #{cityOrg,jdbcType=VARCHAR},
+		    <if test="modifyBy != null and modifyBy != ''">modify_by = #{modifyBy,jdbcType=VARCHAR},</if>
+		    <if test="modifyTime != null and modifyTime != ''">modify_time = #{modifyTime,jdbcType=TIMESTAMP},</if>
+		</trim>
+		<where>
+		    <if test="lendCode != null and lendCode != ''">
+		        lend_code = #{lendCode,jdbcType=VARCHAR}
+		    </if>
+		    <if test="empId != null and empId != ''">
+		        and manager_code = #{empId,jdbcType=VARCHAR}
+		    </if>
+		</where> 
+    </update>
+    
+    <!--统计业绩交割页面金额  -->
+    <select id="countMoney" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+    select 
+         cast(sum(l.apply_lend_money)  as   decimal(15,2)) as "totalMoney"
+    from  tz.t_tz_loan_apply l
+    <where>
+         <if test="customerCode != null and customerCode != ''">
+		        and	l.customer_code = #{customerCode,jdbcType=VARCHAR}
+		    </if>
+		    <if test="lendCode != null and lendCode != ''">
+		        and l.lend_code = #{lendCode,jdbcType=VARCHAR}
+		    </if>
+		    <if test="startTime != null and startTime != ''">
+	                and to_char(l.apply_lend_day,'YYYY-MM-DD') &gt;= #{startTime}  
+	        </if>
+	        <if test="endTime != null and endTime != '' ">
+	                and to_char(l.apply_lend_day,'YYYY-MM-DD') &lt;= #{endTime}
+	        </if>
+	        <if test="productCodeList != null and productCodeList != '' ">
+		        and l.product_code in
+		        <foreach collection="productCodeList" item="item"  open="(" separator="," close=")">  
+	                 '${item}'   
+	             </foreach>
+		    </if>
+    </where>
+    </select>
+</mapper>

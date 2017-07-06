@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.document.dao.DocumentDao">
+    <!--修改信息备份表  -->
+	<update id="updateDocument" parameterType="com.creditharmony.fortune.document.entity.DocumentBean">
+	    update tz.t_tz_document
+	    <trim prefix="SET" suffixOverrides=",">
+            <if test="result != null and result != ''">result = #{result,jdbcType=VARCHAR},</if>
+        </trim>
+	    <where>
+	        file_path_ids = #{batchNo,jdbcType=VARCHAR} 
+			<if test="batchNo == null or batchNo == ''">
+			and 1=-1 
+			</if>
+	    </where>
+	</update>
+</mapper>

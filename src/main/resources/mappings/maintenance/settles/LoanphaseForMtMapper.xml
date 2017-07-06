@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.maintenance.settles.dao.LoanphaseForMtMapper" >
+	<resultMap id="BaseResultMap" type="com.creditharmony.fortune.maintenance.settles.entity.LoanphaseInfo" >
+		<id column="phase_id" property="phaseId" jdbcType="VARCHAR" />
+		<result column="matching_id" property="matchingId" jdbcType="VARCHAR" />
+		<result column="loan_code" property="loanCode" jdbcType="VARCHAR" />
+		<result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+		<result column="phase_number" property="phaseNumber" jdbcType="INTEGER" />
+		<result column="phase_amount" property="phaseAmount" jdbcType="NUMERIC" />
+		<result column="phase_interest_cur" property="phaseInterestCur" jdbcType="NUMERIC" />
+		<result column="phase_principal_cur" property="phasePrincipalCur" jdbcType="NUMERIC" />
+		<result column="phase_principal_surplus" property="phasePrincipalSurplus" jdbcType="NUMERIC" />
+		<result column="phase_repay_sign" property="phaseRepaySign" jdbcType="VARCHAR" />
+		<result column="phase_repaydate_actual" property="phaseRepaydateActual" jdbcType="TIMESTAMP" />
+		<result column="phase_back_count" property="phaseBackCount" jdbcType="NUMERIC" />
+		<result column="phase_back_principal" property="phaseBackPrincipal" jdbcType="NUMERIC" />
+		<result column="phase_back_interest" property="phaseBackInterest" jdbcType="NUMERIC" />
+		<result column="phase_beginday_cur" property="phaseBegindayCur" jdbcType="TIMESTAMP" />
+		<result column="phase_endday_cur" property="phaseEnddayCur" jdbcType="TIMESTAMP" />
+		<result column="phase_mate_id" property="phaseMateId" jdbcType="VARCHAR" />
+		<result column="phase_mate_number" property="phaseMateNumber" jdbcType="INTEGER" />
+		<result column="phase_number_surplus" property="phaseNumberSurplus" jdbcType="INTEGER" />
+		<result column="phase_discard_status" property="phaseDiscardStatus" jdbcType="VARCHAR" />
+		<result column="phase_release_status" property="phaseReleaseStatus" jdbcType="VARCHAR" />
+		<result column="phase_freeze_nextstatus" property="phaseFreezeNextstatus" jdbcType="VARCHAR" />
+		<result column="create_by" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+		<result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+		<result column="bill_day" property="billDay" jdbcType="TIMESTAMP" />
+	</resultMap>
+  
+	<sql id="Base_Column_List" >
+		phase_id,
+		matching_id,
+		loan_code,
+		lend_code,
+		phase_number,
+		phase_amount,
+		phase_interest_cur,
+		phase_principal_cur,
+		phase_principal_surplus,
+		phase_repay_sign,
+		phase_repaydate_actual,
+		phase_back_count,
+		phase_back_principal,
+		phase_back_interest,
+		phase_beginday_cur,
+		phase_endday_cur,
+		phase_mate_id,
+		phase_mate_number,
+		phase_number_surplus,
+		phase_discard_status,
+		phase_release_status,
+		phase_freeze_nextstatus,
+		create_by,
+		create_time,
+		modify_by,
+		modify_time,
+		bill_day
+	</sql>
+	
+	<!-- 取得分期收益 -->
+    <select id="selLoanPhase" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.maintenance.settles.entity.LoanphaseInfo" >
+        SELECT 
+            <include refid="Base_Column_List"/>
+        FROM 
+            tz.t_tz_loanphase
+        <where>
+            <if test="lendCode != null and lendCode != ''">
+                lend_code = #{lendCode}
+            </if>
+            <if test="matchingId != null and matchingId != ''">
+                AND matching_id = #{matchingId}
+            </if>
+            <if test="phaseReleaseStatus != null and phaseReleaseStatus != ''">
+                 AND phase_release_status = #{phaseReleaseStatus}
+            </if>
+            AND phase_discard_status = #{phaseDiscardStatus}
+        </where>
+    </select>
+    
+    <!-- 根据待推荐ID,废弃状态获取的本期应还本金及本期应还本息的合计值 -->
+    <select id="selSumLoanPhaseInfo" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.maintenance.settles.entity.LoanphaseInfo" >
+        SELECT 
+            matching_id,
+            SUM(phase_amount) AS phase_amount,
+            SUM(phase_principal_cur) AS phase_principal_cur 
+        FROM 
+            tz.t_tz_loanphase
+        <where>
+            <if test="matchingId != null and matchingId != ''">
+                matching_id = #{matchingId}
+            </if>
+             <if test="phaseDiscardStatus != null and phaseDiscardStatus != ''">
+                 AND phase_discard_status = #{phaseDiscardStatus}
+            </if>
+        </where>
+        GROUP BY
+            matching_id
+    </select> 
+    
+  	<!-- 更新分期收益 -->
+	<update id="updLoanPhase" parameterType="com.creditharmony.fortune.maintenance.settles.entity.LoanphaseInfo" >
+    	update 
+    		tz.t_tz_loanphase
+    	set 
+		    <if test="phaseReleaseStatus != null" >
+        		phase_release_status = #{phaseReleaseStatus},
+      		</if>
+      		<if test="modifyBy != null" >
+        		modify_by = #{modifyBy,jdbcType=VARCHAR},
+      		</if>
+            <if test="modifyTime != null" >
+        		modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      		</if>
+      	<where>
+		    <if test="phaseId != null" >
+        		phase_id = #{phaseId}
+      		</if>
+      	</where>
+  	</update>
+  	<delete id="delLoanPhase" parameterType="java.lang.String" >
+        delete from tz.t_tz_loanphase
+        where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </delete>
+</mapper>

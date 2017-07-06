@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.priority.examine.dao.PriorityExcamineDao" >
+
+	<sql id="searchSql">
+		FROM
+			tz.t_tz_priority_back_pool  prio
+		LEFT JOIN
+			tz.t_tz_loan_apply loan ON  prio.lend_code = loan.lend_code
+		LEFT JOIN
+			tz.t_tz_back_money_pool pool ON pool.lend_code=loan.lend_code
+		LEFT JOIN
+			tz.t_gl_tz_product p ON p.product_code=loan.product_code
+		LEFT JOIN
+			tz.t_gl_org org ON org.id=loan.store_org_id
+		LEFT JOIN
+			tz.t_gl_province_city pc ON pc.id=org.city_id
+		LEFT JOIN
+			tz.t_gl_user usr ON usr.id=loan.manager_code
+		LEFT JOIN
+			tz.t_tz_customer_account acc ON acc.id=loan.receiving_id
+		LEFT JOIN
+			tz.t_gl_province_city pc1 ON pc1.id=acc.account_addrprovince
+		LEFT JOIN
+			tz.t_gl_province_city pc2 ON pc2.id=acc.account_addrcity
+		LEFT JOIN
+			tz.t_tz_customer cust ON cust.customer_code=loan.customer_code
+		<where>
+			<if test="priorityIds != null and priorityIds !='' ">
+  				AND prio.priority_id IN 
+		    	<foreach collection="priorityIds" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+  			</if>
+  			
+  			<if test="customerNameList !=null">
+	      		AND
+				<foreach collection="customerNameList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_name like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="customerCodeList !=null">
+				AND
+				<foreach collection="customerCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_code like '%${item}%'
+		    	</foreach>
+			</if>
+  			<if test="lendCodeList !=null">
+				AND 
+				<foreach collection="lendCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		loan.lend_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="orgList !=null ">
+				AND loan.store_org_id IN
+				<foreach collection="orgList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="applyLendDay !=null and applyLendDay !=''">
+				AND loan.apply_lend_day &gt;= #{applyLendDay}
+			</if>
+			<if test="applyLendDayTo !=null and applyLendDayTo !=''">
+	            AND loan.apply_lend_day &lt;= #{applyLendDayTo}
+			</if>
+			<if test="applyPayList !=null ">
+				AND loan.apply_pay IN
+				<foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="applyLendMoney !=null and applyLendMoney !=''">
+				AND loan.apply_lend_money &gt;= #{applyLendMoney}
+			</if>
+			<if test="applyLendMoneyTo !=null and applyLendMoneyTo !=''">
+	            AND loan.apply_lend_money &lt;= #{applyLendMoneyTo}
+			</if>
+			<if test="productList !=null ">
+				AND loan.product_code IN
+				<foreach collection="productList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			
+			
+			
+			<if test="applyExpireDay !=null and applyExpireDay !=''">
+				AND apply_expire_day &gt;= #{applyExpireDay}
+			</if>
+			<if test="applyExpireDayTo !=null and applyExpireDayTo !=''">
+	            AND apply_expire_day &lt;= #{applyExpireDayTo}
+			</if>
+			<if test="backMoneyDay !=null and backMoneyDay !=''">
+				AND pool.back_money_day &gt;= #{backMoneyDay}
+			</if>
+			<if test="backMoneyDayTo !=null and backMoneyDayTo !=''">
+	            AND pool.back_money_day &lt;= #{backMoneyDayTo}
+			</if>
+			
+			<if test="approveDateStart !=null and approveDateStart !=''">
+				AND loan.approve_date &gt;= #{approveDateStart}
+			</if>
+			<if test="approveDateEnd !=null and approveDateEnd !=''">
+	            AND loan.approve_date &lt;= #{approveDateEnd}
+			</if>
+			
+			<if test="city !=null and city != ''">
+				AND acc.account_addrprovince||'_'||acc.account_addrcity SIMILAR TO #{city}
+			</if>
+			
+			<if test="cobList !=null ">
+				AND acc.account_card_or_booklet IN
+				<foreach collection="cobList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="editionList !=null ">
+				AND loan.apply_agreement_edition IN
+				<foreach collection="editionList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="manager !=null and manager !=''">
+				AND usr.name = #{manager}
+			</if>
+			<if test="priorityBackStateAS !=null and priorityBackStateAS !=''">
+	            AND prio.priority_back_state IN
+				<foreach collection="priorityBackStateAS" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+		</where>
+	</sql>
+
+	<!-- 获取分页对象列表 -->
+	<select id="findByParams" resultType="com.creditharmony.fortune.back.priority.common.view.PriorityListItemView">
+		SELECT
+			cust.customer_code	AS	customerCode,
+			cust.customer_name	AS	customerName,
+			
+			usr.user_code AS userCode,
+			usr.name AS manager,
+			
+			loan.apply_lend_day	AS	applyLendDay,
+			loan.apply_billday AS  applyBillDay,
+			loan.apply_expire_day  AS  applyExpireDay,
+			ROUND(loan.apply_lend_money,2) AS  applyLendMoney,
+			loan.apply_pay AS	applyPay,
+			
+			p.product_name AS	productName,
+			
+			pc1.area_name AS accountAddrprovince,
+			pc2.area_name AS accountAddrcity,
+			
+			org.name AS orgName,
+			
+			prio.priority_id AS	priorityId,
+			prio.lend_code AS	lendCode,
+			prio.create_time
+		<include refid="searchSql"></include>
+	</select>
+	
+	
+	<update id="updateExamine" parameterType="com.creditharmony.fortune.back.priority.common.view.PriorityDetailItem">
+		 UPDATE t_tz_priority_back_pool
+		    <set >
+		      <!-- <if test="priorityId != null" >
+		        priority_id = #{priorityId},
+		      </if> 
+		      <if test="lendCode != null" >
+		        lend_code = #{lendCode},
+		      </if>-->
+		      <if test="applyBy != null" >
+		        apply_by = #{applyBy},
+		      </if>
+		      <if test="applyTime != null" >
+		        apply_time = #{applyTime},
+		      </if>	
+		      <if test="createBy != null" >
+		        create_by = #{createBy},
+		      </if>	
+		      <if test="createTime != null" >
+		        create_time = #{createTime},
+		      </if>	
+		      <if test="priorityBackState != null" >
+		        priority_back_state = #{priorityBackState},
+		      </if>
+		      <if test="backPriorityRemarks != null" >
+		        back_priority_remarks = #{backPriorityRemarks},
+		      </if>
+		      <if test="managerCode != null" >
+		        manager_code = #{managerCode},
+		      </if>
+		      <if test="rebackFlag != null" >
+		        reback_flag = #{rebackFlag}
+		      </if>			
+		    </set>
+		    WHERE 
+				priority_id = #{priorityId}	;	
+	</update>
+</mapper>

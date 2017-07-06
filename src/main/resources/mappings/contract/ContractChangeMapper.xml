@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.contract.dao.ContractChangeDao">
+
+<!--带参数进入变更申请详细页面 -->
+<select id="getContractInformation" parameterType="java.lang.String" resultType="com.creditharmony.fortune.contract.view.ContractView">
+	SELECT
+		m.cont_code,
+		m.cont_version,
+		m.dict_cont_status,
+		m.cont_stores_id,
+		c.name,
+		m.cont_income_day,
+		m.cont_belong_empid
+	FROM
+		t_tz_contract m
+	LEFT JOIN t_gl_org c ON c.id = m.cont_stores_id
+	LEFT JOIN t_tz_contract_apply t ON t.contract_id = m.apply_contract_id
+	WHERE m.cont_code = #{contCode,jdbcType=VARCHAR}
+</select>
+  <!--变更审核 -->
+<select id="listContractChange" resultType="com.creditharmony.fortune.contract.view.ContractChangeView">
+	SELECT
+		b.id,
+		b.change_in_stores_id,
+		b.change_out_stores_id,
+		c.name,
+        b.cont_code,
+		d.cont_use_day,
+		b.change_day,
+		d.cont_version,
+		d.dict_cont_status,
+		b.dict_change_status,
+		b.dict_change_type,
+        d.dis_contract_id,
+        e.dist_date,
+        d.apply_day
+	FROM t_tz_contract_changest b 
+        LEFT JOIN t_gl_org c ON c.id = b.change_out_stores_id
+        LEFT JOIN t_tz_contract d on d.cont_code = b.cont_code
+        LEFT JOIN t_tz_contract_distribute e ON d.dis_contract_id = e.id
+        LEFT JOIN t_tz_contract_apply f ON d.apply_contract_id = f.contract_id
+	<where>
+	     b.dict_change_status in ('0', '1')
+  		<if test="changeInStoresId != null and changeInStoresId != ''">
+  			and b.change_in_stores_id=#{changeInStoresId,jdbcType=VARCHAR}
+  		</if>
+  		<if test="startDate != null and startDate != ''">
+  			and b.change_day &gt;=#{startDate,jdbcType=VARCHAR}
+  		</if>
+  		<if test="endDate != null and endDate != ''">
+  			and b.change_day &lt;=#{endDate,jdbcType=VARCHAR}
+  		</if>
+  		<if test="contVersion != null and contVersion != ''">
+  			and d.cont_version=#{contVersion,jdbcType=VARCHAR}
+  		</if>
+  		<if test="dictChangeStatus != null and dictChangeStatus != ''">
+  			and b.dict_change_status=#{dictChangeStatus,jdbcType=VARCHAR}
+  		</if>
+  		<if test="dictChangeType != null and dictChangeType != ''">
+  			and b.dict_change_type=#{dictChangeType,jdbcType=VARCHAR}
+  		</if>
+  		<if test="dictChangeType2 != null and dictChangeType2 != ''">
+  			and b.dict_change_type !=#{dictChangeType2,jdbcType=VARCHAR}
+  		</if>
+  		<if test="contCode != null and contCode != ''">
+  			and b.cont_code=#{contCode,jdbcType=VARCHAR}
+  		</if>
+  		<if test="name != null and name != ''">
+  			and c.name like '%'||#{name,jdbcType=VARCHAR}||'%'
+  		</if>
+  		<if test="contStoresId != null and contStoresId != ''">
+  			and d.cont_stores_id = #{contStoresId}
+  		</if>
+  	</where>
+</select>
+  <!--变更已办  -->
+<select id="listChangeApplyDone" resultType="com.creditharmony.fortune.contract.view.ContractChangeView">
+	SELECT
+		b.id,
+		b.change_in_stores_id,
+        b.cont_code,
+		c.name,
+		d.cont_use_day,
+		b.change_day,
+		d.cont_version,
+		d.dict_cont_status,
+		b.dict_change_status,
+		b.dict_change_type,
+        d.dis_contract_id,
+        e.dist_date
+	FROM t_tz_contract_changest b 
+        LEFT JOIN t_gl_org c ON c.id = b.change_out_stores_id
+        LEFT JOIN t_tz_contract d on d.cont_code = b.cont_code
+        LEFT JOIN t_tz_contract_distribute e ON d.dis_contract_id = e.id
+	<where>
+  		<if test="contStoresId != null and contStoresId != ''">
+  			and m.cont_stores_id=#{contStoresId,jdbcType=VARCHAR}
+  		</if>
+  		<if test="name != null and name != ''">
+  			and c.name=#{name,jdbcType=VARCHAR}
+  		</if>
+  		<if test="startDate != null and startDate != ''">
+  			and b.change_day &gt;=#{startDate,jdbcType=VARCHAR}
+  		</if>
+  		<if test="endDate != null and endDate != ''">
+  			and b.change_day &lt;=#{endDate,jdbcType=VARCHAR}
+  		</if>
+  		<if test="contVersion != null and contVersion != ''">
+  			and d.cont_version=#{contVersion,jdbcType=VARCHAR}
+  		</if>
+  		<if test="dictChangeStatus != null and dictChangeStatus != ''">
+  			and b.dict_change_status=#{dictChangeStatus,jdbcType=VARCHAR}
+  		</if>
+  		<if test="dictChangeStatus2 != null and dictChangeStatus2 != ''">
+  			and b.dict_change_status !=#{dictChangeStatus2,jdbcType=VARCHAR}
+  		</if>
+  		<if test="dictChangeType != null and dictChangeType != ''">
+  			and b.dict_change_type=#{dictChangeType,jdbcType=VARCHAR}
+  		</if>
+  		<if test="contCode != null and contCode != ''">
+  			and b.cont_code=#{contCode,jdbcType=VARCHAR}
+  		</if>
+  	</where>
+</select>
+<!--带数据进入详细页  -->
+<select id="getContractChangeById" parameterType="java.lang.String" resultType="com.creditharmony.fortune.contract.view.ContractChangeView">
+	SELECT
+		b.id,
+		b.cont_code,
+      	b.change_apply,
+		b.change_explain,
+        b.change_out_stores_id,
+        b.change_in_stores_id,
+        b.dict_change_type,
+		c.name,
+		ca.name as change_in_name,
+        u.name as applyBy,
+        u.phone as applyTel,
+        m.cont_version,
+		m.dict_cont_status,
+		m.cont_income_day,
+		m.cont_belong_empid,
+		m.cont_filepath
+	FROM
+		t_tz_contract_changest b
+    LEFT JOIN t_gl_user u ON b.change_apply = u.id
+	LEFT JOIN t_gl_org c ON c.id = b.change_out_stores_id
+    LEFT JOIN t_gl_org ca ON ca.id = b.change_in_stores_id
+	LEFT JOIN t_tz_contract m ON m.cont_code = b.cont_code
+	WHERE
+		 b.id = #{id}
+</select>
+
+<!-- 添加变更申请 -->
+<insert id="insertContractChange" parameterType="com.creditharmony.fortune.contract.entity.ContractChange" >
+   insert into t_tz_contract_changest
+   <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="Id != null" >
+          id,
+      </if>
+        <if test="contCode != null" >
+          cont_code,
+      </if>
+        <if test="changeDay != null" >
+          change_day,
+      </if>
+        <if test="dictChangeType != null" >
+          dict_change_type,
+      </if>
+       <if test="dictChangeStatus != null" >
+          dict_change_status,
+      </if>
+        <if test="changeExplain != null" >
+          change_explain,
+      </if>
+        <if test="changeApply != null" >
+          change_apply,
+      </if>
+        <if test="changeInStoresId != null" >
+          change_in_stores_id,
+      </if>
+        <if test="changeOutStoresId != null" >
+          change_out_stores_id,
+      </if>
+      <if test="createBy != null" >
+          create_by,
+      </if>
+      <if test="createTime != null" >
+          create_time,
+      </if>
+      <if test="modifyBy != null" >
+          modify_by,
+      </if>
+      <if test="modifyTime != null" >
+          modify_time
+      </if>
+   </trim>
+   <trim prefix=" values (" suffix=")" suffixOverrides="," >
+       <if test="Id != null" >
+          #{Id,jdbcType=VARCHAR},
+      </if>
+        <if test="contCode != null" >
+          #{contCode,jdbcType=VARCHAR},
+      </if>
+        <if test="changeDay != null" >
+          #{changeDay,jdbcType=DATE},
+      </if>
+        <if test="dictChangeType != null" >
+         #{dictChangeType,jdbcType=VARCHAR},
+      </if>
+       <if test="dictChangeStatus != null" >
+          #{dictChangeStatus,jdbcType=VARCHAR},
+      </if>
+        <if test="changeExplain != null" >
+          #{changeExplain,jdbcType=VARCHAR},
+      </if>
+        <if test="changeApply != null" >
+         #{changeApply,jdbcType=VARCHAR},
+      </if>
+        <if test="changeInStoresId != null" >
+          #{changeInStoresId,jdbcType=VARCHAR},
+      </if>
+        <if test="changeOutStoresId != null" >
+        #{changeOutStoresId,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+          #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+          #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+          #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+          #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </trim>
+</insert>
+
+<!-- 变更申请信息 -->
+<select id="getContractChange" parameterType="java.util.Map" resultType="com.creditharmony.fortune.contract.entity.ContractChange">
+	SELECT id, cont_code, change_day, dict_change_type, change_explain, 
+       change_apply, change_check_date, dict_change_status, change_check_desc, 
+       change_check_result, change_check_by_id, change_in_stores_id, 
+       change_out_stores_id, create_by, create_time, modify_by, modify_time
+  FROM t_tz_contract_changest where cont_code = #{contCode,jdbcType=VARCHAR} and dict_change_status = #{dictChangeStatus,jdbcType=VARCHAR}
+</select>
+
+<!-- 变更信息导出数据 -->
+<select id="listContractChangeExcel" resultType="com.creditharmony.fortune.contract.view.ContractChangeExcelView">
+	SELECT
+		b.id,
+		b.change_in_stores_id,
+		b.change_out_stores_id,
+		c.name,
+        b.cont_code,
+		d.cont_use_day,
+		b.change_day,
+		d.cont_version,
+		d.dict_cont_status,
+		b.dict_change_status,
+		b.dict_change_type,
+        d.dis_contract_id,
+        e.dist_date,
+        d.apply_day,
+		b.change_explain,
+		decode(b.dict_change_status,'1',b.change_check_date,null) as changeCheckDate
+	FROM t_tz_contract_changest b 
+        LEFT JOIN t_gl_org c ON c.id = b.change_out_stores_id
+        LEFT JOIN t_tz_contract d on d.cont_code = b.cont_code
+        LEFT JOIN t_tz_contract_distribute e ON d.dis_contract_id = e.id
+ 		LEFT JOIN t_tz_contract_apply f ON d.apply_contract_id = f.contract_id
+	<where>
+  		<if test="changeInStoresId != null and changeInStoresId != ''">
+  			and b.change_in_stores_id=#{changeInStoresId,jdbcType=VARCHAR}
+  		</if>
+  		<if test="startDate != null and startDate != ''">
+  			and b.change_day &gt;=#{startDate,jdbcType=VARCHAR}
+  		</if>
+  		<if test="endDate != null and endDate != ''">
+  			and b.change_day &lt;=#{endDate,jdbcType=VARCHAR}
+  		</if>
+  		<if test="contVersion != null and contVersion != ''">
+  			and d.cont_version=#{contVersion,jdbcType=VARCHAR}
+  		</if>
+  		<if test="dictChangeStatus != null and dictChangeStatus != ''">
+  			and b.dict_change_status=#{dictChangeStatus,jdbcType=VARCHAR}
+  		</if>
+  		<if test="dictChangeType != null and dictChangeType != ''">
+  			and b.dict_change_type=#{dictChangeType,jdbcType=VARCHAR}
+  		</if>
+  		<if test="dictChangeType2 != null and dictChangeType2 != ''">
+  			and b.dict_change_type !=#{dictChangeType2,jdbcType=VARCHAR}
+  		</if>
+  		<if test="contCode != null and contCode != ''">
+  			and b.cont_code=#{contCode,jdbcType=VARCHAR}
+  		</if>
+  		<if test="name != null and name != ''">
+  			and c.name like '%'||#{name,jdbcType=VARCHAR}||'%'
+  		</if>
+  	</where>
+</select>
+
+<!-- 根据ids,变更信息导出数据 -->
+<select id="listContractChangeExcelCheckout" resultType="com.creditharmony.fortune.contract.view.ContractChangeExcelView">
+	SELECT
+		b.id,
+		b.change_in_stores_id,
+		b.change_out_stores_id,
+        b.cont_code,
+		c.name,
+		d.cont_use_day,
+		b.change_day,
+		d.cont_version,
+		d.dict_cont_status,
+		b.dict_change_status,
+		b.dict_change_type,
+		b.change_check_date,
+		b.change_explain,
+        d.dis_contract_id
+	FROM t_tz_contract_changest b 
+        LEFT JOIN t_gl_org c ON c.id = b.change_out_stores_id
+        LEFT JOIN t_tz_contract d on d.cont_code = b.cont_code
+        where b.id in 
+     <foreach collection="id" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+</select>
+<!-- 主键查询 -->
+<select id="getApplyChange" parameterType="java.lang.String" resultType="com.creditharmony.fortune.contract.entity.ContractChange">
+	SELECT id, cont_code, change_day, dict_change_type, change_explain, 
+       change_apply, change_check_date, dict_change_status, change_check_desc, 
+       change_check_result, change_check_by_id, change_in_stores_id, 
+       change_out_stores_id, create_by, create_time, modify_by, modify_time
+  FROM t_tz_contract_changest where id = #{id,jdbcType=VARCHAR}
+</select>
+
+<!-- 修改申请信息 -->
+<update id="updateContractChange" parameterType="com.creditharmony.fortune.contract.entity.ContractChange" >
+   update t_tz_contract_changest 
+   <set>
+      <if test="changeCheckDate != null" >
+      change_check_date = #{changeCheckDate,jdbcType=DATE},
+      </if>
+      <if test="dictChangeStatus != null" >
+      dict_change_status = #{dictChangeStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="changeCheckDesc != null" >
+      change_check_desc = #{changeCheckDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="changeCheckResult != null" >
+      change_check_result = #{changeCheckResult,jdbcType=DATE},
+      </if>
+      <if test="changeCheckById  != null" >
+       change_check_by_id  = #{changeCheckById ,jdbcType=VARCHAR} ,
+      </if>
+      <if test="modifyBy != null" >
+         modify_by  = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+         modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </set>
+   where id  = #{id,jdbcType=VARCHAR} 
+</update>
+
+<!-- 从出借申请表查询合同明细-->
+<select id="lendQueryContract" resultType="com.creditharmony.fortune.customer.entity.LoanApply">
+	SELECT apply_protocol_no applyProtocolNo,
+ 			lend_status lendStatus, 
+			apply_expire_day expireDate,
+			t.create_time applyDate,
+			apply_lend_day lendDate, 
+			product_code productCode,
+			e.name managerName,
+			lend_code applyCode
+	 FROM t_tz_loan_apply t
+			LEFT JOIN t_gl_user e ON t.manager_code = e.id
+	<where>
+  			apply_contract_no= #{contractNumber,jdbcType=VARCHAR} 
+  			limit(1)
+  	</where>
+</select>
+</mapper>

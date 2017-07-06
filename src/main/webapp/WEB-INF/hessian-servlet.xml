@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc
+						http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+						http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context-4.0.xsd">	
+	
+	<bean id="fortuneSyncDataService" class="com.creditharmony.fortune.sync.data.proxy.FortuneSyncDataProxy"/>
+	<bean name="/fortuneSyncData.do"
+		class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="fortuneSyncDataService" />
+		<property name="serviceInterface" value="com.creditharmony.fortune.sync.data.remote.FortuneSyncDataService" />
+	</bean>
+	
+	<!-- 系统管理SMS同步三网数据到财富系统的接口 -->
+	<bean id="threeNetSyncDataService" class="com.creditharmony.fortune.sync.data.proxy.ThreeNetSyncDataProxy"/>
+	<bean name="/threeNetSyncData.do"
+		class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="threeNetSyncDataService" />
+		<property name="serviceInterface" value="com.creditharmony.fortune.sync.data.remote.ThreeNetSyncDataService" />
+	</bean>
+	
+	<!-- 债权同步service -->
+	<bean id="foruneSyncCreditorService" class="com.creditharmony.fortune.sync.data.proxy.ForuneSyncCreditorProxy"/>
+	<bean name="/foruneSyncCreditorService.do"
+		class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="foruneSyncCreditorService" />
+		<property name="serviceInterface" value="com.creditharmony.fortune.sync.data.remote.ForuneSyncCreditorService" />
+	</bean>
+	
+	<!-- 收益调整service -->
+	<bean id="productProfitService" class="com.creditharmony.fortune.back.money.job.proxy.BackMoneyModifyProxy"/>
+	<bean name="/productProfitService.do"
+		class="org.springframework.remoting.caucho.HessianServiceExporter">
+		<property name="service" ref="productProfitService" />
+		<property name="serviceInterface" value="com.creditharmony.core.fortune.service.ProductProfitService" />
+	</bean>
+	
+</beans>

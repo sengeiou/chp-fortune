@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.maintenance.triple.dao.TripleMaintainDao">
+	<select id="findList" parameterType="java.util.Map" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+		select 
+        p.id,
+        p.customer_code as "customerCode",
+        p.login_name as "loginName",
+        p.emp_code as "empCode",
+        p.phone as "phone",
+        p.os_type as "osType",
+        ic.order_status as "orderStatus",
+        ic.card_type as "cardType",
+        ic.card_id as "cardId",
+        ic.order_time as "orderTime",
+        p.modify_time as "modifyTime",
+        temp.empName as"empName"
+	    from tz.int_phone p
+	    left join int_phone_card ipc on ipc.phone = p.phone
+	    left join int_card ic on ic.card_id = ipc.card_id
+	    left join (
+                       select
+                           uro.user_id,
+				 	       u.id as empId,
+						   u.login_name as loginName,
+						   u.name as empName,
+						   u.user_code as empCode,
+						   u1.name as teamManagerName,
+						   u1.user_code as teamManagerCode,
+						   org_ogl.name as teamName,
+						   org.name as orgName,
+						   org.id as orgId
+					   from tz.t_gl_user_role_org uro
+					   left join tz.t_gl_user u on u.id = uro.user_id and u.del_flag = '0'
+					   inner join t_gl_org org_ogl on org_ogl.id = uro.org_id and org_ogl.del_flag='0'
+					   left join  tz.t_gl_org org on ',' || org_ogl.parent_ids like '%,' || org.id || ',%'
+		               and org.type = #{orgType} and org.del_flag = '0'
+			           left join tz.t_gl_user_role_org uro2 on uro.org_id = uro2.org_id and uro2.role_id = #{teamManagerRole}
+			           left join tz.t_gl_user u1 on u1.id = uro2.user_id and u1.del_flag = '0'
+			           where
+			                uro.role_id = #{managerRole}
+		 ) temp on temp.empCode =  p.emp_code
+     <where>
+         
+         <if test="empName != null and empName != ''">
+               and temp.empName like '%' || #{empName} || '%'
+         </if>
+         <if test="phoneList != null">
+                and p.phone in 
+                <foreach collection="phoneList" item="item"  index="index" open="(" separator="," close=")">  
+                     #{item} 
+                </foreach>
+          </if>
+       
+     </where>
+	</select>
+	<!--查询交割履历  -->
+	<select id="findDeliveryRecord" parameterType="java.util.Map" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+		select 
+		id,
+		delivery_type AS deliveryType,
+		phone AS phone,
+		emp_code AS empCode,
+		emp_name AS empName,
+		team_manager_code AS teamManagerCode,
+		team_manager_name AS teamManagerName,
+		org_name AS orgName,
+		new_emp_code AS newEmpCode,
+		new_emp_name AS newEmpName,
+		new_team_manager_code AS newTeamManagerCode,
+		new_team_manager_name AS newTeamManagerName,
+		new_org_name AS newOrgName,
+		customer_code AS customerCode,
+		login_name AS loginName,
+		os_type AS osType
+		from tz."int_delivery"
+		where phone =#{phone}
+	</select>
+	
+	<!--查询发送履历  -->
+	<select id="findSendRecord" parameterType="java.util.Map" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+		select 
+			id,
+			os_id AS customerCode,
+			log_name AS loginName,
+			new_phone AS phone,
+			old_phone AS oldPhone,
+			card_type AS cardType,
+			card_id AS cardId,
+			os_type AS osType,
+			emp_code AS empCode,
+			send_status AS sendStatus,
+			send_type AS sendType,
+			send_time AS sendTime,
+			unique_num AS uniqueNum
+		from 
+		tz."int_customer" 
+		where new_phone = #{phone}
+		
+	</select>
+	
+	<!--查询app遗漏数据  -->
+	<select id="findSyncDate" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+	    select 
+	        p.emp_code as "empCode",
+	        c.card_id as "cardId"
+		from tz.int_phone p
+		left join tz.int_phone_card pc on pc.phone = p.phone
+		left join tz.int_card c on c.card_id = pc.card_id
+		where p.emp_code != c.emp_code
+	</select>
+	
+	<select id="findEmpCode" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+	 select 
+	     user_code as "empCode"
+	 from tz.t_gl_user
+	 where 
+	     id = #{id,jdbcType=VARCHAR}
+	</select>
+	
+	<update id="updateOsType" parameterType= "com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+	    update tz.int_phone 
+	    <trim prefix="SET" suffixOverrides=",">
+         os_type = #{osType,jdbcType=VARCHAR} 
+        </trim>
+	    where os_type is null and failename is not null and create_time > '2016-06-25'
+	</update>
+</mapper>

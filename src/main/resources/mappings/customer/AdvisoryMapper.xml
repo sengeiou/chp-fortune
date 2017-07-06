@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.customer.dao.AdvisoryDao">
+	<resultMap id="BaseResultMap" type="com.creditharmony.fortune.customer.entity.Advisory">
+		<result column="ask_id" property="id" jdbcType="VARCHAR" />
+		<result column="customer_code" property="custCode" jdbcType="VARCHAR" />
+		<result column="ask_day" property="askDate" jdbcType="DATE" />
+		<result column="ask_begin_day" property="askBeginDate" jdbcType="TIMESTAMP" />
+		<result column="ask_end_day" property="askEndDate" jdbcType="TIMESTAMP" />
+		<result column="dict_ask_type" property="askType" jdbcType="VARCHAR" />
+		<result column="ask_product" property="askProduct" jdbcType="VARCHAR" />
+		<result column="ask_input_money" property="askInputMoney" jdbcType="NUMERIC" />
+		<result column="ask_input_day" property="askInputDate" jdbcType="DATE" />
+		<result column="ask_des" property="askDes" jdbcType="VARCHAR" />
+		<result column="ask_next_day" property="askNextDate" jdbcType="DATE" />
+		<result column="ask_next_type" property="askNextType" jdbcType="VARCHAR" />
+		<result column="create_by" property="createBy" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+		<result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+		<result column="manager_id" property="managerId" jdbcType="VARCHAR" />
+	</resultMap>
+	
+	<insert id="insert" parameterType="com.creditharmony.fortune.customer.entity.Advisory">
+		insert into tz.t_tz_loan_ask (ask_id,customer_code, ask_day, ask_begin_day,
+		ask_end_day, dict_ask_type, ask_product,
+		ask_input_money, ask_input_day, ask_des,
+		ask_next_day, ask_next_type, create_by,
+		create_time, modify_by, modify_time,manager_id
+		)
+		values (#{id,jdbcType=VARCHAR},#{custCode,jdbcType=VARCHAR},
+		#{askDate,jdbcType=DATE}, #{askBeginDate,jdbcType=TIMESTAMP},
+		#{askEndDate,jdbcType=TIMESTAMP}, #{askType,jdbcType=VARCHAR},
+		#{askProduct,jdbcType=VARCHAR},
+		#{askInputMoney,jdbcType=NUMERIC}, #{askInputDate,jdbcType=DATE}, #{askDes,jdbcType=VARCHAR},
+		#{askNextDate,jdbcType=DATE}, #{askNextType,jdbcType=VARCHAR},
+		#{createBy,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP},
+		#{managerId,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<select id="findPage" parameterType="com.creditharmony.fortune.customer.entity.Advisory" resultMap="BaseResultMap">
+		select * from tz.t_tz_loan_ask
+		<where>
+			<if test="custCode != null and custCode != ''">
+				customer_code = #{custCode}
+			</if>
+			<if test="managerId != null and managerId != ''">
+				and manager_id = #{managerId}
+			</if>
+		</where>
+		<if test="page != null and page != ''">
+	    	<if test="page.orderBy != null and page.orderBy != ''">
+		    	order by ${page.orderBy}
+		    </if>
+    	</if>
+	</select>
+	
+	<select id="get" parameterType="com.creditharmony.fortune.customer.entity.Advisory" resultMap="BaseResultMap">
+		select * from tz.t_tz_loan_ask
+		<where>
+			<if test="id != null and id != ''">
+				ask_id = #{id}
+			</if>
+			<if test="custCode != null and custCode != ''">
+				and customer_code = #{custCode}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getMaxModTimeByCustCode" parameterType="java.lang.String"  resultMap="BaseResultMap">
+		select ask.customer_code, max(ask.modify_time) modify_time
+		from t_tz_loan_ask ask
+		where ask.customer_code = #{customerCode}
+		group by ask.customer_code
+	</select>
+	
+</mapper>

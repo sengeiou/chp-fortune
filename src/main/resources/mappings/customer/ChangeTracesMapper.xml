@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.customer.dao.ChangeTracesDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.customer.entity.ChangeTraces" >
+    <result column="change_id" property="id" jdbcType="VARCHAR" />
+    <result column="apply_id" property="applyId" jdbcType="VARCHAR" />
+    <result column="change_type" property="changeType" jdbcType="VARCHAR" />
+    <result column="change_code" property="associateId" jdbcType="VARCHAR" />
+    <result column="change_begin" property="changeBegin" jdbcType="VARCHAR" />
+    <result column="change_after" property="changeAfter" jdbcType="VARCHAR" />
+    <result column="dict_change_state" property="changeState" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <insert id="insert" parameterType="com.creditharmony.fortune.customer.entity.ChangeTraces" >
+    insert into tz.t_tz_changer (change_id, apply_id, change_type, 
+      change_code, change_begin, change_after, dict_change_state,
+      create_by, create_time, modify_by, modify_time)
+    values (#{id,jdbcType=VARCHAR}, #{applyId,jdbcType=VARCHAR}, #{changeType,jdbcType=VARCHAR}, 
+      #{associateId,jdbcType=VARCHAR}, #{changeBegin,jdbcType=VARCHAR}, #{changeAfter,jdbcType=VARCHAR}, 
+      #{changeState,jdbcType=VARCHAR},#{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <select id="findPage" parameterType="com.creditharmony.fortune.customer.entity.ChangeTraces" resultMap="BaseResultMap">
+    select *
+    from tz.t_tz_changer
+    <where>
+    	<if test="associateId != null and associateId != ''">
+	    	change_code = #{associateId}
+	    </if>
+	    <if test="changeType != null and changeType != ''">
+	    	and change_type = #{changeType}
+	    </if>
+    </where>
+    <if test="page != null and page != ''">
+    	<if test="page.orderBy != null and page.orderBy != ''">
+	    	order by ${page.orderBy}
+	    </if>
+    </if>
+  </select>
+  
+  <select id="get" parameterType="com.creditharmony.fortune.customer.entity.ChangeTraces" resultMap="BaseResultMap">
+    select *
+    from tz.t_tz_changer
+    <where>
+    	<if test="id != null and id != ''">
+	    	change_id = #{id}
+	    </if>
+    </where>
+  </select>
+  
+</mapper>

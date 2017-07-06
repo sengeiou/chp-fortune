@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.app.webservice.development.dao.EmpDao" >
+
+  <!-- 周怀富 start -->
+  
+    	<!-- 业绩map -->
+		<resultMap type="com.creditharmony.fortune.app.webservice.ocr.entity.Achievement" id="achievementMap">
+			<result column="USERID" property="userId" />
+			<result column="USERTYPE" property="userType" />
+			<result column="ORGID" property="orgId" />
+			<result column="USERNAME" property="userName" />
+			<result column="EMPCODE" property="empCode" />
+			<result column="LENDDATE" property="monthString" />
+			<result column="LENDMONEY" property="finishedAchievement" />
+		</resultMap>
+	    <!-- 根据用户代码查询用户角色Id -->
+		<select id="getInfoByEmpCode" parameterType="string" resultType="map">			   
+			   select 
+				       org.org_id ,
+				       org.role_id
+				       from t_gl_user usr 
+				       left join t_gl_user_role_org org
+				        on usr.id= org.user_id
+				where usr.login_name=#{empCode}
+				      limit 1
+		</select>
+		
+		<!-- 获取团队经理信息 -->
+		<select id="getTeamManagerInfo" resultType="map" parameterType="map">
+			 select 
+		          tmp1.orgId,
+		          tmp2.userId,
+		          tmp2.userName,
+			      tmp2.empCode
+			from (select 
+			       distinct(org.id) orgId
+			       from t_gl_org org where org.parent_id=#{orgId}
+		             ) tmp1
+		          left join 
+		          (select 
+			       usr.id   userId,
+			       usr.name userName,
+			       usr.login_name empCode,
+			       roleorg.org_id   orgId	
+			      from t_gl_user usr
+				   left join t_gl_user_role_org roleorg
+				   on usr.id=roleorg.user_id
+		              where roleorg.role_id=#{teamRoleId}
+		            )tmp2
+		         on tmp1.orgId=tmp2.orgId
+		</select>
+		
+		<!-- 计算营业部经理旗下理财经理业绩 -->
+		<select id="getAchievement1" resultMap="achievementMap" parameterType="map">
+		   	select tmp1.userId,
+			       tmp1.userName,
+			       tmp1.empCode,
+			       tmp1.orgId,
+			       tmp2.lendDate,
+			       tmp2.lendMoney
+			   from	(select 
+					  usr.id    userId,
+					  usr.name userName,
+					  usr.login_name empCode,
+					  roleorg.org_id orgId
+				      from t_gl_user usr
+					   left join t_gl_user_role_org roleorg
+					   on usr.id= roleorg.user_id
+				     where 
+					   roleorg.org_id in(select distinct(id) from t_gl_org org where org.parent_id=#{orgId})
+					   and roleorg.role_id=#{finaceRoleId}
+				 )tmp1
+			left join 
+				(select 
+				      a.userId userId,
+				      sum(a.lendMoney) lendMoney,
+				      a.lendDate lendDate
+				      from
+					     (select 
+					       apply.apply_deduct_money as lendMoney,
+					       to_char(apply.create_time,'yyyy.MM') as lendDate, 
+					       apply.manager_code as userId
+					      from t_tz_loan_apply  apply
+					      left join t_tz_deduct_pool dect
+					      on dect.lend_code = apply.lend_code
+					     where dect.dict_deduct_status =#{deductState} 
+					      and to_char(apply.create_time,'yyyy.MM')=#{month}
+					     )a
+				     group by  a.userId, a.lendDate) tmp2
+			  on tmp1.userId = tmp2.userId
+					 order by tmp1.userName
+		</select>
+		
+		<!-- 计算团队经理旗下理财经理业绩 -->
+		<select id="getAchievement2" resultMap="achievementMap" parameterType="map">
+		   	select tmp1.userId,
+			       tmp1.userName,
+			       tmp1.empCode,
+			       tmp1.orgId,
+			       tmp2.lendDate,
+			       tmp2.lendMoney
+			   from	(select 
+					  usr.id    userId,
+					  usr.name userName,
+					  usr.login_name empCode,
+					  roleorg.org_id orgId
+				      from t_gl_user usr
+					   left join t_gl_user_role_org roleorg
+					   on usr.id= roleorg.user_id
+				     where 
+					   roleorg.org_id =#{orgId}
+					   and roleorg.role_id=#{finaceRoleId}
+				 )tmp1
+			left join 
+				(select 
+				      a.userId userId,
+				      sum(a.lendMoney) lendMoney,
+				      a.lendDate lendDate
+				      from
+					     (select 
+					       apply.apply_deduct_money as lendMoney,
+					       to_char(apply.create_time,'yyyy.MM') as lendDate, 
+					       apply.manager_code as userId
+					      from t_tz_loan_apply  apply
+					      left join t_tz_deduct_pool dect
+					      on dect.lend_code = apply.lend_code
+					     where dect.dict_deduct_status = #{deductState} 
+					      and to_char(apply.create_time,'yyyy.MM')=#{month}
+					     )a
+				     group by  a.userId, a.lendDate) tmp2
+			  on tmp1.userId = tmp2.userId
+					 order by tmp1.userName
+		</select>
+		
+		<!-- 计算团队经理旗下理财经理业绩 -->
+		<select id="getAchievement3" resultMap="achievementMap" parameterType="map">
+		   	select tmp1.userId,
+			       tmp1.userName,
+			       tmp1.empCode,
+			       tmp1.orgId,
+			       tmp2.lendDate,
+			       tmp2.lendMoney
+			   from	(select 
+					  usr.id    userId,
+					  usr.name userName,
+					  usr.login_name empCode,
+					  roleorg.org_id orgId
+				      from t_gl_user usr
+					   left join t_gl_user_role_org roleorg
+					   on usr.id= roleorg.user_id
+				     where 
+					   roleorg.org_id =#{orgId}
+					   and roleorg.role_id=#{finaceRoleId}
+				 )tmp1
+			left join 
+				(select 
+				      a.userId userId,
+				      sum(a.lendMoney) lendMoney,
+				      a.lendDate lendDate
+				      from
+					     (select 
+					       apply.apply_deduct_money as lendMoney,
+					       to_char(apply.create_time,'yyyy.MM') as lendDate, 
+					       apply.manager_code as userId
+					      from t_tz_loan_apply  apply
+					      left join t_tz_deduct_pool dect
+					      on dect.lend_code = apply.lend_code
+					     where dect.dict_deduct_status = #{deductState}  
+					      and to_char(apply.create_time,'yyyy.MM')= #{month}
+					     )a
+				     group by  a.userId, a.lendDate) tmp2
+			  on tmp1.userId = tmp2.userId
+			      where empCode= #{empCode}
+					 order by tmp1.userName
+		</select>
+  <!-- 周怀富 start -->
+
+  <!-- 王俊杰start -->
+  	<select id="selectRoleIdList" parameterType="java.lang.String" resultType="java.lang.String">
+	  	select r.id from t_gl_user_role_org rg 
+	  		left join t_gl_role r on rg.role_id = r.id
+		where rg.user_id = #{value}
+	</select>
+
+  	<select id="getUserMessage" parameterType="java.lang.String" resultType="java.util.Map">
+  		select u.id userId,
+  			u.login_name loginName,
+  			u.name userName,
+  			u.mobile mobileNo,
+  			trunc(oracle.MONTHS_BETWEEN(sysdate,u.entry_time)/12,1) officeTime,
+  			og.name store
+  		from t_gl_user u 
+			left join t_gl_org o on u.department_id = o.id
+			left join t_gl_org og on o.parent_id = og.id
+		where u.id = #{value};
+  	</select>
+  	
+  	<select id="getStoreUserMessage" parameterType="java.lang.String" resultType="java.util.Map">
+  		select u.id userId,
+  			u.login_name loginName,
+  			u.name userName,
+  			u.mobile mobileNo,
+  			trunc(oracle.MONTHS_BETWEEN(sysdate,u.entry_time)/12,1) officeTime,
+  			og.name store
+  		from t_gl_user u 
+			left join t_gl_org og on u.department_id = og.id
+		where u.id = #{value};
+  	</select>
+  	
+  	<select id="geUserCodeList" parameterType="java.lang.String" resultType="java.lang.String">
+  		select user_code from t_gl_user where leader_id = #{value}
+  	</select>
+  <!-- 王俊杰end -->
+  
+  <!-- 张虎start -->
+  	<select id="getUserByUsername" resultType="map" parameterType="string">
+		select login_name, password, name, user_code, status 
+		from t_gl_user 
+		where login_name = #{userName}
+	</select>
+	
+	<!-- 获取全国的省 -->
+	<select id="getAreas" resultType="map" parameterType="map">
+		select id, area_name 
+		from t_gl_province_city 
+		where 1=1
+		<if test="areaType != null and areaType != ''">
+			and area_type = #{areaType}
+	    </if>
+		<if test="parentId!= null and parentId!= ''">
+		 	and parent_id = #{parentId}
+	    </if>
+	</select>
+	
+	<!-- 获取省市下的营业部 -->
+	<select id="getOrgs" resultType="map" parameterType="map">
+		select name as org_name, code as org_code
+		from t_gl_org 
+		where ( name like '%营业部%' or type = '2' )
+		<if test="provinceId != null and provinceId!= ''">
+		 	and province_id = #{provinceId}
+	    </if>
+		<if test="cityId!= null and cityId!= ''">
+		 	and city_id = #{cityId}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+	    </if>
+	</select>
+  <!-- 张虎end -->
+  
+</mapper>

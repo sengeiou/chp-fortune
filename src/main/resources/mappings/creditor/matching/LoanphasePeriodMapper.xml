@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.LoanphasePeriodDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.creditor.matching.entity.LoanphasePeriod" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="matching_id" property="matchingId" jdbcType="VARCHAR" />
+    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+    <result column="phase_amount" property="phaseAmount" jdbcType="NUMERIC" />
+    <result column="phase_interest_cur" property="phaseInterestCur" jdbcType="NUMERIC" />
+    <result column="lend_money" property="lendMoney" jdbcType="NUMERIC" />
+    <result column="totalasset" property="totalasset" jdbcType="NUMERIC" />
+    <result column="report_period_start" property="reportPeriodStart" jdbcType="DATE" />
+    <result column="report_period_end" property="reportPeriodEnd" jdbcType="DATE" />
+    <result column="credit_node" property="creditNode" jdbcType="VARCHAR" />
+    <result column="credit_id_all" property="creditIdAll" jdbcType="VARCHAR" />
+    <result column="customer_code" property="customerCode" jdbcType="VARCHAR" />
+    <result column="matching_status" property="matchingStatus" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, matching_id,  lend_code, phase_amount, phase_interest_cur, lend_money, 
+    totalasset, report_period_start, report_period_end, credit_node, credit_id_all, customer_code, 
+    matching_status, create_by, create_time, modify_by, modify_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_loanphase_period
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+   <select id="selectByMatchingId" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_loanphase_period
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </select>
+  <select id="getLastPeriodByLendCode" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_loanphase_period
+    where lend_code = #{lendCode,jdbcType=VARCHAR}
+    order by report_period_end desc limit 1
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_tz_loanphase_period
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.creditor.matching.entity.LoanphasePeriod" >
+    insert into t_tz_loanphase_period (id, matching_id, 
+      lend_code, phase_amount, phase_interest_cur, 
+      lend_money, totalasset, report_period_start, 
+      report_period_end, credit_node, credit_id_all, 
+      customer_code, matching_status, create_by, 
+      create_time, modify_by, modify_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{matchingId,jdbcType=VARCHAR},
+      #{lendCode,jdbcType=VARCHAR}, #{phaseAmount,jdbcType=NUMERIC}, #{phaseInterestCur,jdbcType=NUMERIC}, 
+      #{lendMoney,jdbcType=NUMERIC}, #{totalasset,jdbcType=NUMERIC}, #{reportPeriodStart,jdbcType=DATE}, 
+      #{reportPeriodEnd,jdbcType=DATE}, #{creditNode,jdbcType=VARCHAR}, #{creditIdAll,jdbcType=VARCHAR}, 
+      #{customerCode,jdbcType=VARCHAR}, #{matchingStatus,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.LoanphasePeriod" >
+    insert into t_tz_loanphase_period
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="matchingId != null" >
+        matching_id,
+      </if>
+      
+      <if test="lendCode != null" >
+        lend_code,
+      </if>
+      <if test="phaseAmount != null" >
+        phase_amount,
+      </if>
+      <if test="phaseInterestCur != null" >
+        phase_interest_cur,
+      </if>
+      <if test="lendMoney != null" >
+        lend_money,
+      </if>
+      <if test="totalasset != null" >
+        totalasset,
+      </if>
+      <if test="reportPeriodStart != null" >
+        report_period_start,
+      </if>
+      <if test="reportPeriodEnd != null" >
+        report_period_end,
+      </if>
+      <if test="creditNode != null" >
+        credit_node,
+      </if>
+      <if test="creditIdAll != null" >
+        credit_id_all,
+      </if>
+      <if test="customerCode != null" >
+        customer_code,
+      </if>
+      <if test="matchingStatus != null" >
+        matching_status,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingId != null" >
+        #{matchingId,jdbcType=VARCHAR},
+      </if>
+     
+      <if test="lendCode != null" >
+        #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="phaseAmount != null" >
+        #{phaseAmount,jdbcType=NUMERIC},
+      </if>
+      <if test="phaseInterestCur != null" >
+        #{phaseInterestCur,jdbcType=NUMERIC},
+      </if>
+      <if test="lendMoney != null" >
+        #{lendMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="totalasset != null" >
+        #{totalasset,jdbcType=NUMERIC},
+      </if>
+      <if test="reportPeriodStart != null" >
+        #{reportPeriodStart,jdbcType=DATE},
+      </if>
+      <if test="reportPeriodEnd != null" >
+        #{reportPeriodEnd,jdbcType=DATE},
+      </if>
+      <if test="creditNode != null" >
+        #{creditNode,jdbcType=VARCHAR},
+      </if>
+      <if test="creditIdAll != null" >
+        #{creditIdAll,jdbcType=VARCHAR},
+      </if>
+      <if test="customerCode != null" >
+        #{customerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingStatus != null" >
+        #{matchingStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.LoanphasePeriod" >
+    update t_tz_loanphase_period
+    <set >
+      <if test="matchingId != null" >
+        matching_id = #{matchingId,jdbcType=VARCHAR},
+      </if>
+     
+      <if test="lendCode != null" >
+        lend_code = #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="phaseAmount != null" >
+        phase_amount = #{phaseAmount,jdbcType=NUMERIC},
+      </if>
+      <if test="phaseInterestCur != null" >
+        phase_interest_cur = #{phaseInterestCur,jdbcType=NUMERIC},
+      </if>
+      <if test="lendMoney != null" >
+        lend_money = #{lendMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="totalasset != null" >
+        totalasset = #{totalasset,jdbcType=NUMERIC},
+      </if>
+      <if test="reportPeriodStart != null" >
+        report_period_start = #{reportPeriodStart,jdbcType=DATE},
+      </if>
+      <if test="reportPeriodEnd != null" >
+        report_period_end = #{reportPeriodEnd,jdbcType=DATE},
+      </if>
+      <if test="creditNode != null" >
+        credit_node = #{creditNode,jdbcType=VARCHAR},
+      </if>
+      <if test="creditIdAll != null" >
+        credit_id_all = #{creditIdAll,jdbcType=VARCHAR},
+      </if>
+      <if test="customerCode != null" >
+        customer_code = #{customerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingStatus != null" >
+        matching_status = #{matchingStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.creditharmony.fortune.creditor.matching.entity.LoanphasePeriod" >
+    update t_tz_loanphase_period
+    set matching_id = #{matchingId,jdbcType=VARCHAR},
+      lend_code = #{lendCode,jdbcType=VARCHAR},
+      phase_amount = #{phaseAmount,jdbcType=NUMERIC},
+      phase_interest_cur = #{phaseInterestCur,jdbcType=NUMERIC},
+      lend_money = #{lendMoney,jdbcType=NUMERIC},
+      totalasset = #{totalasset,jdbcType=NUMERIC},
+      report_period_start = #{reportPeriodStart,jdbcType=DATE},
+      report_period_end = #{reportPeriodEnd,jdbcType=DATE},
+      credit_node = #{creditNode,jdbcType=VARCHAR},
+      credit_id_all = #{creditIdAll,jdbcType=VARCHAR},
+      customer_code = #{customerCode,jdbcType=VARCHAR},
+      matching_status = #{matchingStatus,jdbcType=VARCHAR},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_by = #{modifyBy,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <delete id="deleteByMatchingId" parameterType="java.lang.String">
+  delete from t_tz_loanphase_period where matching_id=#{matchingId}
+  </delete>
+</mapper>

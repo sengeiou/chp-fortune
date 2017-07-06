@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.MatchingCreditorDetailDao">
+    <select id="findloanInfoByMatchingId" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx">
+        select 
+	        mc.matching_id as "matchingId",
+		    mc.lend_code as "lendCode",
+	        cust.customer_name as "customerName",
+		    o.name as "org",
+	        p.product_name as "productName",
+	        p.product_code as "productCodeStr",
+	        mc.matching_bill_day as "matchingBillDay",
+	        mc.matching_firstday_flag as "matchingFirstdayFlag",
+	        la.apply_lend_day as "startApplyLendDay",
+	        la.apply_lend_money as "startApplyLendMoney",
+	        la.apply_lend_day as "applyLendDay",
+	        mc.matching_interest_start as "matchingInterestStart",
+	        mc.matching_borrow_quota as "matchingBorrowQuota"
+	    from tz.t_tz_matching_creditor mc 
+	    left join tz.t_tz_loan_apply la on mc.lend_code = la.lend_code
+	    left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+	    left join tz.t_gl_org o on la.store_org_id = o.id
+	    left join tz.t_gl_tz_product p on mc.product_code = p.product_code
+		where 
+		    mc.matching_id = #{matchingId} 
+    </select> 
+    <select id="findTradeidByMatchingId" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.BorrowEx">
+        select 
+            trade_id as "tradeId",
+            credit_node  as "creditNode"
+        from tz.t_tz_creditor_trade
+        <where>
+            <if test="matchingId != null and matchingId != '' ">
+                and matching_id = #{matchingId}
+            </if>
+          <if test="tradeCreditStatus != null and tradeCreditStatus != ''">
+                and dict_trade_credit_status != #{tradeCreditStatus}
+            </if>
+        </where>
+    </select>
+    <select id="joinBorrow" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.BorrowEx">
+        select 
+		    b.loan_name as "loanName",
+			b.dict_loan_type as "dictLoanType",
+			b.loan_product as "loanProduct",
+			b.loan_job as "loanJob",
+			b.loan_middle_man as "loanMiddleMan",
+			b.loan_purpose as "loanPurpose",
+			b.loan_backmoney_firday as "loanBackmoneyFirday",
+			b.loan_backmoney_day as "loanBackmoneyDay",
+			b.loan_months as "phaseMateNumber",
+            b.loan_months_surplus as "phaseNumberSurplus",
+			b.loan_quota as "loanCreditValue",
+			b.loan_credit_value as "loanAvailabeValue",
+			b.loan_month_rate as "loanMonthRate",
+            ct.trade_mate_money as "tradeMateMoney",
+            b.loan_backmoney_lastday as "loanBackmoneyLastDay",
+            ct.trade_mate_money_percent as "tradeMateMoneyPercent",
+            ct.trade_pass_date as "tradePassDate",
+            b.loan_modified_day as "loanModifyTime",
+            b.loan_months as "loanMonths"
+        from tz.t_tz_creditor_trade ct 
+        left join tz.t_tz_borrow b on ct.credit_code = b.credit_value_id
+        <where>
+            <if test="tradeId != null and tradeId != ''">
+                ct.trade_id = #{tradeId}
+            </if>
+        </where>
+    </select>
+     <select id="joinBorrowMonthAble" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.BorrowEx">
+        select	
+             bm.loan_name as "loanName",
+			 bm.dict_loan_type as "dictLoanType",
+			 bm.loan_product as "loanProduct",
+			 bm.loan_job as "loanJob",
+			 bm.loan_middle_man as "loanMiddleMan",
+			 bm.loan_purpose as "loanPurpose",
+			 bm.loan_backmoney_firday as "loanBackmoneyFirday",
+             bm.loan_backmoney_day as "loanBackmoneyLastDay",
+             bm.loan_day as "phaseMateNumber",
+             bm.loan_available_days as "phaseNumberSurplus",
+			 bm.loan_credit_value as "loanCreditValue",
+			 bm.loan_availabe_value as "loanAvailabeValue",
+             bm.loan_month_rate as "loanMonthRate",
+			 ct.trade_mate_money as "tradeMateMoney",
+             ct.trade_mate_money_percent as "tradeMateMoneyPercent",
+             ct.trade_pass_date as "tradePassDate",
+             bm.loan_modified_day as "loanModifyTime",
+             bm.loan_day as "loanMonths"
+		from tz.t_tz_creditor_trade ct 
+		left join tz.t_tz_borrow_monthable bm on ct.credit_code = bm.credit_monable_id 
+        <where>
+            <if test="tradeId != null and tradeId != ''">
+                ct.trade_id = #{tradeId}
+            </if>
+        </where>
+    </select>
+    <select id="joinBorrowForFinishedMc" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.BorrowEx">
+        select 
+		    b.loan_name as "loanName",
+			b.dict_loan_type as "dictLoanType",
+			b.loan_product as "loanProduct",
+			b.loan_job as "loanJob",
+			b.loan_middle_man as "loanMiddleMan",
+			b.loan_purpose as "loanPurpose",
+			b.loan_backmoney_firday as "loanBackmoneyFirday",
+			b.loan_backmoney_day as "loanBackmoneyDay",
+			b.loan_months as "phaseMateNumber",
+            c.phase_number_surplus+1 as "phaseNumberSurplus",
+			b.loan_quota as "loanCreditValue",
+			b.loan_credit_value as "loanAvailabeValue",
+			b.loan_month_rate as "loanMonthRate",
+            ct.trade_mate_money as "tradeMateMoney",
+            b.loan_backmoney_lastday as "loanBackmoneyLastDay",
+            ct.trade_mate_money_percent as "tradeMateMoneyPercent",
+            ct.trade_pass_date as "tradePassDate",
+            b.loan_modified_day as "loanModifyTime",
+            b.loan_months as "loanMonths",
+            b. dic_loan_distinguish as "dicLoanDistinguish"
+        from tz.t_tz_creditor_trade ct 
+        left join tz.t_tz_borrow b on ct.credit_code = b.credit_value_id
+        inner join tz.t_tz_loanphase c on ct.trade_id = c.phase_mate_id and ct.matching_id = c.matching_id
+        <where>
+            <if test="tradeId != null and tradeId != ''">
+                ct.trade_id = #{tradeId}
+            </if>
+             <if test="marchingId != null and marchingId != ''">
+                And c.matching_id = #{marchingId}
+            </if>
+        </where>
+    </select>
+    <select id="joinBorrowMonthAbleForFinishedMc" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.BorrowEx">
+        select	
+             bm.loan_name as "loanName",
+			 bm.dict_loan_type as "dictLoanType",
+			 bm.loan_product as "loanProduct",
+			 bm.loan_job as "loanJob",
+			 bm.loan_middle_man as "loanMiddleMan",
+			 bm.loan_purpose as "loanPurpose",
+			 bm.loan_backmoney_firday as "loanBackmoneyFirday",
+             bm.loan_backmoney_day as "loanBackmoneyLastDay",
+             bm.loan_day as "phaseMateNumber",
+             ct.trade_borrowdays_actual as "phaseNumberSurplus",
+			 bm.loan_credit_value as "loanCreditValue",
+			 bm.loan_availabe_value as "loanAvailabeValue",
+             bm.loan_month_rate as "loanMonthRate",
+			 ct.trade_mate_money as "tradeMateMoney",
+             ct.trade_mate_money_percent as "tradeMateMoneyPercent",
+             ct.trade_pass_date as "tradePassDate",
+             bm.loan_modified_day as "loanModifyTime",
+             bm.loan_day as "loanMonths",
+             bm. dic_loan_distinguish as "dicLoanDistinguish"
+		from tz.t_tz_creditor_trade ct 
+		left join tz.t_tz_borrow_monthable bm on ct.credit_code = bm.credit_monable_id 
+        <where>
+            <if test="tradeId != null and tradeId != ''">
+                ct.trade_id = #{tradeId}
+            </if>
+             <if test="marchingId != null and marchingId != ''">
+                And ct.matching_id = #{marchingId}
+            </if>
+        </where>
+    </select>
+    <select id="isCancel" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx">
+        select
+            dict_check_node as "creditNode",
+            matching_id as "matchingId"
+        from t_tz_creditor_his
+        <where>
+            <if test="matchingId != null and matchingId != '' ">
+                and matching_id = #{matchingId}
+            </if>
+            <if test="operateType != null and operateType != '' ">
+                and operate_type = #{operateType}
+            </if>
+        </where>
+    </select>
+</mapper>

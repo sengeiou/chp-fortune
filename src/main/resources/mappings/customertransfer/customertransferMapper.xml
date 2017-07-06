@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.donation.apply.dao.CustomertransferDao">
+
+    <!-- 根据员工编号获取员工信息 -->
+	 <select id="getCustomerInfo" resultType="com.creditharmony.fortune.donation.apply.entity.Customertransfe">
+		 select 
+		u.id as managerId,
+    	u.name   managerName,
+    	u.user_code managerCode,
+    	uro.role_id
+     from   tz.t_gl_user u
+  left join tz.t_gl_user_role_org uro on u.id = uro.user_id
+		<where>
+				u.user_code = #{empCode}
+		</where>
+		<!-- 理财经理优先排序 -->
+		order by (case when uro.role_id='6450000002' then '1' else '0' end) desc,
+		 (case when u.status='1'  then '1' else '0' end) desc
+		limit 1
+	 </select>  
+	 
+	 <!-- 根据客户Code获取客户编号和手机号码 -->
+	 <select id="getCustomerCodePhone" resultType="com.creditharmony.fortune.donation.apply.entity.Customertransfe">
+		 select 
+		 c.customer_code custCode,
+		 c.customer_mobilephone custMobilephone
+     from   tz.t_tz_customer      c
+		<where>
+				c.customer_code = #{custCode}
+		</where>
+	 </select> 
+	 
+	 <!-- 根据客户Code获取客户编号和理财经理营业部信息 -->
+	 <select id="getCustomerManagerbyCode" resultType="com.creditharmony.fortune.donation.apply.entity.CustomerManagerinfo">
+		 select 
+		 c.customer_code custCode,
+		 c.customer_name custName,
+		 c.customer_mobilephone custMobilephone,
+		 u.name managerName,
+		 u.id oldmanagerId,
+		 u.user_code managerCode,
+		 org.name departmentName,
+		 org.id olddepartmentId
+     from   tz.t_tz_customer      c
+     left join tz.t_gl_user  u on u.id = c.manager_code
+     left join tz.t_gl_org org on org.id = c.org_code
+		<where>
+				c.customer_code = #{custCode}
+		</where>
+	 </select> 
+	 
+	 <!-- 理财经理根据姓名和工号查询理财经理信息 -->
+	 <select id="getManagerinfobyCode" resultType="com.creditharmony.fortune.donation.apply.entity.CustomerManagerinfo">
+		 select 
+		 u.id managerId,
+		 u.name managerNameNew,
+		 u.user_code managerCodeNew
+     from   tz.t_gl_user      u
+     left join t_gl_org org on org.id = u.department_id
+     left join t_gl_user_role_org tgro on tgro.user_id = u.id
+		<where>
+				u.name = #{managerName} 		
+				AND u.user_code =#{managerCode} and u.status ='1' and tgro.role_id='6450000002'
+				<if test="departmentId != null and departmentId != ''">
+				AND org.id LIKE '%'||#{departmentId}||'%'<!-- 营业部 -->
+			    </if>
+		</where>
+	 </select> 
+	<!-- 更新客户表转赠状态 -->
+	<update id="updatecustomerinfo">
+	
+	    UPDATE tz.t_tz_customer
+	  		SET 
+	       modify_time=#{modifyTime},
+	       modify_by=#{modifyBy},
+	       transfer_state=#{TransferState}
+		   WHERE customer_code=#{custCode}
+	</update>
+	<!--交割表插入转赠数据 -->
+	<insert id="savecustomertransferInfo">
+		INSERT INTO tz.t_tz_delivery
+		  (
+		   del_id,
+		   dict_del_type,
+		   customer_code,
+		   fmanager_code,
+		   nfmanager_code,
+		   dict_del_status,
+		   team_manager_code,
+		   n_team_manager_code,
+		   org_code,
+		   n_org_code,
+		   create_time,
+		   create_by,
+		   modify_by,
+		   modify_time
+		  )
+		VALUES
+		  ( #{applyId},#{cdictdeltype},#{custCode},#{oldmanagerId}, #{managerId}, #{TransferState},#{teamCodeOld},#{teamCodeNew}, #{olddepartmentId},#{departmentId},#{createTime},#{createBy},#{modifyBy},#{modifyTime});
+
+	</insert>
+	<!-- 根据交割ID查询交割信息 -->
+	 <select id="getDeliveryinfobyID" resultType="com.creditharmony.fortune.donation.apply.entity.CustomerManagerinfo">
+		 select 
+		 d.customer_code custCode,
+		 c.customer_name custName,
+		 c.customer_mobilephone custMobilephone,
+		 d.fmanager_code oldmanagerId,
+		 d.nfmanager_code managerId,
+		 d.dict_del_status TransferState,
+		 d.org_code olddepartmentId,
+		 d.n_org_code departmentId,
+		 d.n_team_manager_code teamCodeNew
+     from   tz.t_tz_delivery      d
+     left join t_tz_customer c on c.customer_code = d.customer_code
+		<where>
+				d.del_id = #{applyId} 		
+		</where>
+	 </select>
+	 <!-- 审批通过更新客户表信息 -->
+	<update id="updatecustomer">
+	
+	    UPDATE tz.t_tz_customer
+	  		SET 
+	       modify_time=#{modifyTime},
+	       modify_by=#{modifyBy},
+	       transfer_state=#{TransferState},
+	       manager_code=#{managerId},
+	       org_code=#{departmentId},
+	       team_org_id=#{teamCodeNew}
+		   WHERE customer_code=#{custCode}
+	</update> 
+	<!-- 审批通过更新交割表信息 -->
+	<update id="updatedelivery">
+	
+	    UPDATE tz.t_tz_delivery
+	  		SET 
+	       modify_time=#{modifyTime},
+	       modify_by=#{modifyBy},
+	       del_date=#{modifyTime},
+	       dict_del_status=#{TransferState}
+		   WHERE del_id=#{applyId}
+	</update> 
+	
+	<!-- 根据客户Code获取客户信息 -->
+	 <select id="getCustomerInfocheck" resultType="com.creditharmony.fortune.donation.apply.entity.Customertransfe">
+		 select 
+		 t.lend_code lendCode
+     from   tz.t_tz_loan_apply      t
+		<where>
+  				 t.customer_code in 
+		    	<foreach collection="custCodes" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		</where>
+	 </select> 
+	 
+	 <!-- 根据理财经理ID查询理财经理工号-->
+	 <select id="getManagerinfobyID" resultType="com.creditharmony.fortune.donation.apply.entity.CustomerManagerinfo">
+		 select 
+		 u.user_code managerCode
+     from   tz.t_gl_user      u
+		<where>
+				u.id = #{managerId} 		
+		</where>
+	 </select>
+	 
+	  <!-- 根据理财经理工号查询理财经理信息-->
+	 <select id="getManagerinfobyCodeT" resultType="com.creditharmony.fortune.donation.apply.entity.CustomerManagerinfo">
+		 select 
+		 u.id managerId
+     from   tz.t_gl_user      u
+		<where>
+				u.user_code = #{managerCode} 		
+		</where>
+	 </select>
+</mapper>

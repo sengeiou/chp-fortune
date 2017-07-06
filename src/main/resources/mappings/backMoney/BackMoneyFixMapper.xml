@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.money.job.dao.BackMoneyFixDao" >
+
+	<update id="updateByProfitConfig" parameterType="com.creditharmony.fortune.back.money.job.entity.ProductProfit">
+		update
+			tz.t_tz_back_money_pool
+		set
+			back_money = (tz.t_tz_loan_apply.apply_lend_money * #{productRate} /100 + tz.t_tz_loan_apply.apply_lend_money),
+			back_actualback_money = (tz.t_tz_loan_apply.apply_lend_money * #{productRate} /100 + tz.t_tz_loan_apply.apply_lend_money),
+			modify_time = #{modifyTime}
+		from
+			tz.t_tz_loan_apply
+		where
+			tz.t_tz_back_money_pool.lend_code = tz.t_tz_loan_apply.lend_code
+			and tz.t_tz_loan_apply.apply_lend_day <![CDATA[>=]]> #{startDay}
+			and tz.t_tz_loan_apply.apply_lend_day <![CDATA[<=]]> #{closeDay}
+			and tz.t_tz_loan_apply.apply_lend_money <![CDATA[<=]]> #{productMoneyUpper}
+			and tz.t_tz_loan_apply.apply_lend_money <![CDATA[>=]]> #{productMoneyLowe}
+			and tz.t_tz_loan_apply.product_code = #{productCode}
+			<!-- 回款状态为：回款申请、回款申请确认、回款申请确认退回、回款补息退回 -->
+			and tz.t_tz_back_money_pool.dict_back_status in ('1','2','8','14')
+			<!-- 到期回款 -->
+			and tz.t_tz_back_money_pool.back_money_type = '1'
+			AND (tz.t_tz_loan_apply.dict_apply_end_state = '1' 
+					or tz.t_tz_loan_apply.dict_apply_end_state is null);
+	</update>
+	
+	<update id="updateByFactor" parameterType="java.util.Map">
+		update
+			tz.t_tz_back_money_pool
+		set
+			back_money = (tz.t_tz_loan_apply.apply_lend_money * #{factor} /100 + tz.t_tz_loan_apply.apply_lend_money),
+			back_actualback_money = (tz.t_tz_loan_apply.apply_lend_money * #{factor} /100 + tz.t_tz_loan_apply.apply_lend_money),
+			modify_time = #{modifyTime}
+		from
+			tz.t_tz_loan_apply
+		where
+			tz.t_tz_back_money_pool.lend_code = tz.t_tz_loan_apply.lend_code
+			and tz.t_tz_loan_apply.product_code = #{productCode}
+			<!-- 回款状态为：回款申请、回款申请确认、回款申请确认退回、回款补息退回 -->
+			and tz.t_tz_back_money_pool.dict_back_status in ('1','2','8','14')
+			<!-- 到期回款 -->
+			and tz.t_tz_back_money_pool.back_money_type = '1'
+			AND (tz.t_tz_loan_apply.dict_apply_end_state = '1' 
+					or tz.t_tz_loan_apply.dict_apply_end_state is null)
+			<if test="before != null and before !=''">
+				and tz.t_tz_loan_apply.apply_lend_day <![CDATA[<]]> #{divideDay}
+			</if>
+			<if test="after != null and after !=''">
+				and tz.t_tz_loan_apply.apply_lend_day <![CDATA[>=]]> #{divideDay}
+			</if>
+			<if test="xhbType != null and xhbType !=''">
+				and tz.t_tz_loan_apply.xinhebao_type = #{xhbType}
+			</if>
+	</update>
+	
+	<select id="getDataList" parameterType="com.creditharmony.fortune.back.money.job.entity.ex.ProductProfitEx" 
+			resultType="com.creditharmony.fortune.back.money.job.entity.ModifyData">
+		SELECT 
+			pool.lend_code, 
+			loan.apply_lend_day,
+			loan.apply_lend_money,
+			loan.apply_billday,
+			pool.final_linit_date,
+			loan.xinhebao_type,
+			loan.product_code
+		FROM tz.t_tz_loan_apply loan
+		LEFT JOIN tz.t_tz_back_money_pool pool on loan.lend_code=pool.lend_code
+		WHERE pool.dict_back_status in ('1','2','8','14')
+		AND (loan.dict_apply_end_state = '1' or loan.dict_apply_end_state is null)
+		and loan.product_code = #{productCode}
+		and pool.back_money_type = '1'
+		<if test="startDay != null">
+			and loan.apply_lend_day <![CDATA[>=]]> #{startDay}
+		</if>
+		<if test="closeDay != null">
+			and loan.apply_lend_day <![CDATA[<=]]> #{closeDay}
+		</if>
+		<if test="productMoneyUpper != null">
+			and loan.apply_lend_money <![CDATA[<=]]> #{productMoneyUpper}
+		</if>
+		<if test="productMoneyLowe != null">
+			and loan.apply_lend_money <![CDATA[>=]]> #{productMoneyLowe}
+		</if>
+	</select>
+	
+	<update id="updateByLendCode" parameterType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		UPDATE 
+			tz.t_tz_back_money_pool
+		SET 
+			back_money=#{backMoney},
+			back_actualback_money=#{backMoney},
+			modify_time = #{modifyTime}
+		where lend_code=#{lendCode}
+	</update>
+	
+	<select id="get" parameterType="string" resultType="com.creditharmony.fortune.back.money.job.entity.ProductProfit">
+		SELECT * FROM tz.t_gl_product_profit WHERE id=#{id}
+	</select>
+	
+	<select id="findList" parameterType="com.creditharmony.fortune.back.money.job.entity.ProductProfit" 
+		resultType="com.creditharmony.fortune.back.money.job.entity.ProductProfit">
+		SELECT * FROM tz.t_gl_product_profit 
+		WHERE 
+			status = '1'
+		order by product_code asc, create_time asc, start_day asc
+	</select>
+
+	<select id="getCheckFlag" resultType="com.creditharmony.fortune.common.entity.Check">
+		SELECT *
+		FROM tz.t_tz_check
+		WHERE id='backmoneyupdateflag' 
+			AND lend_code ='backmoneyupdateflag'
+			AND operate_node='1'
+	</select>
+
+	<update id="updateCheckFlag">
+		UPDATE tz.t_tz_check
+		SET operate_node='2'
+		WHERE id='backmoneyupdateflag' 
+			AND lend_code ='backmoneyupdateflag'
+			AND operate_node='1'
+	</update>
+	
+	
+	
+</mapper>

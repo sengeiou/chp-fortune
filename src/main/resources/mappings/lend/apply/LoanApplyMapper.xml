@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.customer.dao.LoanApplyDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.customer.entity.LoanApply" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="lend_code" property="applyCode" jdbcType="VARCHAR" />
+    <result column="customer_code" property="custCode" jdbcType="VARCHAR" />
+    <result column="customer_name" property="custName" jdbcType="VARCHAR" />
+    <result column="apply_day" property="applyDate" jdbcType="DATE" />
+    <result column="apply_deduct_day" property="deductDate" jdbcType="DATE" />
+    <result column="apply_lend_day" property="lendDate" jdbcType="DATE" />
+    <result column="product_code" property="productCode" jdbcType="VARCHAR" />
+    <result column="apply_pay" property="payType" jdbcType="VARCHAR" />
+    <result column="dict_apply_deduct_type" property="deductTypeId" jdbcType="VARCHAR" />
+    <result column="apply_lend_money" property="lendMoney" jdbcType="NUMERIC" />
+    <result column="apply_deduct_money" property="deductMoney" jdbcType="NUMERIC" />
+    <result column="apply_agreement_edition" property="protocoEdition" jdbcType="VARCHAR" />
+    <result column="apply_contract_no" property="contractNumber" jdbcType="VARCHAR" />
+    <result column="apply_sales_discount" property="salesDiscount" jdbcType="VARCHAR" />
+    <result column="apply_billday" property="billDay" jdbcType="VARCHAR" />
+    <result column="apply_remarks" property="remark" jdbcType="VARCHAR" />
+    <result column="apply_expire_day" property="expireDate" jdbcType="DATE" />
+    <result column="lend_status" property="lendStatus" jdbcType="VARCHAR" />
+    <result column="dict_source_type" property="sourceEdition" jdbcType="VARCHAR" />
+    <result column="dict_apply_end_state" property="applyEndStatus" jdbcType="VARCHAR" />
+    <result column="apply_transfer_money" property="transferMoney" jdbcType="NUMERIC" />
+    <result column="f_apply_code" property="transferLendId" jdbcType="VARCHAR" />
+    <result column="is_delivery" property="isDelivery" jdbcType="VARCHAR" />
+    <result column="manager_code" property="managerCode" jdbcType="VARCHAR" />
+    <result column="team_manager_code" property="teamManagerCode" jdbcType="VARCHAR" />
+    <result column="city_manager_code" property="cityManagerCode" jdbcType="VARCHAR" />
+    <result column="store_manager_code" property="storeManagerCode" jdbcType="VARCHAR" />
+    <result column="repay_id" property="paymentBankId" jdbcType="VARCHAR" />
+    <result column="receiving_id" property="receiveBankId" jdbcType="VARCHAR" />
+    <result column="product_rate" property="productRate" jdbcType="NUMERIC" />
+     <result column="lend_day" property="lendDay" jdbcType="NUMERIC" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="applyId" property="applyId" jdbcType="VARCHAR" />
+    <result column="customerCode" property="customer.custCode" jdbcType="VARCHAR" />
+    <result column="customerName" property="customer.custName" jdbcType="VARCHAR" />
+    <result column="team_org_id" property="teamOrgId" jdbcType="VARCHAR" />
+    <result column="store_org_id" property="storeOrgId" jdbcType="VARCHAR" />
+    <result column="city_org_id" property="cityOrgId" jdbcType="VARCHAR" />
+    <result column="xinhebao_type" property="xinhebaoType" jdbcType="VARCHAR" />
+    <result column="lend_code_old" property="lendCodeOld" jdbcType="VARCHAR" />
+    <result column="province_id" property="provinceId" jdbcType="VARCHAR" />
+    <result column="city_id" property="cityId" jdbcType="VARCHAR" />
+    <result column="actualback_money" property="actualBackMoney" jdbcType="VARCHAR" />
+    <result column="back_status" property="backMoneyStatus" jdbcType="VARCHAR" />
+    <result column="back_type" property="backMoneyType" jdbcType="VARCHAR" />
+    <result column="matching_backinterest_statu" property="matchingBackinterestStatus" jdbcType="VARCHAR" />
+    <result column="matching_backinterest_day" property="matchingBackinterestDay" jdbcType="DATE" />
+    <result column="lend_status_name" property="lendStatusName" jdbcType="VARCHAR" />
+    <result column="apply_protocol_version" property="applyProtocolVersion" jdbcType="VARCHAR" />
+    <result column="apply_protocol_no" property="applyProtocolNo" jdbcType="VARCHAR" />
+    <result column="options" property="options" jdbcType="VARCHAR" />
+    <result column="buckle_fail_money" property="deductFailMoney" jdbcType="NUMERIC"/>
+    
+  </resultMap>
+  
+  <insert id="insert" parameterType="com.creditharmony.fortune.customer.entity.LoanApply" >
+    insert into tz.t_tz_loan_apply (
+      id,
+      lend_code, 
+      customer_code, 
+      apply_day, 
+      apply_deduct_day, 
+      apply_lend_day, 
+      product_code, 
+      apply_pay, 
+      dict_apply_deduct_type, 
+      apply_lend_money, 
+      apply_deduct_money, 
+      apply_agreement_edition, 
+      apply_contract_no, 
+      apply_sales_discount, 
+      apply_billday, 
+      apply_remarks, 
+      status,
+      product_rate, 
+      apply_expire_day, 
+      lend_status, 
+      dict_source_type, 
+      dict_apply_end_state, 
+      apply_transfer_money, 
+      f_apply_code, 
+      is_delivery,
+      manager_code,
+      team_manager_code,
+      store_manager_code,
+      repay_id,
+      receiving_id,
+      create_time,
+      modify_time,
+      create_by,
+      modify_by,
+      city_manager_code,
+      team_org_id,
+      store_org_id,
+      city_org_id,
+      xinhebao_type,
+      matching_backinterest_statu,
+      matching_backinterest_day,
+      apply_deduct_days, 
+      apply_protocol_version, 
+      apply_protocol_no,
+      options,
+      matching_flag
+    )
+    values (
+      #{id,jdbcType=VARCHAR}, 
+      #{applyCode,jdbcType=VARCHAR}, 
+      #{custCode,jdbcType=VARCHAR}, 
+      #{applyDate,jdbcType=DATE}, 
+      #{deductDate,jdbcType=DATE}, 
+      #{lendDate,jdbcType=DATE}, 
+      #{productCode,jdbcType=VARCHAR}, 
+      #{payType,jdbcType=VARCHAR}, 
+      #{deductTypeId,jdbcType=VARCHAR}, 
+      #{lendMoney,jdbcType=NUMERIC}, 
+      #{deductMoney,jdbcType=NUMERIC}, 
+      #{protocoEdition,jdbcType=VARCHAR}, 
+      #{contractNumber,jdbcType=VARCHAR}, 
+      #{salesDiscount,jdbcType=VARCHAR}, 
+      #{billDay,jdbcType=NUMERIC}, 
+      #{remark,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, 
+      #{productRate,jdbcType=NUMERIC}, 
+      #{expireDate,jdbcType=DATE}, 
+      #{lendStatus,jdbcType=VARCHAR}, 
+      #{sourceEdition,jdbcType=VARCHAR}, 
+      #{applyEndStatus,jdbcType=VARCHAR}, 
+      #{transferMoney,jdbcType=NUMERIC}, 
+      #{transferLendId,jdbcType=VARCHAR}, 
+      #{isDelivery,jdbcType=VARCHAR},
+      #{managerCode,jdbcType=VARCHAR},
+      #{teamManagerCode,jdbcType=VARCHAR},
+      #{storeManagerCode,jdbcType=VARCHAR},
+      #{paymentBankId,jdbcType=VARCHAR},
+      #{receiveBankId,jdbcType=VARCHAR},
+      #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyTime,jdbcType=TIMESTAMP},
+      #{createBy,jdbcType=VARCHAR}, 
+      #{modifyBy,jdbcType=VARCHAR},
+      #{cityManagerCode,jdbcType=VARCHAR},
+      #{teamOrgId,jdbcType=VARCHAR},
+      #{storeOrgId,jdbcType=VARCHAR},
+      #{cityOrgId,jdbcType=VARCHAR},
+      #{xinhebaoType,jdbcType=VARCHAR},
+      #{matchingBackinterestStatus,jdbcType=VARCHAR},
+      #{matchingBackinterestDay,jdbcType=DATE},
+      #{applyDeductDays,jdbcType=INTEGER},
+      #{applyProtocolVersion, jdbcType=VARCHAR},
+      #{applyProtocolNo, jdbcType=VARCHAR},
+      #{options, jdbcType=VARCHAR},
+      #{matchingFlag, jdbcType=VARCHAR}
+    )
+  </insert>
+  
+  <!-- 查客户出借信息 findList  -->
+  <select id="findList"   parameterType="com.creditharmony.fortune.customer.entity.LoanApply" resultMap="BaseResultMap">
+  	select a.*,	
+  	b.customer_name as customerName,b.manager_code,
+  	u.name as "managerName",team.name as "teamName",store.name as "storesName",teamUser.name as "teamManagerName"
+  	from tz.t_tz_loan_apply a 
+  	  left join  tz.t_tz_customer b on a.customer_code=b.customer_code
+  	  left join  tz.t_gl_user u on u.id=b.manager_code
+  	  left join  tz.t_gl_user teamUser on teamUser.id=b.team_manager_code
+  	  left join  tz.t_gl_org team on team.id=b.team_org_id
+  	  left join  tz.t_gl_org store on store.id=a.store_org_id
+  	where a.customer_code = #{custCode}
+ 	<if test="orderBy != null and orderBy != ''">
+    	order by #{orderBy}
+    </if>
+  </select>
+  
+  <select id="findPage" parameterType="com.creditharmony.fortune.customer.entity.LoanApply" resultMap="BaseResultMap">
+    select a.*,	b.customer_name as customerName,b.manager_code  from tz.t_tz_loan_apply a left join  tz.t_tz_customer b on a.customer_code=b.customer_code
+    <where>
+	    <if test="custCode != null and custCode != ''">
+	    	a.customer_code = #{custCode}
+	    </if>
+    </where>
+    <if test="page != null and page != ''">
+    	<if test="page.orderBy != null and page.orderBy != ''">
+	    	order by ${page.orderBy}
+	    </if>
+    </if>
+  </select>
+  
+  <select id="get" parameterType="com.creditharmony.fortune.customer.entity.LoanApply" resultMap="BaseResultMap">
+    select * from tz.t_tz_loan_apply
+    <where>
+    	1=1 
+	    <if test="id != null and id != ''">
+	    	and id = #{id}
+	    </if>
+	    <if test="applyCode != null and applyCode != ''">
+	    	and lend_code = #{applyCode,jdbcType=VARCHAR}
+	    </if>
+    </where>
+  </select>
+  
+  <select id="count" parameterType="java.lang.String" resultType="java.lang.Integer">
+  	  select count(id) from tz.t_tz_loan_apply
+  	  <where>
+  	  	  <if test="customerCode != null and customerCode != ''">
+  	  	  	  customer_code = #{customerCode}
+  	  	  </if>
+  	  </where>
+  </select>
+  <select id="getLoanApplyList" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select a.*, p.dict_back_status back_status, p.back_actualback_money actualback_money, p.back_money_type back_type
+    from tz.t_tz_loan_apply a 
+       inner join tz.t_tz_back_money_pool p on a.lend_code=p.lend_code
+    <where>
+           1 = 1
+	    <if test="customerCode != null and customerCode != ''">
+	    	and customer_code = #{customerCode}
+	    </if>
+	     and p.back_actualback_money > 0      
+    </where>
+    order by create_time
+  </select>
+  <update id="update" parameterType="com.creditharmony.fortune.customer.entity.LoanApply">
+  	  update tz.t_tz_loan_apply
+  	  set 
+  	  	  apply_day = #{applyDate,jdbcType=DATE},
+		  apply_deduct_day = #{deductDate,jdbcType=DATE}, 		
+	      apply_lend_day = #{lendDate,jdbcType=DATE}, 		
+		  product_code = #{productCode,jdbcType=VARCHAR}, 		
+		  apply_pay = #{payType,jdbcType=VARCHAR}, 		
+		  dict_apply_deduct_type = #{deductTypeId,jdbcType=VARCHAR}, 		
+		  apply_lend_money = #{lendMoney,jdbcType=NUMERIC}, 		
+		  apply_deduct_money = #{deductMoney,jdbcType=NUMERIC}, 	
+		  <if test="protocoEdition != null and protocoEdition != '' ">
+	      	  apply_agreement_edition = #{protocoEdition,jdbcType=VARCHAR}, 		
+		  </if>	
+          apply_contract_no = #{contractNumber,jdbcType=VARCHAR}, 		
+          apply_sales_discount = #{salesDiscount,jdbcType=VARCHAR}, 		
+          apply_billday = #{billDay,jdbcType=NUMERIC}, 		
+          apply_remarks = #{remark,jdbcType=VARCHAR}, 		
+          status = #{status,jdbcType=VARCHAR},
+          product_rate = #{productRate,jdbcType=NUMERIC},
+          apply_expire_day = #{expireDate,jdbcType=DATE}, 		
+          lend_status = #{lendStatus,jdbcType=VARCHAR}, 		
+          dict_source_type = #{sourceEdition,jdbcType=VARCHAR}, 		
+          dict_apply_end_state = #{applyEndStatus,jdbcType=VARCHAR}, 		
+	      apply_transfer_money = #{transferMoney,jdbcType=NUMERIC}, 		
+	      f_apply_code = #{transferLendId,jdbcType=VARCHAR}, 		
+	      is_delivery = #{isDelivery,jdbcType=VARCHAR},		
+	      manager_code = #{managerCode,jdbcType=VARCHAR},		
+	      team_manager_code = #{teamManagerCode,jdbcType=VARCHAR},		
+	      store_manager_code = #{storeManagerCode,jdbcType=VARCHAR},		
+	      repay_id = #{paymentBankId,jdbcType=VARCHAR},		
+	      receiving_id = #{receiveBankId,jdbcType=VARCHAR},		
+	      modify_time = #{modifyTime,jdbcType=TIMESTAMP},		
+	      modify_by = #{modifyBy,jdbcType=VARCHAR},
+	      city_manager_code = #{cityManagerCode,jdbcType=VARCHAR},
+	      team_org_id = #{teamOrgId,jdbcType=VARCHAR},
+	      store_org_id = #{storeOrgId,jdbcType=VARCHAR},
+	      city_org_id = #{cityOrgId,jdbcType=VARCHAR},
+	      xinhebao_type = #{xinhebaoType,jdbcType=VARCHAR},
+	      matching_backinterest_statu = #{matchingBackinterestStatus,jdbcType=VARCHAR},
+	      matching_backinterest_day = #{matchingBackinterestDay,jdbcType=DATE}
+	      <if test="lendDay!=null">,lend_day = #{lendDay,jdbcType=NUMERIC} </if>
+	      <if test="matchingFlag !=null">,matching_flag = #{matchingFlag,jdbcType=VARCHAR} </if>
+	      <if test="realDeductTime!=null">,real_deduct_time = #{realDeductTime,jdbcType=TIMESTAMP} </if>
+	      <if test="options != null and  options != ''">
+	      	  , options = #{options, jdbcType=VARCHAR}
+	      </if>
+	      <if test="failMoney != null and failMoney !='' ">,buckle_fail_money = cast(#{failMoney} as decimal(18,2)) </if>
+      <where>
+ 	  	  <if test="id != null and id != ''">
+ 	  	  	  id = #{id}
+ 	  	  </if>
+ 	  	  <if test="applyCode != null and applyCode != ''">
+ 	  	  	  and lend_code = #{applyCode}
+ 	  	  </if>
+ 	  </where>	
+  </update>
+  
+  <select id="getProduct" parameterType="java.lang.String" resultType="com.creditharmony.fortune.customer.entity.Product">
+  	  select product_code productCode,
+  	  		 product_name productName,
+  	  		 product_type_code productTypeCode,
+  	  		 product_status productStatus,
+  	  		 product_periods productPeriods,
+  	  		 old_year_profit oldYearprofit,
+  	  		 new_year_profit newYearprofit,
+  	  		 product_closedate productClosedate,
+  	  		 product_is_back productIsBack,
+  	  		 product_treaty productTreaty,
+  	  		 product_formula productFormula,
+  	  		 start_invest_amount startInvestAmount,
+  	  		 create_by createBy,
+  	  		 create_time createTime,
+  	  		 modify_by modifyBy,
+  	  		 modify_time modifyTime,
+  	  		 product_discountrate productDiscountrate
+  	  from t_gl_tz_product
+  	  where product_code=#{code}
+  </select>
+  
+  <select id="getLoanApplyByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select a.*,p.dict_back_status back_status,p.back_actualback_money actualback_money,p.back_money_type back_type,
+           p1.actual_deduct_money actual_deduct_money,c.customer_name
+    from   
+              tz.t_tz_loan_apply a 
+	left join tz.t_tz_back_money_pool p on a.lend_code=p.lend_code
+	left join tz.t_tz_deduct_pool p1 on p1.lend_code=a.lend_code
+	left join tz.t_tz_customer c on a.customer_code = c.customer_code
+    <where>
+	    <if test="lendCode != null and lendCode != ''">
+	    	a.lend_code = #{lendCode}
+	    </if>
+    </where>
+    order by create_time
+  </select>
+  
+  <select id="getProductRate" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    select p1.product_code product_code,
+           p1.old_year_profit oldYearprofit,
+           p1.new_year_profit newYearprofit,
+           p2.product_rate real_product_rate
+    
+    from tz.t_gl_tz_product p1 
+       left join tz.t_gl_product_profit p2 on p1.product_code=p2.product_code
+    <where>
+        p2.status='1'
+	    <if test="productCode != null and productCode != ''">
+	    	and p1.product_code = #{productCode}
+	    </if>
+	    <if test="lendDay != null and lendDay != ''">
+	    	and p2.start_day <![CDATA[<=]]> #{lendDay} and p2.close_day <![CDATA[>=]]> #{lendDay}
+	    </if>
+	    <if test="lendMoney != null and lendMoney != ''">
+	    	and p2.product_money_lowe <![CDATA[<=]]> #{lendMoney} and p2.product_money_upper <![CDATA[>=]]> #{lendMoney}
+	    </if>
+    </where>
+    order by p2.create_time desc
+  </select>
+  
+  <select id="getProductDiscountRate" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    select p1.product_code product_code,
+           p1.product_discountrate discountrate,
+           p2.product_discountrate real_discountrate
+    
+    from tz.t_gl_tz_product p1 
+       left join tz.t_gl_product_discountrate p2 on p1.product_code=p2.product_code
+    <where>
+	    <if test="productCode != null and productCode != ''">
+	    	p1.product_code = #{productCode}
+	    </if>
+	    <if test="lendDay != null and lendDay != ''">
+	    	and p2.start_day <![CDATA[<=]]> #{lendDay} and p2.close_day <![CDATA[>=]]> #{lendDay}
+	    </if>
+    </where>
+  </select>
+  
+	<select id="loadAllLendApply" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select * from tz.t_tz_loan_apply
+		<where>
+		    <if test="customerCode != null and customerCode != ''">
+		    	customer_code = #{customerCode}
+		    </if>
+	    </where>
+	    order by substr(lend_code,3) desc
+	</select>
+	
+	<select id="getLastestLend" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select * from tz.t_tz_loan_apply
+		<where>
+		    <if test="customerCode != null and customerCode != ''">
+		    	customer_code = #{customerCode}
+		    </if>
+	    </where>
+	    order by substr(lend_code,3) desc
+	    limit 1;
+	</select>
+	
+  <update id="updateLendStatus" parameterType="com.creditharmony.fortune.customer.entity.LoanApply">
+  	  update tz.t_tz_loan_apply
+  	  set 
+  	  	  lend_status = #{lendStatus,jdbcType=DATE}
+      <where>
+      		lend_code = #{applyCode}
+ 	  </where>	
+  </update>
+  
+  <delete id="deleteLendApply" parameterType="java.lang.String">
+  	  delete tz.t_tz_loan_apply
+  	  <where>
+  	  	  <if test="lendCode != null and lendCode != ''">
+ 	  	  	  lend_code = #{lendCode}
+ 	  	  </if>
+  	  </where>
+  </delete>
+  
+  <select id="getProductVersion" parameterType="java.lang.String" resultType="java.lang.String">
+  	select product_treaty from tz.t_gl_tz_product
+  	where product_code = #{0}
+  </select>
+  
+  <!-- 更新出借申请对应的 出、入账户的id -->
+  <update id="updateApplyInOutAccountId"  parameterType="java.util.Map">
+  		update tz.t_tz_loan_apply 
+  			set repay_id = #{accountId},
+    			 receiving_id = #{accountId}
+		where lend_code = #{applyCode}
+  </update>
+  
+   <!-- 获取合同编码 -->
+  <select id="getContractCode" parameterType="java.lang.String" resultType="java.lang.String">
+	  SELECT '88'||lpad(nextval('contract_seq')::text,8,'0')||'88'
+  </select>
+  
+    <!-- 更新合同编号 -->
+  <update id="updateContractCode"  parameterType="com.creditharmony.fortune.customer.entity.LoanApply">
+  		update tz.t_tz_loan_apply 
+  			set apply_contract_no = #{contractNumber}
+		where lend_code = #{applyCode}
+  </update>
+  <update id="updateLendCode">
+  	   update tz.t_tz_loan_apply set lend_code=#{newLendCode} where lend_code=#{oldLendCode}
+  </update>
+  <!-- 获取该笔出借已内转的金额 -->
+  <select id="getSurplusAmount" parameterType="java.lang.String" resultType="BigDecimal">
+	  SELECT coalesce(sum(transfer_money),0)
+	  FROM t_tz_transfer_relation
+	  WHERE lend_code_parent = #{lendCodeParent} and transfer_state='2'
+  </select>
+  
+   <!-- 增加优先回款记录 -->
+  	<insert id="addPriorityAlone" parameterType="com.creditharmony.fortune.look.apply.view.PriorityResultView">
+  		INSERT  INTO 
+			tz.t_tz_priority_back_pool(
+				priority_id,
+				lend_code,
+				apply_by,
+				create_by,
+				priority_back_state,
+				manager_code) 
+			values(
+				#{priorityId},
+				#{lendCode},
+				#{applyBy},
+				#{createBy},
+				#{priorityBackState},
+				#{managerCode}				
+			)
+  	</insert>
+  	
+  	<update id="updatePriority" parameterType="com.creditharmony.fortune.look.apply.view.PriorityResultView">
+  		UPDATE  tz.t_tz_priority_back_pool  SET priority_back_state=#{priorityBackState} WHERE  priority_id =#{priorityId};
+  	</update>
+  	
+  	<!-- 更新附件 -->
+  	<update id="updateFile"  parameterType="java.util.HashMap">
+		 UPDATE tz.t_tz_attachment  SET
+	        atta_file_owner = #{atta_file_owner,jdbcType=VARCHAR},
+	        atta_table_id = #{atta_table_id,jdbcType=VARCHAR},
+	        loan_code = #{loan_code,jdbcType=VARCHAR}
+	    WHERE 
+			atta_id in 
+			<foreach collection="IdList" item="id" index="index" open="(" separator="," close=")">
+        		 #{id}
+      		</foreach>		
+  	</update>
+  	
+  	<delete id="deleteFile" parameterType="java.util.HashMap">
+  		DELETE FROM tz.t_tz_attachment 
+  		<where> 
+	  		<if test="priorityId != null and priorityId !='' ">
+	 	 		atta_table_id  = #{priorityId, jdbcType=VARCHAR}
+	  		</if>
+	  		<if test="lendCode != null and lendCode !='' ">
+	 	 		AND loan_code=  #{lendCode, jdbcType=VARCHAR}
+	  		</if>
+	  		<if test="attaFileOwner != null and attaFileOwner !='' ">
+	 	 		AND atta_file_owner = #{attaFileOwner, jdbcType=VARCHAR}
+	  		</if>
+	  		<if test="ddeleteIdList != null and ddeleteIdList !='' ">
+	  			AND atta_id in 
+				<foreach collection="ddeleteIdList" item="id" index="index" open="(" separator="," close=")">
+	        		 #{id}
+	      		</foreach>	
+	  		</if>
+  		</where>
+  	</delete>
+</mapper>

@@ -1,0 +1,798 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.interest.common.dao.BackInterestCommonDao">
+
+
+	<sql id="loadBackInterest">
+		FROM t_tz_back_interest_pool pool
+			JOIN t_tz_loan_apply apply ON apply.lend_code = pool.lend_code
+			JOIN t_tz_customer cust ON cust.customer_code = apply.customer_code
+			JOIN t_tz_customer_account acco ON acco.id = apply.receiving_id
+			LEFT JOIN (SELECT id, name as org_name FROM t_gl_org) org ON apply.store_org_id = org.id
+			LEFT JOIN (SELECT area_code, area_name as jProvince FROM t_tz_fy_area_code) fyProv ON fyProv.area_code = acco.account_addrprovince
+  			LEFT JOIN (SELECT area_code, area_name as jCity FROM t_tz_fy_area_code) fyCity ON fyCity.area_code = acco.account_addrcity	
+			LEFT JOIN (SELECT area_code,area_name as province FROM t_gl_province_city) prov ON prov.area_code = acco.account_addrprovince
+			LEFT JOIN (SELECT area_code,area_name as city FROM t_gl_province_city) city ON city.area_code = acco.account_addrcity
+			<if test="backState != null and backState !='' and backType !=null and backType != ''">
+				LEFT JOIN tz.t_tz_back_money_pool  moneypool ON pool.lend_code=moneypool.lend_code 
+			</if>
+		<where>
+			pool.back_money_status in
+			<foreach collection="status" item="item" open="(" close=")"
+				separator=",">
+				#{item}
+			</foreach>
+			<!-- gaoxu  2017-3-25 12:52:28   区别到期回息待回息申请  待回息申请确认 -->
+			<if test="notinterestReturn != null and notinterestReturn != ''">
+			AND pool.interest_return is null
+			</if>
+			<if test="so.customerCode != null  and so.customerCode != ''">
+				<if test="custCode != null">
+					AND
+					<foreach collection="custCode" item="item" open="(" close=")"
+						separator="OR">
+						cust.customer_code LIKE '%${item}%'
+					</foreach>
+				</if>
+			</if>
+			<if test="so.customerName != null and so.customerName != ''">
+				<if test="custName != null">
+					AND
+					<foreach collection="custName" item="item" open="(" close=")"
+						separator="OR">
+						cust.customer_name like '%${item}%'
+					</foreach>
+				</if>
+			</if>
+			<if test="so.lendCode != null and so.lendCode != ''">
+				<if test="lenCode != null">
+					AND
+					<foreach collection="lenCode" item="item" open="(" close=")"
+						separator="OR">
+						pool.lend_code like '%${item}%'
+					</foreach>
+				</if>
+			</if>
+			<if test="so.backiId != null and so.backiId != '' ">
+				AND pool.backi_id in
+					<foreach collection="codes" item="item" open="(" close=")"
+						index="index" separator=",">
+						#{item}
+					</foreach>		
+			</if>
+			<if test="so.orgId != null and so.orgId != ''">
+				<if test="orgId != null">
+					AND apply.store_org_id in
+					<foreach collection="orgId" item="item" open="(" close=")"
+						index="index" separator=",">
+						#{item}
+					</foreach>
+				</if>
+			</if>
+			<if test="so.addrCity != null and so.addrCity != ''">
+				AND	acco.account_addrprovince||'_'||acco.account_addrcity SIMILAR TO #{so.addrCity}
+			</if>
+			<if test="so.applyLendDayFrom != null and so.applyLendDayFrom != ''">
+				AND apply.apply_lend_day &gt;= #{so.applyLendDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.applyLendDayTo != null and so.applyLendDayTo != ''">
+				AND apply.apply_lend_day &lt;= #{so.applyLendDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.currentBillday != null and so.currentBillday !=''">
+				AND pool.current_billday = #{so.currentBillday,jdbcType=DATE}
+			</if>
+			<if test="so.matchingExpireDayFrom != null and so.matchingExpireDayFrom != ''">
+				AND pool.matching_expire_day &gt;= #{so.matchingExpireDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.matchingExpireDayTo != null and so.matchingExpireDayTo != ''">
+				AND pool.matching_expire_day &lt;= #{so.matchingExpireDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.applyExpireDayFrom != null and so.applyExpireDayFrom != ''">
+				AND pool.matching_expire_day &gt;= #{so.applyExpireDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.applyExpireDayTo != null and so.applyExpireDayTo != ''">
+				AND pool.matching_expire_day &lt;= #{so.applyExpireDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.applyDeductDayFrom != null and so.applyDeductDayFrom != ''">
+				AND apply.apply_deduct_day &gt;= #{so.applyDeductDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.applyDeductDayTo != null and so.applyDeductDayTo != ''">
+				AND apply.apply_deduct_day &lt;= #{so.applyDeductDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.applyLendMoneyFrom != null and so.applyLendMoneyFrom != ''">
+				AND apply.apply_lend_money &gt;= #{so.applyLendMoneyFrom,jdbcType=NUMERIC}
+			</if>
+			<if test="so.applyLendMoneyTo != null and so.applyLendMoneyTo != ''">
+				AND apply.apply_lend_money &lt;= #{so.applyLendMoneyTo,jdbcType=NUMERIC}
+			</if>
+			<if test="so.backMoneyDayFrom != null and so.backMoneyDayFrom != ''">
+				AND pool.back_money_day &gt;= #{so.backMoneyDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.backMoneyDayTo != null and so.backMoneyDayTo != ''">
+				AND pool.back_money_day &lt;= #{so.backMoneyDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.backDayFrom != null and so.backDayFrom != ''">
+				AND pool.back_day &gt;= #{so.backDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.backDayTo != null and so.backDayTo != ''">
+				AND pool.back_day &lt;= #{so.backDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.applyPay != null and so.applyPay != ''">
+					AND apply.apply_pay in
+					<foreach collection="pay" item="item" open="(" close=")"
+						index="index" separator=",">
+						#{item}
+					</foreach>
+			</if>
+			<if test="so.dictValue != null and so.dictValue != ''">
+					AND acco.account_card_or_booklet in
+					<foreach collection="cardOrBooklet" item="item" open="("
+						close=")" index="index" separator=",">
+						#{item}
+					</foreach>
+			</if>
+			<if test="so.platformCode != null and so.platformCode != ''">
+				AND pool.platform_id in
+				<foreach collection="plat" item="item" open="(" close=")"
+					index="index" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.productCode != null and so.productCode != ''">
+				AND apply.product_code in
+				<foreach collection="prod" item="item" open="(" close=")"
+					index="index" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.trusteeshipFlag != null or so.trusteeshipFlag !=''">
+				<if test="payType != null">
+					AND apply.apply_pay in
+					<foreach collection="payType" item="item" open="(" close=")"
+						index="index" separator=",">
+						#{item}
+					</foreach>
+				</if>
+			</if>
+			<if test="so.accountBank != null and so.accountBank != ''">
+				AND acco.account_bank in
+				<foreach collection="accBank" item="item" open="(" close=")"
+					index="index" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.platFlag != null and so.platFlag !=''">
+				AND pool.plat_flag in
+				<foreach collection="platFlag" item="item" open="(" close=")"
+					index="index" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.applyAgreementEdition != null and so.applyAgreementEdition !=''">
+				AND apply.apply_agreement_edition in
+				<foreach collection="edition" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.backResult != null and so.backResult != ''">
+				AND pool.back_result in
+				<foreach collection="result" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			
+			</if>
+			<if test="so.matchingFlag != null and so.matchingFlag != ''">
+				AND acco.find_flag = #{so.matchingFlag, jdbcType= VARCHAR}			
+			</if>
+			<if test="backState != null and backState !='' and backType !=null and backType != ''">
+				AND moneypool.dict_back_status = #{backState} 
+				AND  moneypool.back_money_type=#{backType}
+			</if>
+		</where>
+		ORDER BY pool.reback_flag asc
+	</sql>
+
+	<!-- 回息列表初始化 -->
+	<select id="loadListAndFind" parameterType="java.util.Map"
+		resultType="com.creditharmony.fortune.back.interest.view.BackInterestListView">
+		SELECT
+			pool.backi_id,
+			pool.lend_code,
+			cust.customer_code,
+			cust.customer_name,
+			org.org_name,
+			ROUND(apply.apply_lend_money, 2) as apply_lend_money,
+			apply.apply_agreement_edition,
+			apply.product_code,
+			apply.apply_lend_day,
+			apply.apply_pay,
+			acco.account_bank,
+			acco.account_no,
+			pool.current_billday,
+			ROUND(pool.back_money, 2) as back_money,
+			ROUND(pool.back_real_money,2) as back_real_money,
+			pool.matching_expire_day,
+			pool.platform_id,
+			pool.back_money_day,
+			pool.return_reason,
+			acco.account_card_or_booklet,
+			pool.back_money_status,
+			prov.province,
+			city.city,
+			fyProv.jProvince,
+			fyCity.jCity,
+			pool.back_result,
+			pool.back_reason,
+			pool.back_day,
+			pool.reback_flag,
+			ROUND(pool.success_money, 2) as success_money,
+			ROUND(pool.fail_money, 2) as fail_money
+		<include refid="loadBackInterest"></include>
+
+	</select>
+
+	<!-- 初始化下拉出借产品下拉框 -->
+	<select id="findProductSelect" parameterType="java.util.Map"
+		resultType="com.creditharmony.fortune.customer.entity.Product">
+		SELECT
+			product_code,
+			product_name,
+			product_is_back
+		FROM
+		t_gl_tz_product
+		<where>
+			product_is_back= #{backIn,jdbcType=VARCHAR}
+		</where>
+	</select>
+
+	<!-- 查看历史留痕 -->
+	<select id="toHistory" parameterType="java.lang.String"
+		resultType="com.creditharmony.fortune.back.interest.entity.HistoryFull">
+		select
+			id,
+			operator,
+			operate_info,
+			operate_time,
+			operate_type
+		FROM t_tz_check
+		<where>
+			lend_code = #{code}
+		</where>
+		ORDER BY operate_time DESC
+	</select>
+
+	<!-- 根据条件获取出借编号 -->
+	<select id="getLendCodes" parameterType="java.util.Map"
+		resultType="java.lang.String">
+		SELECT
+		pool.lend_code
+		<include refid="loadBackInterest"></include>
+	</select>
+
+	<!-- 添加批量审批信息 -->
+	<insert id="addApprovalMesg"
+		parameterType="com.creditharmony.fortune.back.interest.entity.BackInterestLog">
+		INSERT INTO
+		t_tz_back_interest_log
+
+		(id, backi_id, dict_backi_status, check_examinetype, 
+			check_examine, check_by_id, check_time, apply_by, 
+			apply_time, create_by, create_time, modify_by, modify_time
+		) VALUES (
+			#{id}, #{backiId}, #{dictBackiStatus}, #{checkExaminetype}, #{checkExamine},
+			#{checkById}, #{checkTime}, #{applyBy}, #{applyTime}, #{createBy},
+			#{createTime},
+			#{modifyBy}, #{modifyTime}
+		)
+	</insert>
+
+	<!-- 添加新的审批信息 -->
+	<insert id="updateApprovalMsg"
+		parameterType="com.creditharmony.fortune.back.interest.entity.BackInterestLog">
+		INSERT INTO
+			t_tz_back_interest_log
+				(id,backi_id,dict_backi_status,check_examinetype,check_examine,check_by_id,
+					check_time,apply_by,apply_time,create_by,create_time,modify_by,modify_time
+				) VALUES (
+					#{id},#{backiId},#{dictBackiStatus},#{checkExaminetype},#{checkExamine},
+					#{checkById},#{checkTime},#{applyBy},#{applyTime},#{createBy},#{createTime},
+					#{modifyBy},#{modifyTime}
+				)
+	</insert>
+
+	<!-- 根据回息ID获取出借编号 -->
+	<select id="getLendCode" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+			pool.lend_code
+		FROM
+			t_tz_back_interest_pool pool
+		WHERE
+			pool.backi_id = #{backiId}
+	</select>
+
+	<!-- 初始化第三方平台以及中间人信息 -->
+	<select id="searchThirdPlat" resultType="com.creditharmony.fortune.back.interest.entity.PlatformMsg">
+		SELECT * FROM t_tz_platform ORDER BY id
+	</select>
+
+	<!-- 累计实际回息金额 -->
+	<select id="selectSumMoney" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+		SELECT
+			COALESCE(SUM(ROUND(back_real_money,2)))
+		FROM
+			t_tz_back_interest_pool
+
+		<where>
+			<if test="so.backiId !=null and so.backiId !=''">
+				backi_id IN
+				<foreach collection="str" item="co" index="index" open="("
+					separator="," close=")">
+					#{co}
+				</foreach>
+			</if>
+			<if test="so.backiId ==null or so.backiId ==''">
+				backi_id IN
+				(
+					select
+						pool.backi_id
+					<include refid="loadBackInterest"></include>
+				)
+			</if>
+		</where>
+	</select>
+	
+	<!-- 获取出借信息 -->
+	<select id="getLoanApplyMesg" parameterType="java.lang.String"
+		resultType="com.creditharmony.fortune.customer.entity.LoanApply">
+		SELECT
+			apply.dict_apply_end_state AS apply_end_status,
+			apply.apply_expire_day AS expire_date,
+			apply.matching_backinterest_statu,
+ 			apply.matching_backinterest_day,
+			apply.lend_code AS apply_code,
+			apply.product_code,
+			apply.dict_apply_end_state AS apply_end_status
+		FROM
+			t_tz_loan_apply apply
+		<where>
+			apply.lend_code = #{lendCode}
+		</where>
+	</select>
+
+	<!-- 更新出借信息中的完结状态 -->
+	<update id="updateLoanApplyMesg" parameterType="com.creditharmony.fortune.customer.entity.LoanApply">
+		UPDATE
+			t_tz_loan_apply
+		SET
+			<if test="applyEndStatus != null and applyEndStatus != ''">
+				dict_apply_end_state = #{applyEndStatus},
+			</if>
+			<if test="matchingBackinterestStatus != null and matchingBackinterestStatus !=''">
+				matching_backinterest_statu = #{matchingBackinterestStatus},
+			</if>
+			<if test="matchingBackinterestDay != null and matchingBackinterestDay != ''">
+  				matching_backinterest_day = #{matchingBackinterestDay},
+			</if>
+			modify_time = #{modifyTime},
+  			modify_by = #{modifyBy}
+		<where>
+			lend_code = #{applyCode}
+		</where>
+	</update>
+
+	<!-- 获取客户信息 -->
+	<select id="getCustomerMesg" parameterType="java.lang.String" resultType="com.creditharmony.fortune.back.interest.entity.TelphoneMessage">
+		SELECT
+			pool.backi_id,
+			cust.customer_name,
+			cust.customer_mobilephone,
+			ROUND(pool.back_real_money,2) as back_real_money,
+			prod.product_name,
+			apply.product_code,
+			apply.apply_lend_day
+		FROM
+			t_tz_back_interest_pool pool
+			LEFT JOIN t_tz_loan_apply apply ON apply.lend_code = pool.lend_code
+			LEFT JOIN t_tz_customer cust ON cust.customer_code = apply.customer_code
+			LEFT JOIN t_gl_tz_product prod ON apply.product_code = prod.product_code
+		<where>
+			pool.backi_id = #{backiId}
+		</where>
+	</select>
+
+	<!-- 根据ID获取回息信息 -->
+	<select id="getBackInterestMesgById" parameterType="java.lang.String"
+		resultType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		SELECT
+			back_result,
+			lend_code,
+			back_real_money,
+			extract(epoch from modify_time) as ver_time
+		FROM
+			t_tz_back_interest_pool
+		<where>
+			backi_id = #{str}
+		</where>
+
+	</select>
+
+	<!-- 获取短信内容，根据ID -->
+	<select id="getMessage" parameterType="java.lang.String"
+		resultType="com.creditharmony.fortune.back.interest.entity.SendMessageEntity">
+		SELECT
+			apply.lend_code,
+			cust.customer_code,
+			cust.customer_name,
+			prod.product_name,
+			cust.customer_mobilephone,
+			cust.manager_code,
+			apply.apply_deduct_day,
+			apply.apply_billday,
+			ROUND(apply.apply_lend_money,2) as apply_lend_money,
+			apply.apply_lend_day,
+			apply.apply_expire_day,
+			pool.back_money_day,
+			apply.apply_pay,
+			acco.account_no,
+			acco.account_bank,
+			org.name as org_name,
+			apply.product_code,
+			use.name as manager_name,
+			org.code as org_code,
+			deduct.dict_apply_deduct_type as platform_id,
+			deduct.fail_money as deduct_fail_money,
+			fyCity.jCity as fy_city,
+			city.city as city,
+			prod.product_closedate
+			
+		FROM t_tz_back_interest_pool pool
+		LEFT JOIN t_tz_loan_apply apply ON apply.lend_code = pool.lend_code
+		LEFT JOIN t_tz_customer cust ON cust.customer_code = apply.customer_code
+		LEFT JOIN t_tz_customer_account acco ON acco.id = apply.receiving_id
+		LEFT JOIN t_gl_tz_product prod ON prod.product_code = apply.product_code
+		LEFT JOIN t_gl_org org ON org.id = apply.store_org_id
+		LEFT JOIN t_tz_deduct_pool deduct ON deduct.lend_code = apply.lend_code
+		LEFT JOIN t_gl_user use ON use.id = cust.manager_code
+ 		LEFT JOIN (SELECT area_code, area_name as jCity FROM t_tz_fy_area_code) fyCity ON fyCity.area_code = acco.account_addrcity	
+		LEFT JOIN (SELECT area_code,area_name as city FROM t_gl_province_city) city ON city.area_code = acco.account_addrcity	
+		
+		<where>
+			pool.backi_id = #{backiId}
+		</where>
+	</select>
+	
+	<!-- 获取回息平台标识 -->
+	<select id="getPlatFlag" parameterType="java.util.Map" resultType="java.lang.String">
+		SELECT
+			pool.platform_id
+		FROM t_tz_back_interest_pool pool
+		<where>
+				pool.back_money_status = #{state_f}
+			AND
+				pool.customer_code = (select customer_code FROM t_tz_back_interest_pool where backi_id
+				= #{backiId})
+			AND
+				pool.backi_id != #{backiId}
+		</where>
+		ORDER BY back_money_day DESC LIMIT 1
+	</select>
+
+	<!-- 获取回息批量操作的信息,此处切记要保证在更新语句中不涉及到以下字段的更新，否则请使用其他获取信息的方法及SQL -->
+	<select id="findBackiIdAndLendCode" parameterType="java.util.Map"
+		resultType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		SELECT
+			pool.backi_id,
+			pool.lend_code,
+			apply.product_code,
+			apply.apply_expire_day,
+			pool.matching_expire_day,
+			pool.reback_flag as sms_status,
+			extract(epoch from pool.modify_time) as ver_time,
+			apply.apply_pay
+			
+		
+		FROM t_tz_back_interest_pool pool
+		LEFT JOIN t_tz_loan_apply apply ON apply.lend_code = pool.lend_code
+		<where>
+			<if test="so.backiId != null and so.backiId !=''">
+				pool.backi_id IN
+				<foreach collection="codes" item="item" open="(" separator=","
+					close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.backiId == null or so.backiId == ''">
+				pool.backi_id IN
+				(
+				SELECT
+				pool.backi_id
+				<include refid="loadBackInterest"></include>
+				)
+			</if>
+			AND (pool.back_result is null OR pool.back_result !=
+			#{process,jdbcType=VARCHAR})
+		</where>
+	</select>
+
+	<!-- 提交数据 -->
+	<update id="submit" parameterType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		UPDATE
+			t_tz_back_interest_pool
+		<set>
+			<if test="backMoneyStatus != null and backMoneyStatus != ''">
+				back_money_status = #{backMoneyStatus},
+			</if>
+			<if test="backRealMoney != null and backRealMoney != ''">
+				back_real_money = #{backRealMoney},
+			</if>
+			<if test="backMoneyDay != null and backMoneyDay != ''">
+				back_money_day = #{backMoneyDay},
+			</if>
+			<if test="platformId != null and platformId != ''">
+				platform_id = #{platformId},
+			</if>
+			<if test="backBank != null and backBank !=''">
+				back_bank = #{backBank},
+			</if>
+			<if test="backDay != null and backDay != ''">
+				back_day = #{backDay},
+			</if>
+			<if test="rebackFlag != null and rebackFlag != ''">
+				reback_flag = #{rebackFlag},
+			</if>
+			<if test="successMoney != null and successMoney != ''">
+				success_money = #{successMoney},
+			</if>
+			<if test="failMoney != null and failMoney != ''">
+				fail_money = #{failMoney},
+			</if>
+			<if test="platFlag != null and platFlag != ''">
+				plat_flag = #{platFlag},
+			</if>
+				back_result = #{backResult},
+				return_reason = #{returnReason},
+				back_reason = #{backReason},
+				modify_by = #{modifyBy},
+				modify_time = #{modifyTime}
+		</set>
+		<where>
+			backi_id = #{backiId} 
+			AND extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+			AND back_money_status IN
+	 		<foreach collection="verState" item="item" open="(" close=")" separator=",">
+	 			#{item}
+	 		</foreach>
+		</where>
+	</update>
+
+	<!-- 进入回息详情页 -->
+	<select id="findMesgByCode" parameterType="java.lang.String"
+		resultType="com.creditharmony.fortune.back.interest.entity.DetailsPage">
+		SELECT
+			pool.backi_id,
+			pool.matching_expire_day,
+			apply.lend_code,
+			cust.customer_name,
+			cust.customer_code,
+			org.name as org_name,
+			ROUND(pool.back_money,2) as back_money,
+			ROUND(pool.back_real_money,2) as back_real_money,
+			pool.current_billday,
+			apply.apply_lend_day,
+			ROUND(apply.apply_lend_money,2) as apply_lend_money,
+			pool.back_money_day,
+			pool.back_result,
+			pool.back_money_status as ver_state,
+			pool.reback_flag as sms_status,
+			apply.apply_pay,
+			extract(epoch from pool.modify_time) as ver_time
+
+		FROM
+			t_tz_back_interest_pool pool
+			JOIN t_tz_loan_apply apply ON apply.lend_code = pool.lend_code
+			JOIN t_tz_customer cust ON apply.customer_code = cust.customer_code
+			LEFT JOIN t_gl_org org ON apply.store_org_id = org.id
+		<where>
+			pool.backi_id = #{backiId}
+		</where>
+	</select>
+	
+	<!-- 上传回盘结果 -->
+	<update id="uploadResult" parameterType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		UPDATE 
+			t_tz_back_interest_pool
+		<set>
+			<if test="backMoneyStatus != null and backMoneyStatus !=''">
+				back_money_status = #{backMoneyStatus},
+			</if>
+			<if test="platformId != null and platformId != ''">
+				platform_id = #{platformId},
+			</if>
+	        back_result = #{backResult},
+	        back_reason = #{backReason},
+	        back_day = #{backDay},
+	        <if test="backMoneyDay != null and backMoneyDay != ''">
+	        	back_money_day = #{backMoneyDay},
+	        </if>
+	        success_money = back_real_money - #{failMoney},
+	        fail_money = #{failMoney},
+	        modify_by = #{modifyBy},
+ 			modify_time = #{modifyTime}
+ 			
+	    </set>
+     	<where>
+	     	backi_id = #{backiId}
+     	</where>
+	</update>
+	
+	<!-- 线上接收回息结果 -->
+	<update id="updateBackResult" parameterType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		UPDATE 
+			t_tz_back_interest_pool
+		<set>
+	        back_result = #{backResult},
+	        back_reason = #{backReason},
+	        back_day = #{backDay},
+	        fail_money = #{failMoney},
+	        success_money = back_real_money - #{failMoney},
+	        modify_by = #{modifyBy},
+ 			modify_time = #{modifyTime}
+	    </set>
+     	<where>
+	     	backi_id = #{backiId}
+     	</where>
+	</update>
+	
+	<!-- 更新前调用，进行排他 -->
+	<select id="forUpdate" parameterType="com.creditharmony.fortune.back.interest.entity.BackInterestPool" resultType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		SELECT *
+			FROM t_tz_back_interest_pool
+		WHERE
+			backi_id = #{backiId}
+			and extract(epoch from modify_time)  = cast ( COALESCE(#{verTime},'0') as numeric)
+	 		AND back_money_status IN
+	 		<foreach collection="verState" item="item" open="(" close=")" separator=",">
+	 			#{item}
+	 		</foreach>
+	 		FOR UPDATE
+	</select>
+	
+	<!-- 回息确认列表查找回盘结果为处理中的数据量 -->
+	<select id="findBackResult" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT 
+			count(pool.backi_id)
+		FROM t_tz_back_interest_pool pool
+		<where>
+		pool.back_result = #{processing,jdbcType=VARCHAR}
+			<if test="so.backiId != null and so.backiId != ''">
+				AND pool.backi_id in
+				<foreach collection="codes" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>		
+			<if test="so.backiId == null or so.backiId == ''">
+				AND pool.backi_id in
+				(
+					SELECT pool.backi_id 
+					<include refid="loadBackInterest"></include>
+				)
+				
+			</if>
+		</where>
+	</select>
+	
+	<!-- 获取回款信息 -->
+	<select id="getBackMoneyMesg" parameterType="java.lang.String" resultType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		SELECT
+			*
+		FROM
+			t_tz_back_money_pool
+		<where>
+			lend_code = #{lendCode}
+		</where>
+	</select>
+	
+	<select id="uploadForUpdate" parameterType="com.creditharmony.fortune.back.interest.entity.BackInterestPool" resultType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		SELECT *
+			FROM t_tz_back_interest_pool
+		WHERE
+			backi_id = #{backiId}
+	 		AND back_money_status IN
+	 		<foreach collection="verState" item="item" open="(" close=")" separator=",">
+	 			#{item}
+	 		</foreach>
+	 		FOR UPDATE
+	</select>
+	
+	<!-- 发送短信 -->
+	<insert id="sendMessage" parameterType="com.creditharmony.fortune.back.interest.entity.SendMessageEntity">
+		INSERT INTO t_gl_sms_send_list
+		(
+			id, lend_code, customer_code, customer_name, product_name,
+			customer_phone, manager_code, deduct_date, bill_day, lend_money,
+			lend_day, due_day, back_money_day, dict_repay_type, dict_deduct_status,
+			bank_no, bank_name, sms_id, sms_msg, send_status, send_day,
+			push_day, area_name, org_name, dict_back_status, product_close_term,
+			dict_remind_type, apply_day, only_flag, create_by, create_time, 
+			modify_by, modify_time, product_code, manager_name, org_code,
+			bank_id, fail_reason, deduct_succeed_money, deduct_fail_money, platform_id
+		
+		) VALUES (
+			#{id},#{lendCode},#{customerCode},#{customerName},#{productName},
+			#{customerMobilephone},#{managerCode},#{applyDeductDay},#{applyBillday},#{applyLendMoney},
+			#{applyLendDay},#{applyExpireDay},#{backMoneyDay},#{applyPay},#{dictDeductStatus},
+			#{accountNo},#{accountBankName},#{smsId},#{smsMsg},#{sendStatus},#{sendDay},
+			#{pushDay},#{city},#{orgName},#{dictBackStatus},#{productClosedate},
+			#{dictRemindType},#{applyDay},#{onlyFlag},#{createBy},#{createTime},
+			#{modifyBy},#{modifyTime},#{productCode},#{managerName},#{orgCode},
+			#{accountBank},#{failReason},#{deductSucceedMoney},#{deductFailMoney},#{platformId}
+		
+		)
+	</insert>
+	
+	<!-- 查找所需回息对象信息 -->
+	<select id="getBackInterestObject" parameterType="com.creditharmony.fortune.back.interest.entity.BackInterestPool" resultType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		SELECT
+			backi_id,
+			back_real_money,
+			extract(epoch from modify_time) as ver_time
+		FROM
+			t_tz_back_interest_pool
+		<where>
+			lend_code = #{lendCode}
+			AND
+			current_billday = #{currentBillday}
+		</where>
+	</select>
+	
+	<!-- 查询存在提前赎回，且已回款完成的数据的出借编号 -->
+	<select id="searchAheadBackids" resultType="java.lang.String">
+		SELECT 
+			inpool.lend_code 
+		FROM
+			t_tz_back_interest_pool  inpool 
+		LEFT JOIN  t_tz_back_money_pool  pool  ON  inpool.lend_code=pool.lend_code
+		WHERE  
+			pool.dict_back_status=#{backState} 
+			and  pool.back_money_type=#{backType}
+			and  inpool.back_money_status in 
+			<foreach collection="status" item="item" open="(" close=")" separator=",">
+	 			#{item}
+	 		</foreach>
+			and inpool.backi_id in 
+			<foreach collection="codes" item="item" open="(" close=")" separator=",">
+	 			#{item}
+	 		</foreach>
+	</select>
+	
+	<!-- 查询存在提前赎回，且已回款完成的数据的出借编号 -->
+	<select id="searchAheadBackidsFrom" resultType="java.lang.String">
+		SELECT 
+			pool.lend_code 
+		<include refid="loadBackInterest"></include>
+	</select>
+	
+	<!-- 获取最大回款日期 -->
+	<select id="getMaxBackMoneyDay" resultType="java.util.Date">
+		SELECT
+			max(back_money_day)
+		FROM  (
+			SELECT
+				pool.back_money_day
+			<include refid="loadBackInterest"></include>
+		)
+	</select>
+	
+	<!-- 获取数据不同回款日期的天数 -->
+	<select id="getDiffBackMoneyDays" resultType="int">
+		SELECT count(1) 
+		FROM (SELECT
+			distinct back_money_day
+				FROM (
+					SELECT
+						pool.back_money_day
+						<include refid="loadBackInterest"></include>
+					)
+		)
+	</select>
+</mapper>

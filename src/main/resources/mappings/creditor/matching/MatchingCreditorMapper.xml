@@ -1,0 +1,1611 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.MatchingCreditorDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" >
+    <id column="matching_id" property="matchingId" jdbcType="VARCHAR" />
+    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+    <result column="product_code" property="productCode" jdbcType="VARCHAR" />
+    <result column="matching_firstday_flag" property="matchingFirstdayFlag" jdbcType="VARCHAR" />
+    <result column="matching_interest_start" property="matchingInterestStart" jdbcType="TIMESTAMP" />
+    <result column="matching_bill_day" property="matchingBillDay" jdbcType="INTEGER" />
+    <result column="matching_borrow_quota" property="matchingBorrowQuota" jdbcType="NUMERIC" />
+    <result column="matching_status" property="matchingStatus" jdbcType="VARCHAR" />
+    <result column="matching_endday" property="matchingEndday" jdbcType="DATE" />
+    <result column="matching_match_money" property="matchingMatchMoney" jdbcType="NUMERIC" />
+    <result column="dict_matching_file_status" property="dictMatchingFileStatus" jdbcType="VARCHAR" />
+    <result column="dict_matching_filesend_status" property="dictMatchingFilesendStatus" jdbcType="VARCHAR" />
+    <result column="matching_total" property="matchingTotal" jdbcType="INTEGER" />
+    <result column="matching_now" property="matchingNow" jdbcType="INTEGER" />
+    <result column="matching_expire_day" property="matchingExpireDay" jdbcType="DATE" />
+    <result column="matching_coss_time" property="matchingCossTime" jdbcType="TIMESTAMP" />
+    <result column="matching_make_day" property="matchingMakeDay" jdbcType="TIMESTAMP" />
+    <result column="matching_hk_day" property="matchingHkDay" jdbcType="TIMESTAMP" />
+    <result column="matching_firstbill_day" property="matchingFirstbillDay" jdbcType="DATE" />
+    <result column="matching_order_status" property="matchingOrderStatus" jdbcType="INTEGER" />
+    <result column="matching_pay_status" property="matchingPayStatus" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ViewResultMap" type="com.creditharmony.fortune.creditor.matching.view.MatchingCreditorView" >
+    <id column="lendCode" property="lendCode" jdbcType="VARCHAR" />
+    <result column="customerName" property="customerName" jdbcType="VARCHAR" />
+    <result column="customerCode" property="customerCode" jdbcType="VARCHAR" />
+    <result column="orgName" property="orgName" jdbcType="VARCHAR" />
+    <result column="productCode" property="productCode" jdbcType="VARCHAR" />
+     <result column="productName" property="productName" jdbcType="VARCHAR" />
+    <result column="applyPay" property="applyPay" jdbcType="VARCHAR" />
+     <result column="startApplyLendDay" property="startApplyLendDay" jdbcType="DATE" />
+    <result column="startApplyLendMoney" property="startApplyLendMoney" jdbcType="NUMERIC" />
+     <result column="applyLendDay" property="applyLendDay" jdbcType="DATE" />
+    <result column="tradeMateMoney" property="tradeMateMoney" jdbcType="NUMERIC" />
+     <result column="matchingFirstdayFlag" property="matchingFirstdayFlag" jdbcType="VARCHAR" />
+   <result column="applyExpireDay" property="applyExpireDay" jdbcType="DATE" />
+    <result column="tradeCreditStatus" property="tradeCreditStatus" jdbcType="VARCHAR" />
+     <result column="matchingBillDay" property="matchingBillDay" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="borrow" type="com.creditharmony.fortune.borrow.entity.Borrow" >
+  <id column="credit_value_id" property="creditValueId" jdbcType="VARCHAR" />
+    <result column="loan_code" property="loanCode" jdbcType="VARCHAR" />
+    <result column="loan_id" property="loanId" jdbcType="VARCHAR" />
+    <result column="loan_name" property="loanName" jdbcType="VARCHAR" />
+    <result column="loan_idcard" property="loanIdcard" jdbcType="VARCHAR" />
+    <result column="loan_job" property="loanJob" jdbcType="VARCHAR" />
+    <result column="loan_product" property="loanProduct" jdbcType="VARCHAR" />
+    <result column="loan_purpose" property="loanPurpose" jdbcType="VARCHAR" />
+    <result column="dict_loan_type" property="dictLoanType" jdbcType="VARCHAR" />
+    <result column="loan_outmoney_day" property="loanOutmoneyDay" jdbcType="DATE" />
+    <result column="loan_backmoney_firday" property="loanBackmoneyFirday" jdbcType="DATE" />
+    <result column="loan_backmoney_day" property="loanBackmoneyDay" jdbcType="INTEGER" />
+    <result column="loan_backmoney_lastday" property="loanBackmoneyLastday" jdbcType="DATE" />
+    <result column="loan_months" property="loanMonths" jdbcType="INTEGER" />
+    <result column="loan_months_surplus" property="loanMonthsSurplus" jdbcType="INTEGER" />
+    <result column="loan_quota" property="loanQuota" jdbcType="NUMERIC" />
+    <result column="loan_credit_value" property="loanCreditValue" jdbcType="NUMERIC" />
+    <result column="loan_month_rate" property="loanMonthRate" jdbcType="NUMERIC" />
+    <result column="loan_value_year" property="loanValueYear" jdbcType="NUMERIC" />
+    <result column="dict_loan_free_flag" property="dictLoanFreeFlag" jdbcType="VARCHAR" />
+    <result column="loan_modified_day" property="loanModifiedDay" jdbcType="TIMESTAMP" />
+    <result column="loan_pledge" property="loanPledge" jdbcType="VARCHAR" />
+    <result column="loan_day_surplus" property="loanDaySurplus" jdbcType="INTEGER" />
+    <result column="loan_middle_man" property="loanMiddleMan" jdbcType="VARCHAR" />
+    <result column="loan_freeze_day" property="loanFreezeDay" jdbcType="TIMESTAMP" />
+    <result column="loan_monthgain_flag" property="loanMonthgainFlag" jdbcType="VARCHAR" />
+    <result column="loan_trustee_flag" property="loanTrusteeFlag" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="dic_loan_distinguish" property="dicLoanDistinguish" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    matching_id, lend_code, product_code, matching_firstday_flag, matching_interest_start, 
+    matching_bill_day, matching_borrow_quota, matching_status, matching_endday, matching_match_money, 
+    dict_matching_file_status, dict_matching_filesend_status, matching_total, matching_now, 
+    matching_expire_day, matching_coss_time, matching_make_day, matching_hk_day, matching_firstbill_day, 
+    matching_order_status, matching_pay_status, create_by, create_time, modify_by, modify_time,extract(epoch from modify_time) as "verTime"
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_matching_creditor
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </select>
+  <!--  通过出借编号查询对应的这笔出借对应的推荐  
+  		韩龙 划扣审批撤消操作查询-->
+	<select id="get" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" 
+		resultType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx">
+		select 
+			<include refid="Base_Column_List" />
+		from t_tz_matching_creditor
+		<where>
+			<if test="lendCode != null and lendCode != ''">
+				lend_code = #{lendCode}
+			</if>
+			<if test="matchingId != null and matchingId != ''">
+				and matching_id = #{matchingId}
+			</if>
+			<if test="matchingFirstdayFlag != null and matchingFirstdayFlag != ''">
+				and matching_firstday_flag = #{matchingFirstdayFlag}
+			</if>
+				<if test="dictMatchingFileStatus != null and dictMatchingFileStatus != ''">
+				and dict_matching_file_status = #{dictMatchingFileStatus}
+			</if>
+				<if test="matchingStatus != null ">
+				and matching_status = #{matchingStatus}
+			</if>
+		</where>
+	</select>
+	<select id="getCountByEx" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" 
+		resultType="java.lang.Integer">
+		select 
+			count(matching_id)
+		from t_tz_matching_creditor
+		<where>
+			<if test="lendCode != null and lendCode != ''">
+				lend_code = #{lendCode}
+			</if>
+			<if test="matchingId != null and matchingId != ''">
+				and matching_id = #{matchingId}
+			</if>
+			<if test="matchingFirstdayFlag != null and matchingFirstdayFlag != ''">
+				and matching_firstday_flag = #{matchingFirstdayFlag}
+			</if>
+				<if test="dictMatchingFileStatus != null and dictMatchingFileStatus != ''">
+				and dict_matching_file_status = #{dictMatchingFileStatus}
+			</if>
+				<if test="matchingStatus != null ">
+				and matching_status = #{matchingStatus}
+			</if>
+		</where>
+	</select>
+	<!--  通过出借编号查询对应的这笔出借对应的推荐  
+  		韩龙 划扣审批撤消操作查询锁定-->
+	<select id="getForUpdate" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" 
+		resultType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx">
+		select 
+			<include refid="Base_Column_List" />
+		from t_tz_matching_creditor
+		<where>
+			<if test="lendCode != null and lendCode != ''">
+				lend_code = #{lendCode}
+			</if>
+			<if test="matchingId != null and matchingId != ''">
+				and matching_id = #{matchingId}
+			</if>
+			<if test="matchingFirstdayFlag != null and matchingFirstdayFlag != ''">
+				and matching_firstday_flag = #{matchingFirstdayFlag}
+			</if>
+				<if test="dictMatchingFileStatus != null and dictMatchingFileStatus != ''">
+				and dict_matching_file_status = #{dictMatchingFileStatus}
+			</if>
+				<if test="matchingStatus != null ">
+				and matching_status = #{matchingStatus}
+			</if>
+			for update
+		</where>
+	</select>
+   <!-- 获取匹配符合条件的可用债权 -->
+  <select id="getsqppByMbEx" resultMap="borrow"  parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingBorrowEx">
+  	SELECT 
+  	 credit_value_id,
+ 	 loan_name,
+ 	 loan_code,
+ 	 loan_id,
+ 	 loan_idcard,
+ 	 dict_loan_type,
+ 	 loan_trustee_flag,
+ 	 loan_product,
+ 	 loan_purpose,
+ 	 loan_outmoney_day,
+ 	 loan_job,
+ 	 loan_backmoney_firday,
+ 	 loan_backmoney_day,
+ 	 loan_months,
+ 	 loan_months_surplus,
+ 	 loan_backmoney_lastday,
+ 	 loan_month_rate,
+ 	 loan_value_year,
+ 	 dict_loan_free_flag,
+ 	 loan_quota,
+ 	 loan_middle_man,
+ 	 loan_credit_value,
+ 	 dic_loan_distinguish,
+ 	 extract(epoch from modify_time) as "verTime"
+    FROM tz.t_tz_borrow
+  	where 1=1
+  	<if test="dictLoanFreeFlag != null and dictLoanFreeFlag != '' ">
+ 	     and  dict_loan_free_flag = #{dictLoanFreeFlag}
+ 	 </if>
+  <if test="loanIdCards != null and loanIdCards.size()>0 ">
+ 	 	 AND loan_idcard not in 
+ 	 	  <foreach collection="loanIdCards" index="index" item="item1" open="(" separator="," close=")">
+            #{item1}
+        </foreach>
+ 	 </if> 
+ 	 <if test="loanBackmoneyDays != null ">
+ 	  AND LOAN_BACKMONEY_DAY  in
+ 	 <foreach collection="loanBackmoneyDays" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+ 	 </if>
+ 	 <if test="filterLoanIdCards != null and filterLoanIdCards.size()>0">
+ 	  AND loan_idcard  not in
+ 	 <foreach collection="filterLoanIdCards" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+ 	 </if>
+ 	  <if test="loanMonthRate != null  ">
+ 	 	 AND LOAN_MONTH_RATE = #{loanMonthRate} 
+ 	 </if>
+ 	 <if test="loanBackmoneyFirday != null  ">
+ 	 	 	<![CDATA[ AND loan_backmoney_firday <=to_timestamp(#{loanBackmoneyFirday},'YYYY-MM-DD')]]>
+ 	 </if>
+ 	  <if test="ppxy != null  ">
+ 	  and  loan_credit_value  &lt;= (
+		case 
+ 	    <foreach collection="ppxy" index="key"  item="ent" separator="">
+ 		when dict_loan_type<![CDATA[||'-'||]]>loan_job =#{key} then to_number(#{ent})
+ 	 </foreach>
+ 		else to_number(999999999999999.00) end)
+ 	 </if>
+ 	  and loan_months_surplus  &gt; 0
+ 	  and  loan_credit_value &gt; 0
+ 	  	
+ 	  	 <if test="ppxeMoney != null ">
+ 	    AND  loan_credit_value &gt;= #{ppxeMoney}
+ 	    </if>
+ 	     <if test="oldCreditValueId != null and  oldCreditValueId.size()>0 ">
+	 	    	AND credit_value_id  not in
+	 	 	 <foreach collection="oldCreditValueId" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+ 	   </if>
+ 	   <if test="loanType!=null">
+ 	   	and dict_loan_type =#{loanType} 
+ 	   </if>
+ 	     order by 
+ 	      <if test="trusteeFlagOrderBy != null and trusteeFlagOrderBy != ''  ">
+	 	    loan_trustee_flag ${trusteeFlagOrderBy},
+ 	   </if>
+ 	     loan_credit_value asc 
+ 	
+  </select>
+  <!-- 根据待债权推荐信息条件 查询符合条件的集合，同时分页 -->
+  <select id="findPage" resultMap="ViewResultMap" parameterType="java.util.Map" >
+	     SELECT	mc.lend_code as "lendCode",
+mc.matching_id as matchingId,
+cust.customer_name as "customerName",
+la.customer_code as "customerCode",
+la.matching_flag as "matchingFlag",
+la.apply_deduct_day as applyDeductDay,
+la.apply_pay as applyPay,
+o.name as "orgName",
+o.id as "orgCode",
+o.province_id as provinceId,
+o.city_id as cityId,
+la.dict_apply_deduct_type as dictApplyDeductType,
+ca.account_bank as accountBank,
+user1.name as "matchingUserName",
+p.product_code as "productCode",
+p.product_name as "productName",
+mc.matching_interest_start as "matchingInterestStart",
+la.apply_lend_day as "startApplyLendDay",
+la.apply_lend_money as "startApplyLendMoney",
+la.apply_lend_day as "applyLendDay",
+mc.matching_firstday_flag as "matchingFirstdayFlag",
+la.apply_expire_day as "applyExpireDay",
+mc.matching_borrow_quota as "matchingBorrowQuota",
+mc.matching_bill_day as "matchingBillDay",
+mc.matching_status as "matchingStatus"
+from (select customer_code,matching_flag,apply_deduct_day,apply_pay,dict_apply_deduct_type,apply_lend_day,apply_lend_money,apply_expire_day,lend_code,product_code,store_org_id,repay_id from tz.t_tz_loan_apply
+where lend_status in  <foreach collection="lendStatusLst" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+) la
+ left join (select customer_name,customer_code from tz.t_tz_customer) cust on la.customer_code = cust.customer_code
+ left join (select product_code,product_name from tz.t_gl_tz_product) p on la.product_code = p.product_code
+ left join (select name,id,province_id,city_id from tz.t_gl_org) o on la.store_org_id = o.id
+ LEFT JOIN (select id,customer_code,account_bank from tz.t_tz_customer_account) ca ON la.customer_code=ca.customer_code AND la.repay_id=ca.id
+ inner join (select * from tz.t_tz_matching_creditor 
+where 1=1 
+<if test="matchingStatusLst != null and matchingStatusLst.size()>0">
+	         and matching_status in
+	          <foreach collection="matchingStatusLst" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+and not exists (SELECT matchingid FROM tz.mview_auto_matching where matching_id=matchingid)) mc on mc.lend_code = la.lend_code
+ left join (select name,id from tz.t_gl_user) user1 on user1.id = mc.matching_user_id
+ <where>
+ 		
+	     <if test="customerName != null and customerName != ''">
+	         and cust.customer_name LIKE '%${customerName}%' 
+	     </if>
+	     <if test="startApplyLendMoneyFrom != null">
+	         and la.apply_lend_money <![CDATA[>=]]> #{startApplyLendMoneyFrom}
+	     </if>
+	      <if test="startApplyLendMoneyTo != null">
+	         and la.apply_lend_money <![CDATA[<=]]> #{startApplyLendMoneyTo}
+	     </if>
+	      <if test="startApplyLendDayStart != null and startApplyLendDayStart !=''">
+	         and la.apply_lend_day  <![CDATA[>=]]>  to_date(#{startApplyLendDayStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	      <if test="startApplyLendDayEnd != null and startApplyLendDayEnd !=''">
+	         and la.apply_lend_day <![CDATA[<=]]> to_date(#{startApplyLendDayEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if test="startApplyLendDay != null and startApplyLendDay !=''">
+	         and la.apply_lend_day  &gt;=  #{startApplyLendDay}
+	     </if>
+	      <if test="matchingBillDays != null and matchingBillDays.size() > 0 ">
+	       	AND mc.matching_bill_day   in
+	 	 	 <foreach collection="matchingBillDays" index="index" item="item" open="(" separator="," close=")">
+	            ${item}
+	        </foreach>
+	     </if>
+	      <if test="matchingFirstdayFlags != null and matchingFirstdayFlags.size()>0 ">
+	        and mc.matching_firstday_flag  in
+	 	 	 <foreach collection="matchingFirstdayFlags" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	     <if test="orgName != null and orgName !=''">
+	         and o.name  =  #{orgName}
+	     </if>
+	     <if test="productName != null and productName !=''">
+	        and  p.product_name LIKE '%'||#{productName}||'%'
+	     </if>
+	      <if test="productCodes != null and productCodes.size() > 0 ">
+	       	AND p.product_code   in
+	 	 	 <foreach collection="productCodes" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	       <if test="lendCode != null and lendCode !=''">
+	        and  mc.lend_code= #{lendCode}
+	     </if>
+	     <if test="applyPays != null and applyPays.size() > 0 ">
+	       	 and   la.apply_pay   in
+	 	 	 <foreach collection="applyPays" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	    <if test="matchingUserName != null and matchingUserName !=''">
+	        and  user1.name LIKE  '%${matchingUserName}%' 
+	     </if>
+	     <if test="matchingBorrowQuotaFrom != null ">
+	     and mc.matching_borrow_quota <![CDATA[>=]]>  #{matchingBorrowQuotaFrom}
+	     </if>
+	      <if test="matchingBorrowQuotaTo != null ">
+	     and mc.matching_borrow_quota <![CDATA[<=]]>  #{matchingBorrowQuotaTo}
+	     </if>
+	     <if  test="matchingInterestStartStart != null and matchingInterestStartStart !=''">
+	      and mc.matching_interest_start <![CDATA[>=]]> to_date(#{matchingInterestStartStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if  test="matchingInterestStartEnd != null and matchingInterestStartEnd !=''">
+	      and mc.matching_interest_start <![CDATA[<=]]> to_date(#{matchingInterestStartEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	       <if test="dictApplyDeductTypes !=null and dictApplyDeductTypes.size()>0 ">
+		 	AND la.dict_apply_deduct_type in
+		 	 <foreach collection="dictApplyDeductTypes" index="index" item="item" open="(" separator="," close=")">  
+	           #{item}   
+	   	</foreach> 
+		 	</if>
+		 		<!-- 匹配标识 -->
+		 	<if test="dictMatchingFlagTypes !=null and dictMatchingFlagTypes.size()>0 ">
+		 	AND la.matching_flag in
+		 	 <foreach collection="dictMatchingFlagTypes" index="index" item="item" open="(" separator="," close=")">  
+	           #{item}   
+	   	</foreach> 
+		 	</if>
+		 	 <!-- 银行集合 -->
+		    <if test="accountBankList != null and accountBankList.size() > 0" >
+		        and ca.account_bank in
+		        <foreach collection="accountBankList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		 	<if  test="deductStart != null and deductStart !=''">
+	      and la.apply_deduct_day <![CDATA[>=]]> to_date(#{deductStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if  test="deductEnd != null and deductEnd !=''">
+	      and la.apply_deduct_day <![CDATA[<=]]> to_date(#{deductEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if test="city !=null and city != ''">
+			AND o.province_id||'_'||o.city_id SIMILAR TO #{city}
+			</if>
+	     </where>
+	     order by mc.matching_firstday_flag asc, mc.matching_interest_start asc
+  </select>
+  <!-- 导出功能-->
+  <select id="outExcel" resultType="com.creditharmony.fortune.creditor.matching.view.MatchingCreditorExcel" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" >
+   SELECT 
+ 		 mc.lend_code as "lendCode",
+         cust.customer_name as "customerName",
+         la.matching_flag as "matchingFlag",
+         o.name as "orgName",
+         p.product_name as "productName",
+         user1.name as "matchingUserName",
+         mc.matching_interest_start as "matchingInterestStart",
+    	 la.apply_lend_day as "startApplyLendDay",
+   		 la.apply_lend_money as "startApplyLendMoney",
+        la.apply_lend_day as "applyLendDay",
+       	 mc.matching_firstday_flag as "matchingFirstdayFlag",
+        la.apply_expire_day as "applyExpireDay",
+        mc.matching_borrow_quota as "matchingBorrowQuota",
+	 	 mc.matching_status as "matchingStatus",
+	 	 pc.area_name as "province",
+	 	 pc2.area_name as "city",
+	 	 la.dict_apply_deduct_type as "dictApplyDeductType",
+	 	 ca.account_bank as "accountBank",
+	 	 la.apply_deduct_day as "applyDeductDay",
+	 	 la.apply_pay as "applyPay"
+ from (select * from tz.t_tz_matching_creditor where not exists (SELECT matchingid FROM tz.mview_auto_matching where matching_id=matchingid)) mc 
+ inner join( select * from tz.T_TZ_LOAN_APPLY 
+ where lend_status in 
+  <foreach collection="lendStatusLst" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	        )la on mc.lend_code = la.lend_code
+ left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+ left join tz.t_gl_org o on la.store_org_id = o.id
+ left join tz.t_gl_province_city pc on o.province_id = pc.area_code
+ left join tz.t_gl_province_city pc2 on o.city_id = pc2.area_code
+ left join tz.t_gl_tz_product p on mc.product_code = p.product_code
+  left join tz.t_gl_user user1 on user1.id = mc.matching_user_id
+   LEFT JOIN tz.t_tz_customer_account ca
+  	 ON la.customer_code=ca.customer_code 
+  	 AND la.repay_id=ca.id
+ <where>
+ 	<if test="matchingStatusLst != null and matchingStatusLst.size()>0">
+	         and mc.matching_status in
+	          <foreach collection="matchingStatusLst" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	</if>
+	<if test="listMatchingId != null and listMatchingId.size()>0">
+	         and mc.matching_id in
+	          <foreach collection="listMatchingId" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	</if>
+	     <if test="customerName != null and customerName != ''">
+	         and cust.customer_name LIKE '%${customerName}%'
+	     </if>
+	      <if test="startApplyLendMoneyFrom != null">
+	         and la.apply_lend_money <![CDATA[>=]]> #{startApplyLendMoneyFrom}
+	     </if>
+	      <if test="startApplyLendMoneyTo != null">
+	         and la.apply_lend_money <![CDATA[<=]]> #{startApplyLendMoneyTo}
+	     </if>
+	      <if test="startApplyLendDayStart != null and startApplyLendDayStart !=''">
+	         and la.apply_lend_day  <![CDATA[>=]]>  to_date(#{startApplyLendDayStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	      <if test="startApplyLendDayEnd != null and startApplyLendDayEnd !=''">
+	         and la.apply_lend_day <![CDATA[<=]]> to_date(#{startApplyLendDayEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if test="startApplyLendDay != null and startApplyLendDay !=''">
+	         and la.apply_lend_day  &gt;=  #{startApplyLendDay}
+	     </if>
+	       <if test="matchingBillDays != null and matchingBillDays.size() > 0 ">
+	       	AND mc.matching_bill_day   in
+	 	 	 <foreach collection="matchingBillDays" index="index" item="item" open="(" separator="," close=")">
+	            ${item}
+	        </foreach>
+	     </if>
+	     <if test="matchingFirstdayFlags != null and matchingFirstdayFlags.size()>0 ">
+	        and mc.matching_firstday_flag  in
+	 	 	 <foreach collection="matchingFirstdayFlags" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	     <if test="orgName != null and orgName !=''">
+	         and o.name  =  #{orgName}
+	     </if>
+	       <if test="lendCode != null and lendCode !=''">
+	        and  mc.lend_code= #{lendCode}
+	     </if>
+	       <if test="applyPays != null and applyPays.size() > 0 ">
+	       	 and   la.apply_pay   in
+	 	 	 <foreach collection="applyPays" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	     <if test="productCodes != null and productCodes.size() > 0 ">
+	       	AND p.product_code   in
+	 	 	 <foreach collection="productCodes" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	      <if test="filtermatchingIds != null and filtermatchingIds.size() > 0 ">
+	       	 and   mc.matching_id   not in
+	 	 	 <foreach collection="filtermatchingIds" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	      <if test="matchingUserName != null and matchingUserName !=''">
+	        and  user1.name LIKE  '%${matchingUserName}%' 
+	     </if>
+	     <if test="matchingBorrowQuotaFrom != null ">
+	     and mc.matching_borrow_quota <![CDATA[>=]]>  #{matchingBorrowQuotaFrom}
+	     </if>
+	      <if test="matchingBorrowQuotaTo != null ">
+	     and mc.matching_borrow_quota <![CDATA[<=]]>  #{matchingBorrowQuotaTo}
+	     </if>
+	     <if  test="matchingInterestStartStart != null and matchingInterestStartStart !=''">
+	      and mc.matching_interest_start <![CDATA[>=]]> to_date(#{matchingInterestStartStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if  test="matchingInterestStartEnd != null and matchingInterestStartEnd !=''">
+	      and mc.matching_interest_start <![CDATA[<=]]> to_date(#{matchingInterestStartEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	      <if test="dictApplyDeductTypes !=null and dictApplyDeductTypes.size()>0 ">
+		 	AND la.dict_apply_deduct_type in
+		 	 <foreach collection="dictApplyDeductTypes" index="index" item="item" open="(" separator="," close=")">  
+	           #{item}   
+	   	</foreach> 
+		 	</if>
+		 	 <!-- 银行集合 -->
+		    <if test="accountBankList != null and accountBankList.size() > 0" >
+		        and ca.account_bank in
+		        <foreach collection="accountBankList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		 	<if  test="deductStart != null and deductStart !=''">
+	      and la.apply_deduct_day <![CDATA[>=]]> to_date(#{deductStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if  test="deductEnd != null and deductEnd !=''">
+	      and la.apply_deduct_day <![CDATA[<=]]> to_date(#{deductEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if test="city !=null and city != ''">
+			AND o.province_id||'_'||o.city_id SIMILAR TO #{city}
+		</if>
+		<if test="matchingUserId !=null and matchingUserId != ''">
+			AND mc.matching_user_id= #{matchingUserId}
+		</if>
+	     </where>
+  </select>
+  <!--  查询查询列表的总数，同时分页 -->
+  <select id="findTotal" resultType = "java.util.Map" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" >
+SELECT
+    count(mc.matching_id) AS "numberTotal",
+    sum(la.apply_lend_money) as "lendMoneyTotal",
+    SUM(mc.matching_borrow_quota) AS "borrowQuotaTotal"
+FROM
+    (select * from tz.T_TZ_MATCHING_CREDITOR where
+    1=1 
+<if test="matchingStatusLst != null and matchingStatusLst.size()>0">
+	         and matching_status in
+	          <foreach collection="matchingStatusLst" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+    and  not exists (SELECT matchingid FROM tz.mview_auto_matching where matching_id=matchingid)) mc inner JOIN
+     (select * from tz.T_TZ_LOAN_APPLY where  lend_status in  <foreach collection="lendStatusLst" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	        ) la
+        ON mc.lend_code = la.lend_code LEFT JOIN tz.t_tz_customer cust
+        ON la.customer_code = cust.customer_code LEFT JOIN tz.t_gl_org o
+        ON la.store_org_id = o.id LEFT JOIN tz.t_gl_tz_product p
+        ON mc.product_code = p.product_code
+          left join tz.t_gl_user user1 on user1.id = mc.matching_user_id
+           LEFT JOIN tz.t_tz_customer_account ca
+  	 ON la.customer_code=ca.customer_code 
+  	 AND la.repay_id=ca.id
+ <where>
+	     <if test="customerName != null and customerName != ''">
+	         and cust.customer_name LIKE '%'||#{customerName}||'%'
+	     </if>
+	     <if test="startApplyLendMoneyFrom != null">
+	         and la.apply_lend_money <![CDATA[>=]]> #{startApplyLendMoneyFrom}
+	     </if>
+	      <if test="startApplyLendMoneyTo != null">
+	         and la.apply_lend_money <![CDATA[<=]]> #{startApplyLendMoneyTo}
+	     </if>
+	      <if test="startApplyLendDayStart != null and startApplyLendDayStart !=''">
+	         and la.apply_lend_day  <![CDATA[>=]]>  to_date(#{startApplyLendDayStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	      <if test="startApplyLendDayEnd != null and startApplyLendDayEnd !=''">
+	         and la.apply_lend_day <![CDATA[<=]]> to_date(#{startApplyLendDayEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if test="startApplyLendDay != null and startApplyLendDay !=''">
+	         and la.apply_lend_day  &gt;=  #{startApplyLendDay}
+	     </if>
+	     <if test="matchingBillDays != null and matchingBillDays.size() > 0 ">
+	       	AND mc.matching_bill_day   in
+	 	 	 <foreach collection="matchingBillDays" index="index" item="item" open="(" separator="," close=")">
+	            ${item}
+	        </foreach>
+	     </if>
+	      <if test="matchingFirstdayFlags != null and matchingFirstdayFlags.size()>0 ">
+	        and mc.matching_firstday_flag  in
+	 	 	 <foreach collection="matchingFirstdayFlags" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	     <if test="orgName != null and orgName !=''">
+	         and o.name  =  #{orgName}
+	     </if>
+	     <if test="productName != null and productName !=''">
+	        and  p.product_name LIKE '%'||#{productName}||'%'
+	     </if>
+	       <if test="lendCode != null and lendCode !=''">
+	        and  mc.lend_code= #{lendCode}
+	     </if>
+	       <if test="applyPays != null and applyPays.size() > 0 ">
+	       	 and   la.apply_pay   in
+	 	 	 <foreach collection="applyPays" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	     <if test="productCodes != null and productCodes.size() > 0 ">
+	       	AND p.product_code   in
+	 	 	 <foreach collection="productCodes" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	      <if test="filtermatchingIds != null and filtermatchingIds.size() > 0 ">
+	       	 and   mc.matching_id   not in
+	 	 	 <foreach collection="filtermatchingIds" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	       <if test="matchingUserName != null and matchingUserName !=''">
+	        and  user1.name LIKE  '%${matchingUserName}%' 
+	     </if>
+	     <if test="matchingBorrowQuotaFrom != null ">
+	     and mc.matching_borrow_quota <![CDATA[>=]]>  #{matchingBorrowQuotaFrom}
+	     </if>
+	      <if test="matchingBorrowQuotaTo != null ">
+	     and mc.matching_borrow_quota <![CDATA[<=]]>  #{matchingBorrowQuotaTo}
+	     </if>
+	     <if  test="matchingInterestStartStart != null and matchingInterestStartStart !=''">
+	      and mc.matching_interest_start <![CDATA[>=]]> to_date(#{matchingInterestStartStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if  test="matchingInterestStartEnd != null and matchingInterestStartEnd !=''">
+	      and mc.matching_interest_start <![CDATA[<=]]> to_date(#{matchingInterestStartEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	       <if test="dictApplyDeductTypes !=null and dictApplyDeductTypes.size()>0 ">
+		 	AND la.dict_apply_deduct_type in
+		 	 <foreach collection="dictApplyDeductTypes" index="index" item="item" open="(" separator="," close=")">  
+	           #{item}   
+	   	</foreach> 
+		 	</if>
+		 	<!-- 匹配标识 -->
+		 	<if test="dictMatchingFlagTypes !=null and dictMatchingFlagTypes.size()>0 ">
+			 	AND la.matching_flag in
+			 	 <foreach collection="dictMatchingFlagTypes" index="index" item="item" open="(" separator="," close=")">  
+		           #{item}   
+		   		</foreach> 
+		 	</if>
+		 	 <!-- 银行集合 -->
+		    <if test="accountBankList != null and accountBankList.size() > 0" >
+		        and ca.account_bank in
+		        <foreach collection="accountBankList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    
+		 	<if  test="deductStart != null and deductStart !=''">
+	      and la.apply_deduct_day <![CDATA[>=]]> to_date(#{deductStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if  test="deductEnd != null and deductEnd !=''">
+	      and la.apply_deduct_day <![CDATA[<=]]> to_date(#{deductEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if test="city !=null and city != ''">
+			AND o.province_id||'_'||o.city_id SIMILAR TO #{city}
+		</if>
+	     </where>
+  </select>
+   <!-- 通过待推荐ID获取待推荐信息 -->
+  <select id="getMatchingCreditorViewByMatchingId" resultType="com.creditharmony.fortune.creditor.matching.view.MatchingCreditorView" parameterType="java.lang.String" >
+   SELECT 
+   		mc.MATCHING_ID as "matchingId",
+ 		mc.lend_code as "lendCode",
+        cust.customer_name as "customerName",
+        cust.customer_mobilephone as "mobilephone",
+        cust.customer_email as "customerEmail",
+	    la.customer_code as "customerCode",
+	    la.apply_pay as "applyPay",
+	    o.name as "orgName",
+	    o.city_id as "cityId",
+       	p.product_code as "productCode",
+        p.product_name as "productName",
+        mc.matching_interest_start as "matchingInterestStart",
+	    la.apply_lend_day as "startApplyLendDay",
+	    la.apply_lend_money as "startApplyLendMoney",
+        la.apply_lend_day as "applyLendDay",
+        mc.matching_firstday_flag as "matchingFirstdayFlag",
+        la.apply_expire_day as "applyExpireDay",
+        mc.matching_borrow_quota as "matchingBorrowQuota",
+        mc.matching_bill_day as "matchingBillDay",
+ 		la.product_rate as "productRate",
+ 		la.city_org_id as "cityOrgId",
+ 		la.store_org_id as "storeOrgId",
+ 		la.xinhebao_type as "backType",
+ 		mc.matching_total as "matchingTotal",
+ 		mc.matching_now as "matchingNow",
+ 		extract(epoch from mc.modify_time) as "verTime",
+ 		mc.matching_expire_day as "matchingExpireDay",
+ 		la.apply_deduct_day    as "applyDeductDay"
+ from  (select * from T_TZ_MATCHING_CREDITOR where MATCHING_ID =#{matchingId}) mc 
+ left join T_TZ_LOAN_APPLY la on mc.lend_code = la.lend_code
+ left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+ left join tz.t_gl_org o on la.store_org_id = o.id
+ left join tz.t_gl_tz_product p on mc.product_code = p.product_code
+	   
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_tz_matching_creditor
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" >
+    insert into t_tz_matching_creditor (matching_id, lend_code, product_code, 
+      matching_firstday_flag, matching_interest_start, 
+      matching_bill_day, matching_borrow_quota, matching_status, 
+      matching_endday, matching_match_money, dict_matching_file_status, 
+      dict_matching_filesend_status, matching_total, 
+      matching_now, matching_expire_day, matching_coss_time, 
+      matching_make_day, matching_hk_day, matching_firstbill_day, 
+      matching_order_status, matching_pay_status, 
+      create_by, create_time, modify_by, 
+      modify_time)
+    values (#{matchingId,jdbcType=VARCHAR}, #{lendCode,jdbcType=VARCHAR}, #{productCode,jdbcType=VARCHAR}, 
+      #{matchingFirstdayFlag,jdbcType=VARCHAR}, #{matchingInterestStart,jdbcType=TIMESTAMP}, 
+      #{matchingBillDay,jdbcType=INTEGER}, #{matchingBorrowQuota,jdbcType=NUMERIC}, #{matchingStatus,jdbcType=VARCHAR}, 
+      #{matchingEndday,jdbcType=DATE}, #{matchingMatchMoney,jdbcType=NUMERIC}, #{dictMatchingFileStatus,jdbcType=VARCHAR}, 
+      #{dictMatchingFilesendStatus,jdbcType=VARCHAR}, #{matchingTotal,jdbcType=INTEGER}, 
+      #{matchingNow,jdbcType=INTEGER}, #{matchingExpireDay,jdbcType=DATE}, #{matchingCossTime,jdbcType=TIMESTAMP}, 
+      #{matchingMakeDay,jdbcType=TIMESTAMP}, #{matchingHkDay,jdbcType=TIMESTAMP}, #{matchingFirstbillDay,jdbcType=DATE}, 
+      #{matchingOrderStatus,jdbcType=INTEGER}, #{matchingPayStatus,jdbcType=VARCHAR}, 
+      #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, 
+      #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" >
+    insert into t_tz_matching_creditor
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="matchingId != null" >
+        matching_id,
+      </if>
+      <if test="lendCode != null" >
+        lend_code,
+      </if>
+      <if test="productCode != null" >
+        product_code,
+      </if>
+      <if test="matchingFirstdayFlag != null" >
+        matching_firstday_flag,
+      </if>
+      <if test="matchingInterestStart != null" >
+        matching_interest_start,
+      </if>
+      <if test="matchingBillDay != null" >
+        matching_bill_day,
+      </if>
+      <if test="matchingBorrowQuota != null" >
+        matching_borrow_quota,
+      </if>
+      <if test="matchingStatus != null" >
+        matching_status,
+      </if>
+      <if test="matchingEndday != null" >
+        matching_endday,
+      </if>
+      <if test="matchingMatchMoney != null" >
+        matching_match_money,
+      </if>
+      <if test="dictMatchingFileStatus != null" >
+        dict_matching_file_status,
+      </if>
+      <if test="dictMatchingFilesendStatus != null" >
+        dict_matching_filesend_status,
+      </if>
+      <if test="matchingTotal != null" >
+        matching_total,
+      </if>
+      <if test="matchingNow != null" >
+        matching_now,
+      </if>
+      <if test="matchingExpireDay != null" >
+        matching_expire_day,
+      </if>
+      <if test="matchingCossTime != null" >
+        matching_coss_time,
+      </if>
+      <if test="matchingMakeDay != null" >
+        matching_make_day,
+      </if>
+      <if test="matchingHkDay != null" >
+        matching_hk_day,
+      </if>
+      <if test="matchingFirstbillDay != null" >
+        matching_firstbill_day,
+      </if>
+      <if test="matchingOrderStatus != null" >
+        matching_order_status,
+      </if>
+      <if test="matchingPayStatus != null" >
+        matching_pay_status,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="matchingId != null" >
+        #{matchingId,jdbcType=VARCHAR},
+      </if>
+      <if test="lendCode != null" >
+        #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productCode != null" >
+        #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingFirstdayFlag != null" >
+        #{matchingFirstdayFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingInterestStart != null" >
+        #{matchingInterestStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingBillDay != null" >
+        #{matchingBillDay,jdbcType=INTEGER},
+      </if>
+      <if test="matchingBorrowQuota != null" >
+        #{matchingBorrowQuota,jdbcType=NUMERIC},
+      </if>
+      <if test="matchingStatus != null" >
+        #{matchingStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingEndday != null" >
+        #{matchingEndday,jdbcType=DATE},
+      </if>
+      <if test="matchingMatchMoney != null" >
+        #{matchingMatchMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="dictMatchingFileStatus != null" >
+        #{dictMatchingFileStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="dictMatchingFilesendStatus != null" >
+        #{dictMatchingFilesendStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingTotal != null" >
+        #{matchingTotal,jdbcType=INTEGER},
+      </if>
+      <if test="matchingNow != null" >
+        #{matchingNow,jdbcType=INTEGER},
+      </if>
+      <if test="matchingExpireDay != null" >
+        #{matchingExpireDay,jdbcType=DATE},
+      </if>
+      <if test="matchingCossTime != null" >
+        #{matchingCossTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingMakeDay != null" >
+        #{matchingMakeDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingHkDay != null" >
+        #{matchingHkDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingFirstbillDay != null" >
+        #{matchingFirstbillDay,jdbcType=DATE},
+      </if>
+      <if test="matchingOrderStatus != null" >
+        #{matchingOrderStatus,jdbcType=INTEGER},
+      </if>
+      <if test="matchingPayStatus != null" >
+        #{matchingPayStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" >
+    update t_tz_matching_creditor
+    <set >
+      <if test="lendCode != null" >
+        lend_code = #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productCode != null" >
+        product_code = #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingFirstdayFlag != null" >
+        matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingInterestStart != null" >
+        matching_interest_start = #{matchingInterestStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingBillDay != null" >
+        matching_bill_day = #{matchingBillDay,jdbcType=INTEGER},
+      </if>
+      <if test="matchingBorrowQuota != null" >
+        matching_borrow_quota = #{matchingBorrowQuota,jdbcType=NUMERIC},
+      </if>
+      <if test="matchingStatus != null" >
+        matching_status = #{matchingStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingEndday != null" >
+        matching_endday = #{matchingEndday,jdbcType=DATE},
+      </if>
+      <if test="matchingMatchMoney != null" >
+        matching_match_money = #{matchingMatchMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="dictMatchingFileStatus != null" >
+        dict_matching_file_status = #{dictMatchingFileStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="dictMatchingFilesendStatus != null" >
+        dict_matching_filesend_status = #{dictMatchingFilesendStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingTotal != null" >
+        matching_total = #{matchingTotal,jdbcType=INTEGER},
+      </if>
+      <if test="matchingNow != null" >
+        matching_now = #{matchingNow,jdbcType=INTEGER},
+      </if>
+      <if test="matchingExpireDay != null" >
+        matching_expire_day = #{matchingExpireDay,jdbcType=DATE},
+      </if>
+      <if test="matchingCossTime != null" >
+        matching_coss_time = #{matchingCossTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingMakeDay != null" >
+        matching_make_day = #{matchingMakeDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingHkDay != null" >
+        matching_hk_day = #{matchingHkDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingFirstbillDay != null" >
+        matching_firstbill_day = #{matchingFirstbillDay,jdbcType=DATE},
+      </if>
+      <if test="matchingOrderStatus != null" >
+        matching_order_status = #{matchingOrderStatus,jdbcType=INTEGER},
+      </if>
+      <if test="matchingPayStatus != null" >
+        matching_pay_status = #{matchingPayStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="beforMatchingStatus != null" >
+        befor_matching_status = #{beforMatchingStatus,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <where>
+    	1=1
+    	<if test="matchingId != null and  matchingId != ''">
+    		and matching_id = #{matchingId,jdbcType=VARCHAR}
+    	</if>
+    	<if test="lendCode != null and  lendCode != ''">
+    		and lend_code = #{lendCode,jdbcType=VARCHAR}
+    	</if>
+		<if test="matchingFirstdayFlag != null and matchingFirstdayFlag != ''" >
+		      and matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR}
+		</if>
+		 <if test="updatematchingStatus != null" >
+       	 and matching_status != #{updatematchingStatus,jdbcType=VARCHAR}
+      </if>
+		and extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+    </where>
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx" >
+    update t_tz_matching_creditor
+    set lend_code = #{lendCode,jdbcType=VARCHAR},
+      product_code = #{productCode,jdbcType=VARCHAR},
+      matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR},
+      matching_interest_start = #{matchingInterestStart,jdbcType=TIMESTAMP},
+      matching_bill_day = #{matchingBillDay,jdbcType=INTEGER},
+      matching_borrow_quota = #{matchingBorrowQuota,jdbcType=NUMERIC},
+      matching_status = #{matchingStatus,jdbcType=VARCHAR},
+      matching_endday = #{matchingEndday,jdbcType=DATE}, 
+      matching_match_money = #{matchingMatchMoney,jdbcType=NUMERIC},
+      dict_matching_file_status = #{dictMatchingFileStatus,jdbcType=VARCHAR},
+      dict_matching_filesend_status = #{dictMatchingFilesendStatus,jdbcType=VARCHAR},
+      matching_total = #{matchingTotal,jdbcType=INTEGER},
+      matching_now = #{matchingNow,jdbcType=INTEGER},
+      matching_expire_day = #{matchingExpireDay,jdbcType=DATE},
+      matching_coss_time = #{matchingCossTime,jdbcType=TIMESTAMP},
+      matching_make_day = #{matchingMakeDay,jdbcType=TIMESTAMP},
+      matching_hk_day = #{matchingHkDay,jdbcType=TIMESTAMP},
+      matching_firstbill_day = #{matchingFirstbillDay,jdbcType=DATE},
+      matching_order_status = #{matchingOrderStatus,jdbcType=INTEGER},
+      matching_pay_status = #{matchingPayStatus,jdbcType=VARCHAR},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_by = #{modifyBy,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+    and extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+  </update>
+  <!-- 通过出借客户编号获取既有历史债权列表 非月满盈 首期 -->
+  <select id="getCreditorTradeBorrowView" resultType="com.creditharmony.fortune.creditor.matching.view.CreditorTradeBorrowView" parameterType="java.util.Map">
+   select 
+  	bo.credit_value_id          as     "creditValueId",
+ 	bo.loan_name     		   as      "loanName",
+ 	bo.loan_code				as 	   "loanCode",
+ 	bo.loan_id   				as "loanId",
+ 	bo.loan_idcard   			as 	   "loanIdcard",
+ 	bo.dict_loan_type			as     "dictLoanType",
+ 	bo.loan_trustee_flag		as	   "loanTrusteeFlag",
+ 	bo.loan_product				as     "loanProduct",
+ 	bo.loan_purpose				as	   "loanPurpose",
+ 	bo.loan_outmoney_day		as	   "loanOutmoneyDay",
+ 	bo.loan_job					as     "loanJob",
+ 	bo.loan_backmoney_firday	as     "loanBackmoneyFirday",
+ 	bo.loan_backmoney_day	    as         "loanBackmoneyDay",
+ 	bo.loan_months				as     "loanMonths",
+ 	bo.loan_months_surplus		as     "loanMonthsSurplus",
+ 	bo.loan_backmoney_lastday	as     "loanBackmoneyLastday",
+ 	bo.loan_month_rate			as     "loanMonthRate",
+ 	bo.loan_value_year			as     "loanValueYear",
+ 	bo.dict_loan_free_flag		as     "dictLoanFreeFlag",
+ 	bo.loan_quota				as     "loanQuota",
+ 	bo.loan_credit_value		as     "loanCreditValue",
+ 	bo.loan_middle_man			as     "loanMiddleMan",
+ 	ct.trade_mate_money         as      "tradeMateMoney"
+ 	
+ 	FROM t_tz_creditor_trade ct 
+	inner join t_tz_borrow bo on  ct.credit_code=bo.credit_value_id 
+  where   ct.matching_id IN(
+        SELECT
+            mc.matching_id
+        FROM
+            T_TZ_MATCHING_CREDITOR mc
+        WHERE
+            mc.lend_code IN(
+                SELECT
+                    templa.lend_code
+                FROM
+                    T_TZ_LOAN_APPLY templa
+                WHERE
+                    templa.customer_code = #{customerCode}
+            )
+    )
+    <if test="creditNode != null  and creditNode!='' ">
+     and  ct.credit_node=#{creditNode}
+    </if>
+      <if test="dictTradeCreditStatus != null  and dictTradeCreditStatus !='' ">
+     and  ct.dict_trade_credit_status != #{dictTradeCreditStatus}
+    </if>
+   </select>
+   <!-- 通过待推荐债权ID获取既有历史债权列表 非首期 -->
+     <select id="getCreditorTradeBorrowViewNOFrist" resultType="com.creditharmony.fortune.creditor.matching.view.CreditorTradeBorrowView" parameterType="java.util.Map">
+    select 
+  	bo.credit_value_id          as     "creditValueId",
+ 	bo.loan_name     		   as      "loanName",
+ 	bo.loan_code				as 	   "loanCode",
+ 	bo.loan_id                  as 		loanId,
+ 	bo.loan_idcard   			as 	   "loanIdcard",
+ 	bo.dict_loan_type			as     "dictLoanType",
+ 	bo.loan_trustee_flag		as	   "loanTrusteeFlag",
+ 	bo.loan_product				as     "loanProduct",
+ 	bo.loan_purpose				as	   "loanPurpose",
+ 	bo.loan_outmoney_day		as	   "loanOutmoneyDay",
+ 	bo.loan_job					as     "loanJob",
+ 	bo.loan_backmoney_firday	as     "loanBackmoneyFirday",
+ 	bo.loan_backmoney_day	    as     "loanBackmoneyDay",
+ 	bo.loan_months				as     "loanMonths",
+ 	bo.loan_backmoney_lastday	as     "loanBackmoneyLastday",
+ 	bo.loan_month_rate			as     "loanMonthRate",
+ 	bo.loan_value_year			as     "loanValueYear",
+ 	bo.dict_loan_free_flag		as     "dictLoanFreeFlag",
+ 	bo.loan_quota				as     "loanQuota",
+ 	bo.loan_credit_value		as     "loanCreditValue",
+ 	bo.loan_middle_man			as     "loanMiddleMan",
+ 	ct.trade_mate_money         as      "tradeMateMoney",
+ 	#{matchingNow} 			    as 		"matchingNow",
+ 	la.product_code             as      "productCode",
+ 	(select lo.phase_principal_surplus from tz.t_tz_loanphase lo  where lo.phase_mate_id=ct.trade_id order by lo.phase_number desc limit 1 ) as "nyrcyzq",
+ 	COALESCE((select lo.phase_amount from tz.t_tz_loanphase lo  where lo.lend_code=ct.lend_code and  lo.loan_code =bo.credit_value_id order by lo.phase_number desc limit 1),0) as "phaseAmount",
+ 	COALESCE((select lo.phase_number from tz.t_tz_loanphase lo  where lo.lend_code=ct.lend_code and  lo.loan_code =bo.credit_value_id  order by lo.phase_number desc limit 1),0) as "phaseNumber",
+ 	(select lo.phase_principal_cur from tz.t_tz_loanphase lo  where lo.lend_code=ct.lend_code and  lo.loan_code =bo.credit_value_id  order by lo.phase_number desc limit 1) as "bqkgje",
+ 	COALESCE((select lo.phase_number_surplus from tz.t_tz_loanphase lo  where lo.lend_code=ct.lend_code and  lo.loan_code =bo.credit_value_id  order by lo.phase_number desc limit 1),0) as "loanMonthsSurplus",
+ 	mc.matching_borrow_quota as "matchingBorrowQuota",
+ 	la.product_rate as "productRate"
+ 	FROM tz.t_tz_creditor_trade ct 
+	inner join tz.t_tz_borrow bo on  ct.credit_code=bo.credit_value_id 
+	inner join tz.t_tz_matching_creditor mc on mc.matching_id=ct.matching_id
+	inner join tz.t_tz_loan_apply la on ct.lend_code=la.lend_code
+   where ct.lend_code=#{lendCode} and   ct.dict_trade_credit_status !=#{creditStatus}
+   <if test="matchingNowFrom!=null">
+     and mc.matching_now<![CDATA[>=]]>#{matchingNowFrom}
+   </if>
+   <if test="matchingNowTo!=null">
+ 	 and   mc.matching_now<![CDATA[<=]]>#{matchingNowTo}
+   </if>
+   </select>
+   <select id="getPhasenumberByLendCode" parameterType="java.lang.String" resultType="java.lang.Integer">
+   select max(phase_number) from t_tz_loanphase t where t.lend_code=#{lendCode}
+   </select>
+    <!--通过出借人编号获取既有历史债权列表 月满盈  -->
+   <select id="getCreditorTradeMonthAbleViews" resultType="com.creditharmony.fortune.creditor.matching.view.CreditorTradeMonthAbleView" parameterType="java.util.Map">
+   SELECT
+    bm.credit_monable_id AS "creditMonableId",
+    bm.credit_mon_id AS "creditMonId",
+    bm.loan_code AS "loanCode",
+    bm.loan_id AS "loanId",
+    bm.loan_name AS "loanName",
+    bm.loan_idcard   as "loanIdcard",
+    bm.loan_job as "loanJob",
+    bm.loan_product as "loanProduct",
+    bm.loan_purpose   as "loanPurpose",
+    bm.dict_loan_type as "dictLoanType",
+    bm.loan_outmoney_day as "loanOutmoneyDay",
+    bm.loan_backmoney_firday as "loanBackmoneyFirday",
+    bm.loan_credit_day_usable as "loanCreditDayUsable",
+    bm.loan_day as "loanDay",
+    bm.loan_available_days   as "loanAvailableDays",
+    bm.loan_backmoney_day as "loanBackmoneyDay",
+    bm.loan_month_rate  as "loanMonthRate",
+    bm.loan_credit_value as "loanCreditValue",
+    bm.loan_availabe_value as "loanAvailabeValue",
+    bm.loan_value_year as "loanValueYear",
+    bm.dict_loan_free_flag as "dictLoanFreeFlag",
+    bm.loan_modified_day as "loanModifiedDay",
+    bm.loan_freeze_day as "loanFreezeDay",
+    bm.loan_car_number as "loanCarNumber",
+    bm.loan_middle_man as "loanMiddleMan",
+    ct.trade_mate_money as "tradeMateMoney",
+    ct.trade_borrowdays_actual as "tradeBorrowdaysActual",
+    bm.loan_month_rate as "productRate"
+FROM
+    T_TZ_CREDITOR_TRADE ct 
+    inner JOIN T_TZ_BORROW_MONTHABLE bm
+        ON ct.credit_code = bm.credit_monable_id
+      inner join t_tz_loan_apply la 
+        on ct.lend_code=la.lend_code
+WHERE
+    la.customer_code = #{customerCode}
+     <if test="creditNode != null  and creditNode!='' ">
+     and  ct.credit_node=#{creditNode}
+    </if>
+     <if test="dictTradeCreditStatus != null  and dictTradeCreditStatus != '' ">
+     and  ct.dict_trade_credit_status != #{dictTradeCreditStatus}
+    </if>
+   </select>
+  <select id="getppll" resultType="java.util.Map" parameterType="java.util.Map"> 
+  select (select count(*) from t_tz_matching_creditor mc where mc.matching_firstday_flag=#{sqFlag} and mc.matching_status=#{ytjFlag}
+   	 AND mc.matching_coss_time<![CDATA[>=]]> to_timestamp(#{start},'YYYY-MM-DD')
+	 AND mc.matching_coss_time<![CDATA[<]]> to_timestamp(#{end},'YYYY-MM-DD')
+  ) as ytjsqnum,
+	(select count(*) from t_tz_matching_creditor mc where mc.matching_firstday_flag=#{fsqFlag} and mc.matching_status=#{ytjFlag}
+	 AND mc.matching_coss_time<![CDATA[>=]]> to_timestamp(#{start},'YYYY-MM-DD')
+	 AND mc.matching_coss_time<![CDATA[<]]>  to_timestamp(#{end},'YYYY-MM-DD')
+	) as ytjfsqnum,
+	(select count(*) from t_tz_matching_creditor mc where mc.matching_firstday_flag=#{sqFlag} and mc.matching_status=#{dtjFlag}) as wtjsqnum,
+	(select count(*) from t_tz_matching_creditor mc where mc.matching_firstday_flag=#{fsqFlag} and mc.matching_status=#{dtjFlag}) as wtjfsqnum
+from t_tz_matching_creditor limit 1
+  </select>
+  <select id="getFristLendDay" resultType="java.util.Date" parameterType="java.util.Map">
+  select mc.matching_interest_start from t_tz_matching_creditor mc where mc.matching_firstday_flag=#{fristDayFalg} and mc.lend_code=#{lendCode}
+  limit 1
+  </select>
+
+   <!-- 获取自动匹配-->
+  <select id="getautoMatchingIdAll" resultType="java.lang.String" parameterType="java.util.Map" >
+   SELECT 
+ 		mc.matching_id as "matchingId"
+ from t_tz_matching_creditor mc 
+ inner join (select * from tz.t_tz_loan_apply where lend_status in  
+ 			 <foreach collection="lendStatusLst" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	        )  la on mc.lend_code = la.lend_code
+ left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+ left join tz.t_gl_org o on la.store_org_id = o.id
+ left join tz.t_gl_tz_product p on mc.product_code = p.product_code
+ <where>
+ 		<if test="matchingFirstdayFlag != null">
+	         and mc.matching_firstday_flag = #{matchingFirstdayFlag}
+	     </if>
+	 	<if test="matchingStatusLst != null and matchingStatusLst.size()>0">
+	         and mc.matching_status in
+	          <foreach collection="matchingStatusLst" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+		</if>
+	      <if test="matchingBillDay != null ">
+	       	AND mc.matching_bill_day   = #{matchingBillDay}
+	     </if>
+	      <if test="productCodes != null and productCodes.size() > 0 ">
+	       	AND p.product_code   in
+	 	 	 <foreach collection="productCodes" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	     <if test="orgCodes != null and orgCodes.size()>0 ">
+	         and o.id    in
+	 	 	 <foreach collection="orgCodes" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+
+	     <if test="provinceCity != null and provinceCity !=''">
+	 	 	 and o.province_id||'_'||o.city_id SIMILAR TO #{provinceCity}||'%'
+	     </if>
+	     
+	     </where>
+  </select>
+
+  <!-- 查询债权待匹配的量 -->
+  <select id="getCountOfBond" resultType="java.lang.Integer" parameterType="java.util.Map">
+   select count(*) as count from t_tz_matching_creditor t 
+   where t.matching_user_id = #{matchingUserId,jdbcType=VARCHAR} 
+   <!-- 待推荐，撤销重匹 -->
+   and t.matching_status in
+   		<foreach collection="matchingStatus" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	   	</foreach>
+   and t.matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="listDistributeRecommendation" resultType="com.creditharmony.fortune.creditor.matching.view.MatchingCreditorView">
+ SELECT 
+ 		mc.matching_id,
+ 		mc.lend_code,
+        cust.customer_name,
+        la.matching_flag as "matchingFlag",
+	    la.customer_code,
+	    o.name as orgName,
+	    o.id as orgCode,
+       	p.product_code productCode,
+        p.product_name productName,
+	    la.apply_lend_day as startApplyLendDay,
+	    la.apply_lend_money as startApplyLendMoney,
+        la.apply_lend_day,
+        mc.matching_interest_start,
+        mc.matching_borrow_quota,
+        mc.matching_firstday_flag,
+        la.apply_expire_day,
+        la.apply_pay,
+        mc.drop_time,
+        mc.matching_firstday_flag,
+        mc.matching_user_id
+	 from t_tz_matching_creditor mc 
+	 inner join tz.t_tz_loan_apply la on mc.lend_code = la.lend_code
+	 left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+	 left join tz.t_gl_org o on la.store_org_id = o.id
+	 left join tz.t_gl_tz_product p on mc.product_code = p.product_code
+	 where mc.matching_user_id = #{matchingUserId,jdbcType=VARCHAR} 
+	 and mc.matching_status in
+	<foreach collection="matchingStatus" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+    </foreach>
+	 order by mc.matching_firstday_flag,mc.matching_interest_start
+  </select>
+  
+  <select id="getFirstBondMatching" resultType="com.creditharmony.fortune.creditor.matching.entity.MatchingCreditor" parameterType="java.util.Map">
+   SELECT matching_id
+   FROM t_tz_matching_creditor 
+   where matching_status = #{matchingStatus,jdbcType=VARCHAR} 
+   and matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR}
+   and  matching_user_id is null
+   order by drop_time desc ,matching_interest_start asc
+   limit 1 
+  </select>
+  
+   <update id="updateMatchingUserID" parameterType="com.creditharmony.fortune.creditor.matching.entity.MatchingCreditor" >
+    update t_tz_matching_creditor
+    <set>
+      <if test="matchingUserId != null" >
+        matching_user_id = #{matchingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="dropTime != null" >
+        drop_time = #{dropTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="distDay != null" >
+        dist_day = #{distDay,jdbcType=DATE},
+      </if>
+    </set>
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </update>
+  <!-- 派单首期/非首期 -->
+  <update id="distributeOtherBond" parameterType="java.util.Map" >
+    update t_tz_matching_creditor
+    <set>
+      <if test="mc.matchingUserId != null" >
+        matching_user_id = #{mc.matchingUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="mc.dropTime != null" >
+        drop_time = #{mc.dropTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mc.modifyBy != null" >
+        modify_by = #{mc.modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="mc.modifyTime != null" >
+        modify_time = #{mc.modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where matching_id in (
+       SELECT matching_id
+	   FROM t_tz_matching_creditor 
+	   where 
+	   <!-- 待推荐，撤销重匹 -->
+	   matching_status in
+	   <foreach collection="matchingStatus" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	   </foreach>
+	   and matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR}
+	   and (matching_user_id ='' or matching_user_id is null) 
+	   <if test="notIn != null" >
+	   		and id not in 
+	   		<foreach collection="notIn" item="id" index="index" open="(" separator="," close=")">
+				#{id,jdbcType=VARCHAR}
+		    </foreach>
+	   </if>
+	   <if test="filtermatchingIds != null and filtermatchingIds.size() > 0 ">
+	       	 and   mc.matching_id   not in
+	 	 	 <foreach collection="filtermatchingIds" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	</if>
+	   order by drop_time desc ,matching_interest_start asc
+       limit #{count,jdbcType=VARCHAR}
+    )
+  </update>
+  <!-- 弃单 -->
+   <update id="dropOrders" parameterType="java.util.Map" >
+    update t_tz_matching_creditor
+    <set>
+      matching_user_id = '',
+      <if test="mc.dropTime != null" >
+        drop_time = #{mc.dropTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mc.modifyBy != null" >
+        modify_by = #{mc.modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="mc.modifyTime != null" >
+        modify_time = #{mc.modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where matching_id in 
+    <foreach collection="matchingId" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+    and matching_user_id = #{mc.matchingUserId,jdbcType=VARCHAR}
+    and matching_firstday_flag =#{matchingFirstdayFlag,jdbcType=VARCHAR}
+    and matching_status in 
+    <foreach collection="matchingStatus" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+    </foreach>
+    
+  </update>
+  
+  <select id="getUnDoCountOfDay" resultType="java.lang.Integer" parameterType="java.util.Map">
+   SELECT count(*) as count
+   FROM t_tz_matching_creditor 
+   where matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR}
+   and (matching_user_id ='' or matching_user_id is null)
+   and create_time &gt;=  #{day,jdbcType=DATE} 
+  </select>
+  
+  <!-- 获取正在自动匹配待推荐债权信息主键集合-->
+  <select id="getFiltermatchingIds" resultType="java.lang.String" parameterType="java.util.Map" >
+   SELECT 
+ 		mc.matching_id as "matchingId"
+ from t_tz_matching_creditor mc 
+ inner join tz.t_tz_loan_apply la on mc.lend_code = la.lend_code
+ left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+ left join tz.t_gl_org o on la.store_org_id = o.id
+ left join tz.t_gl_tz_product p on mc.product_code = p.product_code
+ <where>
+ 		<if test="matchingFirstdayFlags != null and matchingFirstdayFlags.size()>0">
+	         and mc.matching_firstday_flag in 
+	          <foreach collection="matchingFirstdayFlags" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	   	<if test="matchingBillDays != null and matchingBillDays.size()>0">
+	     and mc.matching_bill_day in 
+	   		 <foreach collection="matchingBillDays" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	      <if test="productCodes != null and productCodes.size() > 0 ">
+	       	AND p.product_code   in
+	 	 	 <foreach collection="productCodes" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	     <if test="orgCodes != null and orgCodes.size()>0 ">
+	         and o.id    in
+	 	 	 <foreach collection="orgCodes" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+	     </if>
+	     <if test="provinceCity != null and provinceCity !=''">
+	 	 	 and o.province_id||'_'||o.city_id SIMILAR TO #{provinceCity}||'%'
+	     </if>
+	     </where>
+  </select>
+<!-- 根据code出借编号查询出附件表
+		相应的债权文件信息 -->
+	<select id="getAttachmentEx"  parameterType="java.util.Map" resultType="com.creditharmony.fortune.deduct.entity.ext.AttachmentEx">
+		SELECT 
+			t.atta_id,
+			t.atta_file_owner,
+			t.atta_table_id,
+			t.loan_code,
+			t.atta_filename,
+			t.atta_newfilename,
+			t.atta_filepath,
+			t.dict_atta_flag,
+			customer.customer_code as cust_code,
+			customer.customer_name as cust_name,
+			customer.customer_email as cust_email,
+			mc.dict_matching_file_status as matching_file_status,
+			mc.dict_matching_filesend_status as matching_filesend_status,
+			email.template_name,
+			email.template_type,
+			email.template_content,
+			email.id,
+			la.apply_deduct_day as applyDeductDay
+		FROM  tz.t_tz_attachment t
+			LEFT JOIN tz.t_tz_loan_apply la
+				ON la.lend_code=t.loan_code
+			LEFT JOIN tz.t_tz_customer customer
+				ON customer.customer_code=la.customer_code
+			LEFT JOIN tz.t_tz_matching_creditor mc
+				ON mc.lend_code=t.loan_code
+				AND mc.matching_id=#{attaTableId}
+			LEFT JOIN tz.t_gl_email_template email
+				ON email.template_type=#{emailType}
+				AND email.dict_status = #{dictStatus}
+		WHERE la.lend_code=#{applyCode} and t.atta_file_type=#{fileType} and t.dict_atta_flag=#{attaFlag} and t.is_discard=#{isDiscard}
+		and t.atta_table_id=#{attaTableId}
+	</select>
+	<!-- 删除匹配人 -->
+   <update id="delMatchingUser" parameterType="java.util.Map" >
+    update t_tz_matching_creditor
+    <set>
+      <if test="mc.matchingUserId != null and mc.matchingUserId != ''" >
+        matching_user_id = null,
+      </if>
+      <if test="mc.dropTime != null" >
+        drop_time = #{mc.dropTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mc.modifyBy != null and mc.modifyBy != ''" >
+        modify_by = #{mc.modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="mc.modifyTime != null" >
+        modify_time = #{mc.modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="mc.distDay != null" >
+        dist_day = null,
+      </if>
+    </set>
+     where matching_user_id = #{mc.matchingUserId,jdbcType=VARCHAR}
+     and matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR}
+     and matching_status in
+     <foreach collection="matchingStatus" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+     </foreach>
+  </update>
+  
+  <select id="findRedeemList" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx">
+	SELECT 
+		<include refid="Base_Column_List" />
+	FROM t_tz_matching_creditor
+	<where>
+		<if test="lendCode != null and lendCode != ''">
+			lend_code = #{lendCode}
+		</if>
+		<if test="matchingExpireDay != null">
+			AND matching_expire_day <![CDATA[>=]]> #{matchingExpireDay}
+		</if>
+	</where>
+	ORDER BY
+		matching_expire_day desc
+  </select>
+  
+     <update id="delUserOrders" parameterType="com.creditharmony.fortune.creditor.matching.entity.MatchingCreditor" >
+    update t_tz_matching_creditor
+    <set>
+      <if test="matchingUserId != null" >
+        matching_user_id = null,
+      </if>
+      <if test="dropTime != null" >
+        drop_time = #{dropTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="distDay != null" >
+        dist_day = null,
+      </if>
+    </set>
+    where matching_user_id = #{matchingUserId,jdbcType=VARCHAR}
+  </update>
+  <select id="getProductDefaultMchRateByCode" parameterType="java.util.Map"  resultType="java.util.Map">
+  	select matching_rate_lower as lower, matching_rate_upper as upper from t_gl_tz_product where product_code=#{productCode}  and product_status = #{productStatus}
+  </select>
+  <select id="getDictLoanTypeByCreditMonableIds" resultType="java.lang.String">
+  	SELECT  T.DICT_LOAN_TYPE FROM T_TZ_BORROW_MONTHABLE T 
+  	WHERE 
+       T.CREDIT_MONABLE_ID   IN
+	 	 	 <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+  	GROUP BY T.DICT_LOAN_TYPE
+  </select>
+  
+  <select id="getLastMatchingCreditor" resultType="com.creditharmony.fortune.creditor.matching.entity.MatchingCreditor" parameterType="com.creditharmony.fortune.creditor.matching.entity.MatchingCreditor">
+  	SELECT
+	    matching_id,
+	    matching_firstday_flag,
+	    matching_interest_start,
+	    matching_bill_day
+	FROM
+	    T_TZ_MATCHING_CREDITOR
+	WHERE
+		lend_code = #{lendCode}
+		AND matching_interest_start <![CDATA[<=]]> #{matchingExpireDay}
+		AND matching_expire_day <![CDATA[>=]]> #{matchingExpireDay}
+	ORDER BY
+	    matching_expire_day DESC limit 1
+  </select>
+  
+  <!-- 查询匹配人自己的非首期且待推荐的债权数量 -->
+  <select id="getcountMatching" parameterType="java.util.Map" resultType="com.creditharmony.fortune.creditor.matching.entity.MatchingCreditor">
+     SELECT count(1) as countTotal
+  FROM 
+     t_tz_matching_creditor t
+   where t.matching_user_id = #{matchingUserId} 
+   	and t.matching_firstday_flag=#{matchingFirstdayFlag} 
+   	and t.matching_status in 
+   		<foreach collection="matchingStatus" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+  </select>
+  <select id="getMonthBorrowCountByMathingId" parameterType="java.util.Map" resultType="java.lang.Integer">
+	  SELECT COUNT(bm.credit_monable_id)  FROM
+	tz."t_tz_creditor_trade" ct LEFT JOIN tz."t_tz_borrow_monthable" bm
+	ON ct.credit_code = bm.credit_monable_id
+	where ct.matching_id= #{matchingId}
+		and ct.credit_node=#{creditNode}
+		and ct.dict_trade_credit_status !=#{tradeCreditStatus}
+		and bm.dict_loan_type=#{dictLoanType}
+  </select>
+ <select id="getMatchingCreditorByMatchingIds" parameterType="java.util.Map" resultMap="BaseResultMap">
+ select 
+ 	<include refid="Base_Column_List" />
+ 	FROM t_tz_matching_creditor
+ 	where matching_id  in 
+ 	<foreach collection="matchingIds" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+	</foreach>		
+ </select>
+ 	
+ 	<select id="findPreviousMatchingCreditor" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.MatchingCreditorEx">
+		SELECT 
+			<include refid="Base_Column_List" />
+		FROM t_tz_matching_creditor
+		<where>
+			<if test="lendCode != null and lendCode != ''">
+				lend_code = #{lendCode}
+			</if>
+			<if test="matchingExpireDay != null">
+				AND matching_expire_day <![CDATA[<]]> #{matchingExpireDay}
+			</if>
+		</where>
+		ORDER BY
+			matching_expire_day desc limit 1
+ 	</select>
+</mapper>

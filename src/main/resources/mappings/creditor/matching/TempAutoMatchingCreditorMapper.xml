@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.TempAutoMatchingCreditorDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.creditor.matching.entity.TempAutoMatchingCreditor" >
+    <id column="matching_id" property="matchingId" jdbcType="VARCHAR" />
+    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+    <result column="product_code" property="productCode" jdbcType="VARCHAR" />
+    <result column="matching_firstday_flag" property="matchingFirstdayFlag" jdbcType="VARCHAR" />
+    <result column="matching_interest_start" property="matchingInterestStart" jdbcType="TIMESTAMP" />
+    <result column="matching_bill_day" property="matchingBillDay" jdbcType="INTEGER" />
+    <result column="matching_borrow_quota" property="matchingBorrowQuota" jdbcType="NUMERIC" />
+    <result column="matching_status" property="matchingStatus" jdbcType="VARCHAR" />
+    <result column="matching_endday" property="matchingEndday" jdbcType="DATE" />
+    <result column="matching_total" property="matchingTotal" jdbcType="INTEGER" />
+    <result column="matching_now" property="matchingNow" jdbcType="INTEGER" />
+    <result column="matching_expire_day" property="matchingExpireDay" jdbcType="DATE" />
+    <result column="matching_coss_time" property="matchingCossTime" jdbcType="TIMESTAMP" />
+    <result column="matching_make_day" property="matchingMakeDay" jdbcType="TIMESTAMP" />
+    <result column="matching_hk_day" property="matchingHkDay" jdbcType="TIMESTAMP" />
+    <result column="matching_firstbill_day" property="matchingFirstbillDay" jdbcType="DATE" />
+    <result column="matching_pay_status" property="matchingPayStatus" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="customer_code" property="customerCode" jdbcType="VARCHAR" />
+    <result column="xhb_backrest_term" property="xhbBackrestTerm" jdbcType="VARCHAR" />
+    <result column="filter_loanid_cards" property="filterLoanidCards" jdbcType="VARCHAR" />
+    <result column="matching_rate_lower" property="matchingRateLower" jdbcType="INTEGER" />
+    <result column="matching_rate_upper" property="matchingRateUpper" jdbcType="INTEGER" />
+    <result column="loan_backmoney_days" property="loanBackmoneyDays" jdbcType="VARCHAR" />
+    <result column="matching_date" property="matchingDate" jdbcType="TIMESTAMP" />
+     <result column="auto_id" property="autoId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    matching_id, lend_code, product_code, matching_firstday_flag, matching_interest_start, 
+    matching_bill_day, matching_borrow_quota, matching_status, matching_endday, matching_total, 
+    matching_now, matching_expire_day, matching_coss_time, matching_make_day, matching_hk_day, 
+    matching_firstbill_day, matching_pay_status, create_by, create_time, modify_by, modify_time, 
+    customer_code, xhb_backrest_term, filter_loanid_cards, matching_rate_lower, matching_rate_upper, 
+    loan_backmoney_days, matching_date,auto_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_temp_auto_matching_creditor
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </select>  
+  <select id="getcount" resultType="java.lang.Integer"  >
+    select count(*) from t_tz_temp_auto_matching_creditor
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_tz_temp_auto_matching_creditor
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.creditor.matching.entity.TempAutoMatchingCreditor" >
+    insert into t_tz_temp_auto_matching_creditor (matching_id, lend_code, product_code, 
+      matching_firstday_flag, matching_interest_start, 
+      matching_bill_day, matching_borrow_quota, matching_status, 
+      matching_endday, matching_total, matching_now, 
+      matching_expire_day, matching_coss_time, matching_make_day, 
+      matching_hk_day, matching_firstbill_day, matching_pay_status, 
+      create_by, create_time, modify_by, 
+      modify_time, customer_code, xhb_backrest_term, 
+      filter_loanid_cards, matching_rate_lower, matching_rate_upper, 
+      loan_backmoney_days, matching_date,auto_id)
+    values (#{matchingId,jdbcType=VARCHAR}, #{lendCode,jdbcType=VARCHAR}, #{productCode,jdbcType=VARCHAR}, 
+      #{matchingFirstdayFlag,jdbcType=VARCHAR}, #{matchingInterestStart,jdbcType=TIMESTAMP}, 
+      #{matchingBillDay,jdbcType=INTEGER}, #{matchingBorrowQuota,jdbcType=NUMERIC}, #{matchingStatus,jdbcType=VARCHAR}, 
+      #{matchingEndday,jdbcType=DATE}, #{matchingTotal,jdbcType=INTEGER}, #{matchingNow,jdbcType=INTEGER}, 
+      #{matchingExpireDay,jdbcType=DATE}, #{matchingCossTime,jdbcType=TIMESTAMP}, #{matchingMakeDay,jdbcType=TIMESTAMP}, 
+      #{matchingHkDay,jdbcType=TIMESTAMP}, #{matchingFirstbillDay,jdbcType=DATE}, #{matchingPayStatus,jdbcType=VARCHAR}, 
+      #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, 
+      #{modifyTime,jdbcType=TIMESTAMP}, #{customerCode,jdbcType=VARCHAR}, #{xhbBackrestTerm,jdbcType=VARCHAR}, 
+      #{filterLoanidCards,jdbcType=VARCHAR}, #{matchingRateLower,jdbcType=NUMERIC}, #{matchingRateUpper,jdbcType=NUMERIC}, 
+      #{loanBackmoneyDays,jdbcType=VARCHAR}, #{matchingDate,jdbcType=TIMESTAMP},#{autoId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.TempAutoMatchingCreditor" >
+    insert into t_tz_temp_auto_matching_creditor
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="matchingId != null" >
+        matching_id,
+      </if>
+      <if test="lendCode != null" >
+        lend_code,
+      </if>
+      <if test="productCode != null" >
+        product_code,
+      </if>
+      <if test="matchingFirstdayFlag != null" >
+        matching_firstday_flag,
+      </if>
+      <if test="matchingInterestStart != null" >
+        matching_interest_start,
+      </if>
+      <if test="matchingBillDay != null" >
+        matching_bill_day,
+      </if>
+      <if test="matchingBorrowQuota != null" >
+        matching_borrow_quota,
+      </if>
+      <if test="matchingStatus != null" >
+        matching_status,
+      </if>
+      <if test="matchingEndday != null" >
+        matching_endday,
+      </if>
+      <if test="matchingTotal != null" >
+        matching_total,
+      </if>
+      <if test="matchingNow != null" >
+        matching_now,
+      </if>
+      <if test="matchingExpireDay != null" >
+        matching_expire_day,
+      </if>
+      <if test="matchingCossTime != null" >
+        matching_coss_time,
+      </if>
+      <if test="matchingMakeDay != null" >
+        matching_make_day,
+      </if>
+      <if test="matchingHkDay != null" >
+        matching_hk_day,
+      </if>
+      <if test="matchingFirstbillDay != null" >
+        matching_firstbill_day,
+      </if>
+      <if test="matchingPayStatus != null" >
+        matching_pay_status,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+      <if test="customerCode != null" >
+        customer_code,
+      </if>
+      <if test="xhbBackrestTerm != null" >
+        xhb_backrest_term,
+      </if>
+      <if test="filterLoanidCards != null" >
+        filter_loanid_cards,
+      </if>
+      <if test="matchingRateLower != null" >
+        matching_rate_lower,
+      </if>
+      <if test="matchingRateUpper != null" >
+        matching_rate_upper,
+      </if>
+      <if test="loanBackmoneyDays != null" >
+        loan_backmoney_days,
+      </if>
+      <if test="matchingDate != null" >
+        matching_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="matchingId != null" >
+        #{matchingId,jdbcType=VARCHAR},
+      </if>
+      <if test="lendCode != null" >
+        #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productCode != null" >
+        #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingFirstdayFlag != null" >
+        #{matchingFirstdayFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingInterestStart != null" >
+        #{matchingInterestStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingBillDay != null" >
+        #{matchingBillDay,jdbcType=INTEGER},
+      </if>
+      <if test="matchingBorrowQuota != null" >
+        #{matchingBorrowQuota,jdbcType=NUMERIC},
+      </if>
+      <if test="matchingStatus != null" >
+        #{matchingStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingEndday != null" >
+        #{matchingEndday,jdbcType=DATE},
+      </if>
+      <if test="matchingTotal != null" >
+        #{matchingTotal,jdbcType=INTEGER},
+      </if>
+      <if test="matchingNow != null" >
+        #{matchingNow,jdbcType=INTEGER},
+      </if>
+      <if test="matchingExpireDay != null" >
+        #{matchingExpireDay,jdbcType=DATE},
+      </if>
+      <if test="matchingCossTime != null" >
+        #{matchingCossTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingMakeDay != null" >
+        #{matchingMakeDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingHkDay != null" >
+        #{matchingHkDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingFirstbillDay != null" >
+        #{matchingFirstbillDay,jdbcType=DATE},
+      </if>
+      <if test="matchingPayStatus != null" >
+        #{matchingPayStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="customerCode != null" >
+        #{customerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="xhbBackrestTerm != null" >
+        #{xhbBackrestTerm,jdbcType=VARCHAR},
+      </if>
+      <if test="filterLoanidCards != null" >
+        #{filterLoanidCards,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingRateLower != null" >
+        #{matchingRateLower,jdbcType=NUMERIC},
+      </if>
+      <if test="matchingRateUpper != null" >
+        #{matchingRateUpper,jdbcType=NUMERIC},
+      </if>
+      <if test="loanBackmoneyDays != null" >
+        #{loanBackmoneyDays,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingDate != null" >
+        #{matchingDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.TempAutoMatchingCreditor" >
+    update t_tz_temp_auto_matching_creditor
+    <set >
+      <if test="lendCode != null" >
+        lend_code = #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productCode != null" >
+        product_code = #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingFirstdayFlag != null" >
+        matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingInterestStart != null" >
+        matching_interest_start = #{matchingInterestStart,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingBillDay != null" >
+        matching_bill_day = #{matchingBillDay,jdbcType=INTEGER},
+      </if>
+      <if test="matchingBorrowQuota != null" >
+        matching_borrow_quota = #{matchingBorrowQuota,jdbcType=NUMERIC},
+      </if>
+      <if test="matchingStatus != null" >
+        matching_status = #{matchingStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingEndday != null" >
+        matching_endday = #{matchingEndday,jdbcType=DATE},
+      </if>
+      <if test="matchingTotal != null" >
+        matching_total = #{matchingTotal,jdbcType=INTEGER},
+      </if>
+      <if test="matchingNow != null" >
+        matching_now = #{matchingNow,jdbcType=INTEGER},
+      </if>
+      <if test="matchingExpireDay != null" >
+        matching_expire_day = #{matchingExpireDay,jdbcType=DATE},
+      </if>
+      <if test="matchingCossTime != null" >
+        matching_coss_time = #{matchingCossTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingMakeDay != null" >
+        matching_make_day = #{matchingMakeDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingHkDay != null" >
+        matching_hk_day = #{matchingHkDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="matchingFirstbillDay != null" >
+        matching_firstbill_day = #{matchingFirstbillDay,jdbcType=DATE},
+      </if>
+      <if test="matchingPayStatus != null" >
+        matching_pay_status = #{matchingPayStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="customerCode != null" >
+        customer_code = #{customerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="xhbBackrestTerm != null" >
+        xhb_backrest_term = #{xhbBackrestTerm,jdbcType=VARCHAR},
+      </if>
+      <if test="filterLoanidCards != null" >
+        filter_loanid_cards = #{filterLoanidCards,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingRateLower != null" >
+        matching_rate_lower = #{matchingRateLower,jdbcType=NUMERIC},
+      </if>
+      <if test="matchingRateUpper != null" >
+        matching_rate_upper = #{matchingRateUpper,jdbcType=NUMERIC},
+      </if>
+      <if test="loanBackmoneyDays != null" >
+        loan_backmoney_days = #{loanBackmoneyDays,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingDate != null" >
+        matching_date = #{matchingDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.creditharmony.fortune.creditor.matching.entity.TempAutoMatchingCreditor" >
+    update t_tz_temp_auto_matching_creditor
+    set lend_code = #{lendCode,jdbcType=VARCHAR},
+      product_code = #{productCode,jdbcType=VARCHAR},
+      matching_firstday_flag = #{matchingFirstdayFlag,jdbcType=VARCHAR},
+      matching_interest_start = #{matchingInterestStart,jdbcType=TIMESTAMP},
+      matching_bill_day = #{matchingBillDay,jdbcType=INTEGER},
+      matching_borrow_quota = #{matchingBorrowQuota,jdbcType=NUMERIC},
+      matching_status = #{matchingStatus,jdbcType=VARCHAR},
+      matching_endday = #{matchingEndday,jdbcType=DATE},
+      matching_total = #{matchingTotal,jdbcType=INTEGER},
+      matching_now = #{matchingNow,jdbcType=INTEGER},
+      matching_expire_day = #{matchingExpireDay,jdbcType=DATE},
+      matching_coss_time = #{matchingCossTime,jdbcType=TIMESTAMP},
+      matching_make_day = #{matchingMakeDay,jdbcType=TIMESTAMP},
+      matching_hk_day = #{matchingHkDay,jdbcType=TIMESTAMP},
+      matching_firstbill_day = #{matchingFirstbillDay,jdbcType=DATE},
+      matching_pay_status = #{matchingPayStatus,jdbcType=VARCHAR},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_by = #{modifyBy,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      customer_code = #{customerCode,jdbcType=VARCHAR},
+      xhb_backrest_term = #{xhbBackrestTerm,jdbcType=VARCHAR},
+      filter_loanid_cards = #{filterLoanidCards,jdbcType=VARCHAR},
+      matching_rate_lower = #{matchingRateLower,jdbcType=NUMERIC},
+      matching_rate_upper = #{matchingRateUpper,jdbcType=NUMERIC},
+      loan_backmoney_days = #{loanBackmoneyDays,jdbcType=VARCHAR},
+      matching_date = #{matchingDate,jdbcType=TIMESTAMP}
+    where matching_id = #{matchingId,jdbcType=VARCHAR}
+  </update>
+   <delete id="deleteAll">
+   	  delete from t_tz_temp_auto_matching_creditor
+   </delete>
+</mapper>

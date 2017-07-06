@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.money.common.dao.DetailDao" >
+	<select id="get" parameterType="java.lang.String" resultType="com.creditharmony.fortune.back.money.common.view.ItemView">
+		SELECT
+			back_money,
+			back_actualback_money,
+			back_money_remarks,
+			final_linit_date,
+			pool.back_money_day,
+			pool.debt_transfer_date,
+			pool.supplemented_money,
+			pool.working_state,
+			pool.priority_back,
+			
+			loan.lend_code,
+			apply_day,
+			apply_deduct_day,
+			apply_lend_day,
+			apply_pay,
+			apply_sales_discount,
+			apply_lend_money,
+			apply_agreement_edition,
+			apply_contract_no,
+			apply_remarks,
+			
+			account_bank,
+			pc1.area_name as accountAddrprovince,
+			pc2.area_name as accountAddrcity,
+			pc3.area_name as accountAddrdistrict,
+			fpc1.area_name as faccountAddrprovince,
+			fpc2.area_name as faccountAddrcity,
+			fpc3.area_name as faccountAddrdistrict,
+			account_card_or_booklet,
+			account_branch,
+			account_name,
+			account_no,
+			
+			cust.customer_name,
+			cust.customer_code,
+			cust.customer_cert_num,
+			
+			product_name,
+			pool.backm_id,
+			pool.dict_fortunechannelflag,
+
+			z.check_examinetype,
+			z.check_examine,
+			z.check_reason,
+			extract(epoch from pool.modify_time) as "verTime"
+		FROM
+			t_tz_back_money_pool pool
+		LEFT JOIN
+			t_tz_loan_apply loan ON pool.lend_code=loan.lend_code
+		LEFT JOIN
+			t_gl_tz_product p ON p.product_code=loan.product_code
+		LEFT JOIN
+			t_gl_org org ON org.id=loan.store_org_id
+		LEFT JOIN
+			t_tz_customer cust ON cust.customer_code=loan.customer_code
+		LEFT JOIN
+			t_tz_customer_account acc ON acc.id=loan.receiving_id
+		LEFT JOIN
+			t_gl_province_city pc1 ON pc1.id=acc.account_addrprovince
+		LEFT JOIN
+			t_gl_province_city pc2 ON pc2.id=acc.account_addrcity
+		LEFT JOIN
+			t_gl_province_city pc3 ON pc3.id=acc.account_addrdistrict
+		LEFT JOIN
+			t_tz_fy_area_code fpc1 ON fpc1.area_code=acc.account_addrprovince
+		LEFT JOIN
+			t_tz_fy_area_code fpc2 ON fpc2.area_code=acc.account_addrcity
+		LEFT JOIN
+			t_tz_fy_area_code fpc3 ON fpc3.area_code=acc.account_addrdistrict
+		LEFT JOIN
+			(SELECT 
+				ilog.backm_id,
+				ilog.check_examinetype,
+				ilog.check_examine,
+				ilog.check_reason
+			FROM
+				t_tz_back_money_log ilog
+			INNER JOIN
+				(SELECT
+					backm_id, 
+					MAX(create_time) crttm 
+				FROM
+					t_tz_back_money_log 
+				GROUP BY 
+					backm_id) x ON ilog.create_time=x.crttm
+						and ilog.backm_id=x.backm_id) z ON z.backm_id=pool.backm_id
+		WHERE
+			pool.backm_id=#{backmId}
+	</select>
+	
+	<select id="getBackMoneyPoolById" resultType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		select
+			backm_id, lend_code, final_linit_date, back_money_type, dict_back_status, 
+			back_money, back_actualback_money, back_money_remarks, back_money_day, 
+			dict_back_money_error, platform_id, create_by, create_time, modify_by, 
+			modify_time,dict_fortunechannelflag,
+			supplemented_money,
+			is_supplemented,
+			extract(epoch from modify_time) as "verTime"
+		from
+			t_tz_back_money_pool
+		where
+			backm_id=#{backmId}
+	</select>
+	
+	<update id="updateLoanApply" parameterType="com.creditharmony.fortune.customer.entity.LoanApply">
+		UPDATE
+			t_tz_loan_apply
+		SET
+			dict_apply_end_state=#{applyEndStatus}, 
+			modify_time=#{modifyTime}, 
+			modify_by=#{modifyBy}
+		WHERE
+			lend_code=#{applyCode}
+	</update>
+	
+	<select id="getSmsInfoEx" resultType="com.creditharmony.fortune.back.money.common.entity.ext.SmsInfoEx">
+		SELECT
+			cust.customer_code,
+			cust.customer_name,
+			cust.customer_mobilephone,
+			
+			loan.lend_code,
+			loan.apply_lend_day,
+			loan.apply_lend_money,
+			loan.product_code,
+			loan.apply_pay,
+			
+			pool.back_money_type,
+			pool.back_money_day,
+			
+			product.product_name,
+			
+			acc.id as bankId,
+			acc.account_bank as bankName,
+			acc.account_no as bankNo
+		FROM
+			t_tz_back_money_pool pool
+		LEFT JOIN
+			t_tz_loan_apply loan ON pool.lend_code=loan.lend_code
+		LEFT JOIN
+			t_tz_customer cust ON cust.customer_code=loan.customer_code
+		LEFT JOIN
+			t_gl_tz_product product ON product.product_code=loan.product_code
+		LEFT JOIN
+			t_tz_customer_account acc ON acc.id=loan.receiving_id
+		WHERE
+			pool.backm_id=#{backmId}
+	</select>
+	
+	<select id="countSendRecord" parameterType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool" resultType="int">
+		SELECT count(*)
+		FROM 
+			t_tz_back_money_log
+		WHERE 
+			backm_id=#{backmId} 
+			AND dict_backm_status=#{dictBackStatus}
+	</select>
+	
+	<select id="countTransferRelation" parameterType="java.util.Map" resultType="int">
+		SELECT
+    		COUNT(*)
+		FROM 
+			T_TZ_TRANSFER_RELATION
+		WHERE 
+			lend_code_parent = #{lendCode} 
+			AND 
+				(
+					transfer_state NOT IN 
+			    	<foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+			    		#{item}
+			    	</foreach>
+			    	OR transfer_state IS NULL
+			    )
+	</select>
+	
+	<select id="lendPayTransferRelation" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT a.apply_pay as apply_pay
+    	FROM tz.t_tz_loan_apply a JOIN tz.t_tz_transfer_relation r on r.lend_code_childe = a.lend_code 
+		WHERE 
+			r.lend_code_parent = #{lendCode} 
+			AND 
+				(
+					r.transfer_state NOT IN 
+			    	<foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+			    		#{item}
+			    	</foreach>
+			    	OR r.transfer_state IS NULL
+			    )
+		LIMIT 1
+	</select>
+	
+	<select id="countLendingApply" parameterType="com.creditharmony.fortune.customer.entity.LoanApply" resultType="int">
+		SELECT count(*)
+		FROM 
+			t_tz_loan_apply
+		WHERE 
+			customer_code=#{custCode} 
+			AND dict_apply_end_state=#{applyEndStatus}
+	</select>
+	
+	<select id="getLoanApply" resultType="com.creditharmony.fortune.customer.entity.LoanApply">
+		SELECT 
+			customer_code as custCode
+		FROM 
+			t_tz_loan_apply
+		WHERE
+			lend_code=#{applyCode}
+	</select>
+	
+	<select id="getPreviousBackPlatform" parameterType="java.util.Map" resultType="string">
+		SELECT
+		    platform_id
+		FROM
+		    T_TZ_BACK_MONEY_POOL
+		WHERE
+		    lend_code IN(
+		        SELECT
+		            lend_code
+		        FROM
+		            T_TZ_LOAN_APPLY
+		        WHERE
+		            customer_code = #{customerCode}
+		    )
+		    and dict_back_status = #{dictBackStatus}
+		    order by final_linit_date desc limit 1
+	</select>
+</mapper>

@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.sms.dao.SmsDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.sms.entity.SmsSendList" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="customer_code" property="customerCode" jdbcType="VARCHAR" />
+    <result column="customer_phone" property="customerPhone" jdbcType="VARCHAR" />
+    <result column="manager_code" property="managerCode" jdbcType="VARCHAR" />
+    <result column="deduct_date" property="deductDate" jdbcType="DATE" />
+    <result column="bill_day" property="billDay" jdbcType="INTEGER" />
+    <result column="lend_money" property="lendMoney" jdbcType="NUMERIC" />
+    <result column="lend_day" property="lendDay" jdbcType="DATE" />
+    <result column="due_day" property="dueDay" jdbcType="DATE" />
+    <result column="dict_lend_type" property="dictLendType" jdbcType="VARCHAR" />
+    <result column="back_money_day" property="backMoneyDay" jdbcType="DATE" />
+    <result column="dict_repay_type" property="dictRepayType" jdbcType="VARCHAR" />
+    <result column="dict_deduct_status" property="dictDeductStatus" jdbcType="VARCHAR" />
+    <result column="bank_no" property="bankNo" jdbcType="VARCHAR" />
+    <result column="bank_name" property="bankName" jdbcType="VARCHAR" />
+    <result column="sms_id" property="smsId" jdbcType="VARCHAR" />
+    <result column="sms_msg" property="smsMsg" jdbcType="VARCHAR" />
+    <result column="send_status" property="sendStatus" jdbcType="VARCHAR" />
+    <result column="send_day" property="sendDay" jdbcType="DATE" />
+    <result column="push_day" property="pushDate" jdbcType="DATE" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+    <result column="org_name" property="orgName" jdbcType="VARCHAR" />
+    <result column="dict_back_status" property="dictBackStatus" jdbcType="VARCHAR" />
+    <result column="product_close_term" property="productCloseTerm" jdbcType="INTEGER" />
+    <result column="dict_remind_type" property="dictRemindType" jdbcType="VARCHAR" />
+    <result column="apply_day" property="applyDay" jdbcType="DATE" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, lend_code, customer_name, customer_code, customer_phone, manager_code, deduct_date, 
+    bill_day, lend_money, lend_day, due_day, dict_lend_type, back_money_day, dict_repay_type, 
+    dict_deduct_status, bank_no, bank_name, sms_id, sms_msg, send_status, send_day, push_day, 
+    area_name, org_name, dict_back_status, product_close_term, dict_remind_type, apply_day, 
+    create_by, create_time, modify_by, modify_time
+  </sql>
+  <select id="getSmsTemplate" resultType="com.creditharmony.fortune.sms.entity.SmsTemplate">
+		SELECT 
+			id, 
+			template_type, 
+			template_code, 
+			template_name, 
+			template_content, 
+			template_status, 
+			template_description, 
+			url, 
+			create_by, 
+			create_time, 
+			modify_by, 
+			modify_time
+		FROM 
+			t_gl_sms_template
+		WHERE
+			template_code = #{templateCode}
+	</select>
+	<insert id="insertSmsHis" parameterType="com.creditharmony.fortune.sms.entity.SmsHis">
+		INSERT INTO t_gl_sms_his(
+            id, lend_code, customer_code, customer_name, send_time, sms_msg, 
+            sms_templet_id, send_status, only_flag, create_by, create_time, 
+            modify_by, modify_time)
+	    VALUES (#{id}, #{lendCode}, #{customerCode}, #{customerName}, #{sendTime}, #{smsMsg}, 
+	            #{smsTempletId}, #{sendStatus}, #{onlyFlag}, #{createBy}, #{createTime}, 
+	            #{modifyBy}, #{modifyTime});
+	</insert>
+	<!-- 根据出借编号组装待发短信 -->
+  <select id="getSmsSend" parameterType="java.util.Map" 
+  	resultType="com.creditharmony.fortune.sms.entity.SmsSendList">
+  	SELECT 
+  		apply.lend_code, 
+  		apply.customer_code, 
+  		customer.customer_name, 
+  		product.product_name, 
+		customer.customer_mobilephone as customer_phone, 
+		customer.manager_code, 
+		apply.apply_deduct_day as deduct_date, 
+		apply.apply_billday as bill_day, 
+		apply.apply_deduct_money as lend_money, 
+		apply.apply_lend_day as lend_day, 
+		apply.apply_expire_day as due_day, 
+		apply.dict_apply_deduct_type as dict_repay_type,
+		
+		product.product_closedate as product_close_term,
+		apply.apply_day,
+		account.account_bank as accountBank,
+		account.account_no as bankNo,
+		
+		pool.fail_reason as failReason,
+<!-- 		pool.fail_reason as failReason, -->
+		pool.actual_deduct_money as deductSucceedMoney,
+		pool.fail_money as deductFailMoney,
+		pool.dict_deduct_status as dictDeductStatus,
+		apply.dict_apply_deduct_type as platformId,
+		account.account_bank as bankId,
+		u.name as managerName,
+		o.city_id as areaName,
+		o.name as orgName,
+		o.code as orgCode
+		
+	  FROM t_tz_loan_apply apply
+	  LEFT JOIN tz.t_tz_deduct_pool pool
+	  	ON pool.lend_code=apply.lend_code
+	  LEFT JOIN t_tz_customer customer
+		ON apply.customer_code=customer.customer_code
+	  LEFT JOIN t_tz_customer_account as account
+		ON apply.repay_id=account.id
+	  LEFT JOIN t_gl_tz_product product
+		ON apply.product_code=product.product_code
+	  left join tz.t_gl_org o on apply.store_org_id = o.id
+	  left join t_gl_user u on u.id=customer.manager_code
+	<where>
+		<if test="lendCode != null and lendCode != '' ">
+			apply.lend_code =#{lendCode}
+		</if>
+	</where>
+  </select>
+  
+  <insert id="insert" parameterType="com.creditharmony.fortune.sms.entity.SmsSendList" >
+    insert into t_gl_sms_send_list (id, lend_code, customer_name, 
+      customer_code, customer_phone, manager_code, 
+      deduct_date, bill_day, lend_money, 
+      lend_day, due_day, product_code, product_name,
+      back_money_day, dict_repay_type, dict_deduct_status, 
+      bank_no, bank_name, sms_id, 
+      sms_msg, send_status, send_day, 
+      push_day, area_name, org_name, 
+      dict_back_status, product_close_term, dict_remind_type, 
+      apply_day, only_flag, create_by, create_time, 
+      modify_by, modify_time,fail_reason,deduct_succeed_money,deduct_fail_money,platform_id,manager_name,
+      org_code,bank_id)
+    values (#{id,jdbcType=VARCHAR}, #{lendCode,jdbcType=VARCHAR}, #{customerName,jdbcType=VARCHAR}, 
+      #{customerCode,jdbcType=VARCHAR}, #{customerPhone,jdbcType=VARCHAR}, #{managerCode,jdbcType=VARCHAR}, 
+      #{deductDate,jdbcType=DATE}, #{billDay,jdbcType=INTEGER}, #{lendMoney,jdbcType=NUMERIC}, 
+      #{lendDay,jdbcType=DATE}, #{dueDay,jdbcType=DATE}, #{productCode,jdbcType=VARCHAR}, #{productName,jdbcType=VARCHAR},
+      #{backMoneyDay,jdbcType=DATE}, #{dictRepayType,jdbcType=VARCHAR}, #{dictDeductStatus,jdbcType=VARCHAR}, 
+      #{bankNo,jdbcType=VARCHAR}, #{bankName,jdbcType=VARCHAR}, #{smsId,jdbcType=VARCHAR}, 
+      #{smsMsg,jdbcType=VARCHAR}, #{sendStatus,jdbcType=VARCHAR}, #{sendDay,jdbcType=DATE}, 
+      #{pushDate,jdbcType=DATE}, #{areaName,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, 
+      #{dictBackStatus,jdbcType=VARCHAR}, #{productCloseTerm,jdbcType=INTEGER}, #{dictRemindType,jdbcType=VARCHAR}, 
+      #{applyDay,jdbcType=DATE}, #{onlyFlag,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP},#{failReason,jdbcType=VARCHAR},#{deductSucceedMoney,jdbcType=NUMERIC},#{deductFailMoney,jdbcType=NUMERIC},#{platformId,jdbcType=VARCHAR},#{managerName,jdbcType=VARCHAR},
+  	  #{orgCode,jdbcType=VARCHAR},#{bankId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.sms.entity.SmsSendList" >
+    insert into t_glsms_send_list
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="lendCode != null" >
+        lend_code,
+      </if>
+      <if test="customerName != null" >
+        customer_name,
+      </if>
+      <if test="customerCode != null" >
+        customer_code,
+      </if>
+      <if test="customerPhone != null" >
+        customer_phone,
+      </if>
+      <if test="managerCode != null" >
+        manager_code,
+      </if>
+      <if test="deductDate != null" >
+        deduct_date,
+      </if>
+      <if test="billDay != null" >
+        bill_day,
+      </if>
+      <if test="lendMoney != null" >
+        lend_money,
+      </if>
+      <if test="lendDay != null" >
+        lend_day,
+      </if>
+      <if test="dueDay != null" >
+        due_day,
+      </if>
+      <if test="dictLendType != null" >
+        dict_lend_type,
+      </if>
+      <if test="backMoneyDay != null" >
+        back_money_day,
+      </if>
+      <if test="dictRepayType != null" >
+        dict_repay_type,
+      </if>
+      <if test="dictDeductStatus != null" >
+        dict_deduct_status,
+      </if>
+      <if test="bankNo != null" >
+        bank_no,
+      </if>
+      <if test="bankName != null" >
+        bank_name,
+      </if>
+      <if test="smsId != null" >
+        sms_id,
+      </if>
+      <if test="smsMsg != null" >
+        sms_msg,
+      </if>
+      <if test="sendStatus != null" >
+        send_status,
+      </if>
+      <if test="sendDay != null" >
+        send_day,
+      </if>
+      <if test="pushDate != null" >
+        push_day,
+      </if>
+      <if test="areaName != null" >
+        area_name,
+      </if>
+      <if test="orgName != null" >
+        org_name,
+      </if>
+      <if test="dictBackStatus != null" >
+        dict_back_status,
+      </if>
+      <if test="productCloseTerm != null" >
+        product_close_term,
+      </if>
+      <if test="dictRemindType != null" >
+        dict_remind_type,
+      </if>
+      <if test="applyDay != null" >
+        apply_day,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="lendCode != null" >
+        #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="customerName != null" >
+        #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="customerCode != null" >
+        #{customerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="customerPhone != null" >
+        #{customerPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="managerCode != null" >
+        #{managerCode,jdbcType=VARCHAR},
+      </if>
+      <if test="deductDate != null" >
+        #{deductDate,jdbcType=DATE},
+      </if>
+      <if test="billDay != null" >
+        #{billDay,jdbcType=INTEGER},
+      </if>
+      <if test="lendMoney != null" >
+        #{lendMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="lendDay != null" >
+        #{lendDay,jdbcType=DATE},
+      </if>
+      <if test="dueDay != null" >
+        #{dueDay,jdbcType=DATE},
+      </if>
+      <if test="dictLendType != null" >
+        #{dictLendType,jdbcType=VARCHAR},
+      </if>
+      <if test="backMoneyDay != null" >
+        #{backMoneyDay,jdbcType=DATE},
+      </if>
+      <if test="dictRepayType != null" >
+        #{dictRepayType,jdbcType=VARCHAR},
+      </if>
+      <if test="dictDeductStatus != null" >
+        #{dictDeductStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="bankNo != null" >
+        #{bankNo,jdbcType=VARCHAR},
+      </if>
+      <if test="bankName != null" >
+        #{bankName,jdbcType=VARCHAR},
+      </if>
+      <if test="smsId != null" >
+        #{smsId,jdbcType=VARCHAR},
+      </if>
+      <if test="smsMsg != null" >
+        #{smsMsg,jdbcType=VARCHAR},
+      </if>
+      <if test="sendStatus != null" >
+        #{sendStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="sendDay != null" >
+        #{sendDay,jdbcType=DATE},
+      </if>
+      <if test="pushDate != null" >
+        #{pushDate,jdbcType=DATE},
+      </if>
+      <if test="areaName != null" >
+        #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="orgName != null" >
+        #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="dictBackStatus != null" >
+        #{dictBackStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="productCloseTerm != null" >
+        #{productCloseTerm,jdbcType=INTEGER},
+      </if>
+      <if test="dictRemindType != null" >
+        #{dictRemindType,jdbcType=VARCHAR},
+      </if>
+      <if test="applyDay != null" >
+        #{applyDay,jdbcType=DATE},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+</mapper>

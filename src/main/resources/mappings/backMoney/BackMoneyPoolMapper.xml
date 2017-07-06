@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.money.common.dao.BackMoneyPoolDao" >
+	<insert id="insert" parameterType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		INSERT INTO t_tz_back_money_pool(
+            backm_id, lend_code, final_linit_date, back_money_type, dict_back_status, 
+            back_money, back_actualback_money, back_money_remarks, back_money_day, 
+            dict_back_money_error, platform_id, create_by, create_time, modify_by, 
+            modify_time, back_result, back_reason, back_day, back_bank, reback_flag, 
+            success_money, fail_money,dict_fortunechannelflag,working_state)
+	    VALUES (#{backmId}, #{lendCode}, #{finalLinitDate}, #{backMoneyType}, #{dictBackStatus}, 
+	            #{backMoney}, #{backActualbackMoney}, #{backMoneyRemarks}, #{backMoneyDay}, 
+	            #{dictBackMoneyError}, #{platformId}, #{createBy}, #{createTime}, #{modifyBy}, 
+	            #{modifyTime}, #{backResult}, #{backReason}, #{backDay}, #{backBank}, #{rebackFlag},
+	            #{successMoney}, #{failMoney},#{dictFortunechannelflag},#{workingState})
+	</insert>
+	
+	<update id="update" parameterType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool" >
+    UPDATE t_tz_back_money_pool
+    <set >
+      <if test="dictBackStatus != null" >
+        dict_back_status = #{dictBackStatus},
+      </if>
+      <if test="backActualbackMoney != null" >
+        back_actualback_money = #{backActualbackMoney},
+      </if>
+       <if test="backMoney != null" >
+        back_money = #{backMoney},
+      </if>
+      <if test="backMoneyRemarks != null" >
+        back_money_remarks = #{backMoneyRemarks},
+      </if>
+      <if test="backMoneyDay != null" >
+        back_money_day = #{backMoneyDay},
+      </if>
+      <if test="finalLinitDate != null" >
+        final_linit_date = #{finalLinitDate},
+      </if>
+      <if test="dictBackMoneyError != null" >
+        dict_back_money_error = #{dictBackMoneyError},
+      </if>
+      <if test="backMoneyType != null and backMoneyType != ''" >
+        back_money_type = #{backMoneyType},
+      </if>
+      <if test="platformId != null" >
+        platform_id = #{platformId},
+      </if>
+      <if test="exPlatform != null" >
+        ex_platform = #{exPlatform},
+      </if>
+      <if test="backResult != null" >
+        back_result = #{backResult},
+      </if>
+      <if test="backReason != null" >
+        back_reason = #{backReason},
+      </if>
+      <if test="backDay != null" >
+        back_day = #{backDay},
+      </if>
+      <if test="backBank != null" >
+        back_bank = #{backBank},
+      </if>
+      <if test="rebackFlag != null" >
+        reback_flag = #{rebackFlag},
+      </if>
+      <if test="successMoney != null" >
+        success_money = #{successMoney},
+      </if>
+      <if test="failMoney != null" >
+        fail_money = #{failMoney},
+      </if>
+      <if test="dictFortunechannelflag != null and dictFortunechannelflag != ''" >
+        dict_fortunechannelflag = #{dictFortunechannelflag},
+      </if>
+      <if test="supplementedMoney != null ">
+		supplemented_money = #{supplementedMoney},
+      </if>
+      <if test="debtTransferDate != null ">
+		debt_transfer_date = #{debtTransferDate},
+      </if>
+      <if test="isSupplemented != null and isSupplemented != ''">
+		is_supplemented = #{isSupplemented},
+      </if>
+      <if test="supplementedDays != null">
+      	supplemented_days = #{supplementedDays},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime},
+      </if>
+      <!-- <if test="workingState != null" >
+        working_state = #{workingState},
+      </if> -->
+    </set>
+    WHERE 
+    	backm_id = #{backmId}
+    	<if test="verTime !=null and verTime !=''">
+	    	AND extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+    	</if>
+  </update>
+  
+	<update id="updateByLendCode" parameterType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		UPDATE
+			t_tz_back_money_pool
+		<set >
+	      <if test="dictBackStatus != null and dictBackStatus != ''" >
+	        dict_back_status = #{dictBackStatus},
+	      </if>
+	      <if test="backMoneyType != null and backMoneyType != ''" >
+	        back_money_type = #{backMoneyType},
+	      </if>
+	      <if test="backActualbackMoney != null" >
+	        back_actualback_money = #{backActualbackMoney},
+	      </if>
+	      <if test="backMoneyRemarks != null and backMoneyRemarks != ''" >
+	        back_money_remarks = #{backMoneyRemarks},
+	      </if>
+	      <if test="backMoneyDay != null and backMoneyDay != ''" >
+	        back_money_day = #{backMoneyDay},
+	      </if>
+	      <if test="dictBackMoneyError != null and dictBackMoneyError != ''" >
+	        dict_back_money_error = #{dictBackMoneyError},
+	      </if>
+	      <if test="platformId != null and platformId != ''" >
+	        platform_id = #{platformId},
+	      </if>
+	      <if test="modifyBy != null and modifyBy != ''" >
+	        modify_by = #{modifyBy},
+	      </if>
+	      <if test="modifyTime != null and modifyTime != ''" >
+	        modify_time = #{modifyTime},
+	      </if>
+	      <if test="backResult != null and backResult != ''" >
+	        back_result = #{backResult},
+	      </if>
+	      <if test="backReason != null" >
+	        back_reason = #{backReason},
+	      </if>
+	      <if test="backDay != null and backDay != ''" >
+	        back_day = #{backDay},
+	      </if>
+	      <if test="failMoney != null" >
+	        success_money = back_actualback_money - #{failMoney},
+	      </if>
+	      <if test="failMoney != null" >
+	        fail_money = #{failMoney},
+	      </if>
+	      <if test="dictFortunechannelflag != null and dictFortunechannelflag != ''" >
+	        dict_fortunechannelflag = #{dictFortunechannelflag},
+	      </if>
+	      <if test="supplementedMoney != null ">
+	        supplemented_money = #{supplementedMoney},
+	      </if>
+	      <if test="debtTransferDate != null ">
+	        debt_transfer_date = #{debtTransferDate},
+	      </if>
+	      <if test="isSupplemented != null and isSupplemented != ''">
+	        is_supplemented = #{isSupplemented},
+	      </if>
+	     <!--  <if test="workingState != null and workingState != ''">
+	        working_state = #{workingState},
+	      </if> -->
+	      <if test="interestDay != null and interestDay != ''">
+	      	interest_day = #{interestDay},
+	      </if>
+	      <if test="supplementedDays != null">
+	      	supplemented_days = #{supplementedDays},
+	      </if>
+	    </set>
+	    WHERE
+	    	lend_code = #{lendCode}
+	    <if test="verTime !=null and verTime !=''">
+	    	AND extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+    	</if>
+	</update>
+
+	<select id="getByLendCode" parameterType="java.lang.String" resultType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		select
+			backm_id, 
+			lend_code, 
+			final_linit_date, 
+			back_money_type, 
+			dict_back_status, 
+			nvl(back_money,0) back_money, 
+			nvl(back_actualback_money,0) back_actualback_money, 
+			back_money_remarks, 
+			back_money_day, 
+			dict_back_money_error, 
+			platform_id, 
+			create_by, 
+			create_time, 
+			modify_by, 
+			modify_time, 
+			back_result, 
+			back_reason, 
+			back_day, 
+			back_bank, 
+			reback_flag, 
+			success_money, 
+			fail_money,
+			dict_fortunechannelflag,
+			nvl(supplemented_money,0) supplemented_money,
+			debt_transfer_date,
+			is_supplemented,
+			working_state,
+			extract(epoch from modify_time) as "verTime"
+		from
+			t_tz_back_money_pool
+		where
+			lend_code=#{lendCode}
+	</select>
+
+	<select id="getByBackmId" resultType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		select
+			backm_id, lend_code, back_money_type, back_result,
+			final_linit_date,
+			extract(epoch from modify_time) as "verTime"
+		from
+			t_tz_back_money_pool
+		where
+			backm_id=#{backmId}
+	</select>
+	
+	<select id="getStatus" parameterType="java.lang.String" resultType="java.lang.String">
+		select
+			dict_back_status
+		from
+			t_tz_back_money_pool
+		where
+			backm_id=#{backmId}
+	</select>
+	
+	<select id="getBackResult" parameterType="java.lang.String" resultType="java.lang.String">
+		select
+			back_result
+		from
+			t_tz_back_money_pool
+		where
+			lend_code=#{lendCode}
+	</select>
+	
+	<select id="getRedeemStatus" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT 
+			redemption_status
+		FROM 
+			t_tz_redemption
+		where
+			lend_code=#{lendCode}
+	</select>
+	
+	<select id="forUpdate" resultType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		SELECT
+			*
+		FROM
+			t_tz_back_money_pool
+		WHERE
+			backm_id=#{backmId}
+	 		AND extract(epoch from modify_time)  = cast ( COALESCE(#{verTime},'0') as numeric)
+	 	FOR UPDATE
+	</select>
+	
+	<select id="getUpdateChannelPool" parameterType="com.creditharmony.fortune.back.money.common.view.ListItemView"
+		resultType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		SELECT
+			pool.*
+		FROM
+			t_tz_back_money_pool pool
+		LEFT JOIN 
+			t_tz_loan_apply loan ON loan.lend_code=pool.lend_code
+		WHERE
+            loan.lend_code = #{lendCode}
+            <if test="applyLendMoney!=null and applyLendMoney !='' ">
+	            AND loan.apply_lend_money = #{applyLendMoney}
+            </if>
+            <if test="applyLendDay !=null and applyLendDay !='' ">
+            	AND loan.apply_lend_day = #{applyLendDay}
+            </if>
+            <if test="finalLinitDate !=null and  finalLinitDate !='' ">
+	            AND loan.apply_expire_day = #{finalLinitDate}	
+            </if>
+            AND pool.dict_back_status IN
+			<foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+	    		'${item}'
+	    	</foreach>
+	</select>
+	
+	<!--  根据回款id获取回款实体类   -->
+	<select id="getSuplementList" parameterType="java.lang.String"  
+		resultType="com.creditharmony.fortune.back.money.common.entity.BackMoneyPool">
+		SELECT
+			backm_id , 
+			final_linit_date , 
+			back_money_day ,
+			back_actualback_money  ,
+			supplemented_money ,
+			is_supplemented,
+			back_money_type
+		FROM    
+			t_tz_back_money_pool 
+		WHERE  
+			backm_id=#{backmID};
+	</select>
+	
+	<!-- 修改回款在职状态 -->
+	<update id="updateWorkingState" parameterType="com.creditharmony.fortune.back.money.common.view.ListItemView">
+		UPDATE t_tz_back_money_pool
+    	<set >
+	    	<if test="workingState != null" >
+		        working_state = #{workingState},
+		    </if>
+	    </set>
+	    WHERE
+	    <if test="statusAcList != null">
+	    	dict_back_status  IN
+			<foreach collection="statusAcList" item="item" index="index" open="(" separator="," close=")">
+    			'${item}'
+    		</foreach>	    
+	    </if>
+	    
+	   	<if test="lendCodeList != null">
+	   	 	AND	lend_code  IN
+	   	 	<foreach collection="lendCodeList" item="item" index="index" open="(" separator="," close=")">
+	   			'${item}'
+	   	 	</foreach>
+	   	</if>
+	   	 ;
+	</update>
+	
+	<!-- 查询优先回款的状态  -->
+	<select id="searchPriorityItem" resultType="com.creditharmony.fortune.back.priority.common.view.PriorityDetailItem">
+		select 
+			x.priority_back_state  as priorityBackState,
+			back.lend_code as lendCode
+		from  
+		tz.t_tz_back_money_pool  back 
+		inner Join  
+			(
+				select 
+					prio.* 
+				from 
+					tz.t_tz_priority_back_pool  prio
+				inner join 
+				(
+					SELECT
+						lend_code, 
+						MAX(create_time) crttm 
+					FROM
+						tz.t_tz_priority_back_pool  
+					WHERE
+						create_time IS NOT NULL
+					GROUP BY 
+						lend_code
+				) a on a.crttm = prio.create_time and a.lend_code = prio.lend_code
+			)  x   on back.lend_code = x.lend_code
+		where back.backm_id = #{backmId};
+	</select>
+</mapper>

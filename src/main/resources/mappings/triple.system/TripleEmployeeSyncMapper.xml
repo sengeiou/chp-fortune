@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.triple.system.dao.TripleEmployeeSyncDao">
+	<!-- 插入理财经理信息发送信息表 -->
+	<insert id="insertIntEmployee" parameterType="com.creditharmony.fortune.triple.system.entity.IntEmployeeBean">
+	    insert into tz.int_employee
+	    <trim prefix="(" suffix=")" suffixOverrides="," >
+	        <if test="id != null and id != ''">id,</if>
+	        <if test="empCode != null and empCode != ''">emp_code,</if>
+	        <if test="empName != null and empName != ''">emp_name,</if>
+	        <if test="teamId != null and teamId != ''">teamid,</if>
+	        <if test="businessId != null and businessId != ''">businessid,</if>
+	        <if test="ustatus != null and ustatus != ''">status,</if>
+	        <if test="sex != null and sex != ''">sex,</if>
+	        <if test="mobilePhone != null and mobilePhone != ''">mobile_phone,</if>
+	        <if test="mail != null and mail != ''">mail,</if>
+	        <if test="empPosition != null and empPosition != ''">emp_position,</if>
+	        <if test="sendStatus != null and sendStatus != ''">send_status,</if>
+	        <if test="sendType != null and sendType != ''">send_type,</if>
+	        <if test="sendTime != null and sendTime != ''">send_time,</if>
+	        <if test="operation != null and operation != ''">operation,</if>
+	        <if test="parentId != null and parentId != ''">parentid,</if>
+	        <if test="createTime != null and createTime != ''">create_time,</if>
+	        <if test="lastModifyTime != null and lastModifyTime != ''">last_modify_time,</if>
+	        <if test="uniqueNum != null and uniqueNum != ''">unique_num,</if>
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides="," >
+	        <if test="id != null and id != ''">#{id,jdbcType=VARCHAR},</if>
+	        <if test="empCode != null and empCode != ''">#{empCode,jdbcType=VARCHAR},</if>
+	        <if test="empName != null and empName != ''">#{empName,jdbcType=VARCHAR},</if>
+	        <if test="teamId != null and teamId != ''">#{teamId,jdbcType=VARCHAR},</if>
+	        <if test="businessId != null and businessId != ''">#{businessId,jdbcType=VARCHAR},</if>
+	        <if test="ustatus != null and ustatus != ''">#{ustatus,jdbcType=VARCHAR},</if>
+	        <if test="sex != null and sex != ''">#{sex,jdbcType=VARCHAR},</if>
+	         <if test="mobilePhone != null and mobilePhone != ''">#{mobilePhone,jdbcType=VARCHAR},</if>
+	        <if test="mail != null and mail != ''">#{mail,jdbcType=VARCHAR},</if>
+	        <if test="empPosition != null and empPosition != ''">#{empPosition,jdbcType=VARCHAR},</if>
+	        <if test="sendStatus != null and sendStatus != ''">#{sendStatus,jdbcType=VARCHAR},</if>
+	        <if test="sendType != null and sendType != ''">#{sendType,jdbcType=VARCHAR},</if>
+	        <if test="sendTime != null and sendTime != ''">#{sendTime,jdbcType=TIMESTAMP},</if>
+	        <if test="operation != null and operation != ''">#{operation,jdbcType=VARCHAR},</if>
+	         <if test="parentId != null and parentId != ''">#{parentId,jdbcType=VARCHAR},</if>
+	        <if test="createTime != null and createTime != ''">#{createTime,jdbcType=TIMESTAMP},</if>
+	        <if test="lastModifyTime != null and lastModifyTime != ''">#{lastModifyTime,jdbcType=TIMESTAMP},</if>
+	        <if test="uniqueNum != null and uniqueNum != ''">#{uniqueNum,jdbcType=VARCHAR},</if>
+	    </trim>
+	</insert>
+	<!-- 根据三网消息反馈结果修改发送状态 -->
+    <update id="updateSendStatus" parameterType="com.creditharmony.fortune.triple.system.entity.IntEmployeeBean">
+	    update tz.int_employee
+	    <trim prefix="SET" suffixOverrides=",">
+	         <if test="sendStatus != null and sendStatus != ''">send_status = #{sendStatus,jdbcType=VARCHAR},</if>
+	    </trim>
+	    <where>
+			<if test="uniqueNum != null and uniqueNum != ''">
+			      unique_num = #{uniqueNum,jdbcType=VARCHAR}
+			</if>
+	    </where>
+    </update>
+</mapper>

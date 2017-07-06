@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.CreditorTradeDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.borrow.entity.CreditorTrade" >
+    <id column="trade_id" property="tradeId" jdbcType="VARCHAR" />
+    <result column="matching_id" property="matchingId" jdbcType="VARCHAR" />
+    <result column="lend_code" property="lendCode" jdbcType="VARCHAR" />
+    <result column="credit_node" property="creditNode" jdbcType="VARCHAR" />
+    <result column="credit_code" property="creditCode" jdbcType="VARCHAR" />
+    <result column="trade_expect_day" property="tradeExpectDay" jdbcType="TIMESTAMP" />
+    <result column="trade_actual_day" property="tradeActualDay" jdbcType="TIMESTAMP" />
+    <result column="trade_mate_money" property="tradeMateMoney" jdbcType="NUMERIC" />
+    <result column="trade_mate_money_percent" property="tradeMateMoneyPercent" jdbcType="VARCHAR" />
+    <result column="dict_trade_credit_status" property="dictTradeCreditStatus" jdbcType="VARCHAR" />
+    <result column="trade_pass_date" property="tradePassDate" jdbcType="TIMESTAMP" />
+    <result column="trade_deduct_day" property="tradeDeductDay" jdbcType="TIMESTAMP" />
+    <result column="trade_borrowdays_actual" property="tradeBorrowdaysActual" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    trade_id, matching_id, lend_code, credit_node, credit_code, trade_expect_day, trade_actual_day, 
+    trade_mate_money, trade_mate_money_percent, dict_trade_credit_status, trade_pass_date, 
+    trade_deduct_day, trade_borrowdays_actual, create_by, create_time, modify_by, modify_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_creditor_trade
+    where trade_id = #{tradeId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_tz_creditor_trade
+    where trade_id = #{tradeId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx" >
+    insert into t_tz_creditor_trade (trade_id, matching_id, lend_code, 
+      credit_node, credit_code, trade_expect_day, 
+      trade_actual_day, trade_mate_money, trade_mate_money_percent, 
+      dict_trade_credit_status, trade_pass_date, 
+      trade_deduct_day, trade_borrowdays_actual, 
+      create_by, create_time, modify_by, 
+      modify_time)
+    values (#{tradeId,jdbcType=VARCHAR}, #{matchingId,jdbcType=VARCHAR}, #{lendCode,jdbcType=VARCHAR}, 
+      #{creditNode,jdbcType=VARCHAR}, #{creditCode,jdbcType=VARCHAR}, #{tradeExpectDay,jdbcType=TIMESTAMP}, 
+      #{tradeActualDay,jdbcType=TIMESTAMP}, #{tradeMateMoney,jdbcType=NUMERIC}, #{tradeMateMoneyPercent,jdbcType=VARCHAR}, 
+      #{dictTradeCreditStatus,jdbcType=VARCHAR}, #{tradePassDate,jdbcType=TIMESTAMP}, 
+      #{tradeDeductDay,jdbcType=TIMESTAMP}, #{tradeBorrowdaysActual,jdbcType=VARCHAR}, 
+      #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, 
+      #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx" >
+    insert into t_tz_creditor_trade
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tradeId != null" >
+        trade_id,
+      </if>
+      <if test="matchingId != null" >
+        matching_id,
+      </if>
+      <if test="lendCode != null" >
+        lend_code,
+      </if>
+      <if test="creditNode != null" >
+        credit_node,
+      </if>
+      <if test="creditCode != null" >
+        credit_code,
+      </if>
+      <if test="tradeExpectDay != null" >
+        trade_expect_day,
+      </if>
+      <if test="tradeActualDay != null" >
+        trade_actual_day,
+      </if>
+      <if test="tradeMateMoney != null" >
+        trade_mate_money,
+      </if>
+      <if test="tradeMateMoneyPercent != null" >
+        trade_mate_money_percent,
+      </if>
+      <if test="dictTradeCreditStatus != null" >
+        dict_trade_credit_status,
+      </if>
+      <if test="tradePassDate != null" >
+        trade_pass_date,
+      </if>
+      <if test="tradeDeductDay != null" >
+        trade_deduct_day,
+      </if>
+      <if test="tradeBorrowdaysActual != null" >
+        trade_borrowdays_actual,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tradeId != null" >
+        #{tradeId,jdbcType=VARCHAR},
+      </if>
+      <if test="matchingId != null" >
+        #{matchingId,jdbcType=VARCHAR},
+      </if>
+      <if test="lendCode != null" >
+        #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creditNode != null" >
+        #{creditNode,jdbcType=VARCHAR},
+      </if>
+      <if test="creditCode != null" >
+        #{creditCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeExpectDay != null" >
+        #{tradeExpectDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeActualDay != null" >
+        #{tradeActualDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeMateMoney != null" >
+        #{tradeMateMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="tradeMateMoneyPercent != null" >
+        #{tradeMateMoneyPercent,jdbcType=VARCHAR},
+      </if>
+      <if test="dictTradeCreditStatus != null" >
+        #{dictTradeCreditStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="tradePassDate != null" >
+        #{tradePassDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeDeductDay != null" >
+        #{tradeDeductDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeBorrowdaysActual != null" >
+        #{tradeBorrowdaysActual,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <!--通过债权推荐ID 获取债权交易数量  -->
+  <select id="getcountByMatchingId" resultType="java.lang.Integer" parameterType="java.lang.String">
+  select count(*) from T_TZ_CREDITOR_TRADE
+  where MATCHING_ID =#{matchingId}
+  </select>
+  <!-- 通过债权推荐Id获取已推荐债权列表 -->
+  <select id="getytjzqlbByMatchingId" resultType="com.creditharmony.fortune.creditor.matching.view.CreditorTradeView" parameterType="java.lang.String">
+ 
+</select>
+  <update id="updateByPrimaryKeySelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx" >
+    update t_tz_creditor_trade
+    <set >
+      <if test="matchingId != null" >
+        matching_id = #{matchingId,jdbcType=VARCHAR},
+      </if>
+      <if test="lendCode != null" >
+        lend_code = #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creditNode != null" >
+        credit_node = #{creditNode,jdbcType=VARCHAR},
+      </if>
+      <if test="creditCode != null" >
+        credit_code = #{creditCode,jdbcType=VARCHAR},
+      </if>
+      <if test="tradeExpectDay != null" >
+        trade_expect_day = #{tradeExpectDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeActualDay != null" >
+        trade_actual_day = #{tradeActualDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeMateMoney != null" >
+        trade_mate_money = #{tradeMateMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="tradeMateMoneyPercent != null" >
+        trade_mate_money_percent = #{tradeMateMoneyPercent,jdbcType=VARCHAR},
+      </if>
+      <if test="dictTradeCreditStatus != null" >
+        dict_trade_credit_status = #{dictTradeCreditStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="tradePassDate != null" >
+        trade_pass_date = #{tradePassDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeDeductDay != null" >
+        trade_deduct_day = #{tradeDeductDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="tradeBorrowdaysActual != null" >
+        trade_borrowdays_actual = #{tradeBorrowdaysActual,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where trade_id = #{tradeId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx" >
+    update t_tz_creditor_trade
+    set matching_id = #{matchingId,jdbcType=VARCHAR},
+      lend_code = #{lendCode,jdbcType=VARCHAR},
+      credit_node = #{creditNode,jdbcType=VARCHAR},
+      credit_code = #{creditCode,jdbcType=VARCHAR},
+      trade_expect_day = #{tradeExpectDay,jdbcType=TIMESTAMP},
+      trade_actual_day = #{tradeActualDay,jdbcType=TIMESTAMP},
+      trade_mate_money = #{tradeMateMoney,jdbcType=NUMERIC},
+      trade_mate_money_percent = #{tradeMateMoneyPercent,jdbcType=VARCHAR},
+      dict_trade_credit_status = #{dictTradeCreditStatus,jdbcType=VARCHAR},
+      trade_pass_date = #{tradePassDate,jdbcType=TIMESTAMP},
+      trade_deduct_day = #{tradeDeductDay,jdbcType=TIMESTAMP},
+      trade_borrowdays_actual = #{tradeBorrowdaysActual,jdbcType=VARCHAR},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_by = #{modifyBy,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    where trade_id = #{tradeId,jdbcType=VARCHAR}
+  </update>
+</mapper>

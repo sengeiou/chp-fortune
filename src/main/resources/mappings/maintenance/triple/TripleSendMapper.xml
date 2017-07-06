@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.maintenance.triple.dao.TripleSendDao">
+<!--查询客户理财经理变更  -->
+<select id="findManagerChange" parameterType="java.util.Map" resultType="com.creditharmony.fortune.triple.system.entity.IntCustomerBean">
+	SELECT
+	*
+	FROM
+	tz."int_customer"
+	<include refid="dynamicQuery"></include>
+</select>
+
+<!--查询组织机构变更  -->
+<select id="findOrgChange" parameterType="java.util.Map" resultType="com.creditharmony.fortune.triple.system.entity.IntOrgBean">
+	SELECT
+	<!-- id,
+    org_name AS orgName,
+    province_name AS provinceName,
+    city_name AS cityName,
+    description AS description,
+    org_type AS orgType,
+    org_addr AS orgAddr,
+    contracts AS contracts,
+    contract_num AS contractNum,
+    send_status AS sendStatus,
+    send_time AS sendTime,
+    unique_num AS uniqueNum -->
+    *
+	FROM
+    tz."int_org"
+	<include refid="dynamicQuery"></include>
+</select>
+
+<!--查询用户同步  -->
+
+<select id="findUserSynchro" parameterType="java.util.Map" resultType="com.creditharmony.fortune.triple.system.entity.IntEmployeeBean">
+	SELECT
+	<!-- id,
+    emp_code AS empCode,
+    emp_name AS empName,
+    teamid AS teamId,
+    businessid AS businessId,
+    status AS status,
+    sex AS sex,
+    mobile_phone AS mobilePhone,
+    mail AS mail,
+    emp_position AS empPosition,
+    send_status AS sendStatus,
+    send_time AS sendTime,
+    unique_num AS uniqueNum -->
+    *
+	FROM
+	tz."int_employee"
+	<include refid="dynamicQuery"></include>
+</select>
+<!--sql块  -->
+<sql id="dynamicQuery">
+	where 
+	1=1
+	<if test="sendTimeFrom != null and sendTimeFrom != '' ">
+		<![CDATA[ AND send_time >=to_timestamp(#{sendTimeFrom},'YYYY-MM-DD')]]>
+	</if>
+	<if test="sendTimeTo != null and sendTimeTo != '' ">
+		<![CDATA[ AND send_time <=to_timestamp(#{sendTimeTo},'YYYY-MM-DD')]]>
+	</if>		
+</sql>
+</mapper>

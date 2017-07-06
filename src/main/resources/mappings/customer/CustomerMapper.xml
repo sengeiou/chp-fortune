@@ -1,0 +1,1154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.customer.dao.CustomerDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.customer.entity.Customer" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="customer_code" property="custCode" jdbcType="VARCHAR" />
+    <result column="customer_name" property="custName" jdbcType="VARCHAR" />
+    <result column="customer_realname" property="custRealname" jdbcType="VARCHAR" />
+    <result column="dict_customer_sex" property="dictCustSex" jdbcType="VARCHAR" />
+    <result column="dict_customer_source" property="dictCustSource" jdbcType="VARCHAR" />
+    <result column="customer_terminal" property="dataTerminal" jdbcType="VARCHAR" />
+    <result column="customer_mobilephone" property="custMobilephone" jdbcType="VARCHAR" />
+    <result column="customer_tel" property="custPhone" jdbcType="VARCHAR" />
+    <result column="customer_email" property="custEmail" jdbcType="VARCHAR" />
+    <result column="customer_unitname" property="custUnitname" jdbcType="VARCHAR" />
+    <result column="customer_industry" property="custIndustry" jdbcType="VARCHAR" />
+    <result column="customer_post" property="custPost" jdbcType="VARCHAR" />
+    <result column="customer_fax" property="custFax" jdbcType="VARCHAR" />
+    <result column="dict_customer_cert_type" property="custCertType" jdbcType="VARCHAR" />
+    <result column="customer_cert_num" property="custCertNum" jdbcType="VARCHAR" />
+    <result column="customer_cert_org" property="custCertOrg" jdbcType="VARCHAR" />
+    <result column="customer_cert_issueday" property="custCertIssuedate" jdbcType="DATE" />
+    <result column="customer_cert_failuredate" property="custCertFailuredate" jdbcType="DATE" />
+    <result column="customer_cert_permanent" property="custCertPermanent" jdbcType="VARCHAR" />
+    <result column="customer_ename" property="custEname" jdbcType="VARCHAR" />
+    <result column="dict_customer_education" property="custEducation" jdbcType="VARCHAR" />
+    <result column="dict_customer_marriage" property="custMarriage" jdbcType="VARCHAR" />
+    <result column="customer_birthday" property="custBirthday" jdbcType="DATE" />
+    <result column="customer_mother_name" property="custMotherName" jdbcType="VARCHAR" />
+    <result column="customer_first_contactday" property="custFirstContactdate" jdbcType="DATE" />
+    <result column="customer_occupation" property="custOccupation" jdbcType="VARCHAR" />
+    <result column="customer_work_experience" property="custWorkExperience" jdbcType="VARCHAR" />
+    <result column="customer_unit_scale" property="custUnitScale" jdbcType="VARCHAR" />
+    <result column="add_id" property="address.id" jdbcType="VARCHAR" />
+    <result column="dict_customer_state" property="custState" jdbcType="VARCHAR" />
+    <result column="customer_lending" property="custLending" jdbcType="VARCHAR" />
+    <result column="dict_customer_mark" property="custMark" jdbcType="VARCHAR" />
+    <result column="tele_manager_id" property="teleManagerId" jdbcType="VARCHAR" />
+    <result column="tele_manager_name" property="teleManagerName" jdbcType="VARCHAR" />
+    <result column="tele_time" property="teleTime" jdbcType="DATE" />
+    <result column="dict_source_type" property="sourceEdition" jdbcType="VARCHAR" />
+    <result column="is_delivery" property="isDelivery" jdbcType="VARCHAR"/>
+    <result column="manager_code" property="managerCode" jdbcType="VARCHAR" />
+    <result column="org_code" property="orgCode" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="manager_name" property="managerName" jdbcType="VARCHAR" />
+    <result column="team_manager_name" property="teamManagerName" jdbcType="VARCHAR" />
+    <result column="province" property="address.addrProvince" jdbcType="VARCHAR" />
+    <result column="provinceValue" property="address.addrProvinceValue" jdbcType="VARCHAR" />
+    <result column="city" property="address.addrCity" jdbcType="VARCHAR" />
+    <result column="cityValue" property="address.addrCityValue" jdbcType="VARCHAR" />
+    <result column="district" property="address.addrDistrict" jdbcType="VARCHAR" />
+    <result column="districtValue" property="address.addrDistrictValue" jdbcType="VARCHAR" />
+    <result column="address" property="address.addr" jdbcType="VARCHAR" />
+    <result column="postal" property="address.addrPostalCode" jdbcType="VARCHAR" />
+    <result column="applyId" property="applyId" jdbcType="VARCHAR" />
+    <result column="storesName" property="storesName" jdbcType="VARCHAR" />
+    <result column="teamName" property="teamName" jdbcType="VARCHAR" />
+    <result column="province_id" property="provinceId" jdbcType="VARCHAR" />
+    <result column="city_id" property="cityId" jdbcType="VARCHAR" />
+    <result column="poolStatus" property="poolStatus" jdbcType="VARCHAR" />
+    <result column="trusteeship_no" property="trusteeshipNo" jdbcType="VARCHAR" />
+    <result column="apply_hosted_status" property="applyHostedStatus" jdbcType="VARCHAR" />
+    <result column="trusteeship_account_id" property="trusteeshipAccountId" jdbcType="VARCHAR" />
+    <result column="transfer_state" property="transferState" jdbcType="VARCHAR" />
+    <result column="team_org_id" property="teamOrgId" jdbcType="VARCHAR" />
+    <result column="team_org_name" property="teamName" jdbcType="VARCHAR" />
+    <result column="storesId" property="storesId" jdbcType="VARCHAR" />
+    <result column="customer_code_old" property="oldCustomerCode" jdbcType="VARCHAR" />
+    
+    <result column="provinceName" property="provinceName" jdbcType="VARCHAR" />
+    <result column="cityName" property="cityName" jdbcType="VARCHAR" />
+    <result column="customer_terminal_name" property="customerTerminalName" jdbcType="VARCHAR" />
+    <result column="dict_customer_source_name" property="dictCustomerSourceName" jdbcType="VARCHAR" />
+    <result column="customer_lending_name" property="customerLendingName" jdbcType="VARCHAR" />
+    
+    <result column="old_org_name" property="customerOldOrgName" jdbcType="VARCHAR" />
+    <result column="old_provinceid" property="customerOldProvinceId" jdbcType="VARCHAR" />
+    <result column="old_province_name" property="customerOldProvinceName" jdbcType="VARCHAR" />
+    <result column="old_cityid" property="customerOldCityid" jdbcType="VARCHAR" />
+    <result column="old_city_name" property="customerOldCityName" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <!-- insert 客户  -->
+  <insert id="insert" parameterType="com.creditharmony.fortune.customer.entity.Customer" >
+    insert into tz.t_tz_customer (
+      id, 
+      customer_code, 
+      customer_name, 
+      customer_realname, 
+      dict_customer_sex, 
+      dict_customer_source, 
+      customer_terminal,
+      customer_mobilephone, 
+      customer_tel, 
+      customer_email, 
+      customer_unitname, 
+      customer_industry, 
+      customer_post, 
+      customer_fax, 
+      dict_customer_cert_type, 
+      customer_cert_num, 
+      customer_cert_org, 
+      customer_cert_issueday, 
+      customer_cert_failuredate, 
+      customer_cert_permanent, 
+      customer_ename, 
+      dict_customer_education, 
+      dict_customer_marriage, 
+      customer_birthday, 
+      customer_mother_name, 
+      customer_first_contactday, 
+      customer_occupation, 
+      customer_work_experience, 
+      customer_unit_scale, 
+      add_id,
+      dict_customer_state, 
+      customer_lending, 
+      dict_customer_mark, 
+      tele_manager_id, 
+      tele_time, 
+      is_delivery,
+      manager_code, 
+      create_by, 
+      create_time, 
+      modify_by, 
+      modify_time,
+      org_code,
+      apply_hosted_status,
+      team_org_id,
+      team_manager_code
+      )
+    values (
+    	#{id,jdbcType=VARCHAR}, 
+    	#{custCode,jdbcType=VARCHAR}, 
+    	#{custName,jdbcType=VARCHAR}, 
+        #{custRealname,jdbcType=VARCHAR}, 
+        #{dictCustSex,jdbcType=VARCHAR}, 
+        #{dictCustSource,jdbcType=VARCHAR}, 
+        #{dataTerminal,jdbcType=VARCHAR}, 
+        #{custMobilephone,jdbcType=VARCHAR}, 
+        #{custPhone,jdbcType=VARCHAR}, 
+        #{custEmail,jdbcType=VARCHAR}, 
+        #{custUnitname,jdbcType=VARCHAR}, 
+        #{custIndustry,jdbcType=VARCHAR}, 
+        #{custPost,jdbcType=VARCHAR}, 
+        #{custFax,jdbcType=VARCHAR}, 
+        #{custCertType,jdbcType=VARCHAR}, 
+        #{custCertNum,jdbcType=VARCHAR}, 
+        #{custCertOrg,jdbcType=VARCHAR}, 
+        #{custCertIssuedate,jdbcType=DATE}, 
+        #{custCertFailuredate,jdbcType=DATE}, 
+      	#{custCertPermanent,jdbcType=VARCHAR}, 
+      	#{custEname,jdbcType=VARCHAR}, 
+      	#{custEducation,jdbcType=VARCHAR}, 
+      	#{custMarriage,jdbcType=VARCHAR}, 
+     	#{custBirthday,jdbcType=DATE}, 
+     	#{custMotherName,jdbcType=VARCHAR}, 
+        #{custFirstContactdate,jdbcType=DATE}, 
+        #{custOccupation,jdbcType=VARCHAR}, 
+        #{custWorkExperience,jdbcType=VARCHAR}, 
+        #{custUnitScale,jdbcType=VARCHAR},
+        #{address.id,jdbcType=VARCHAR},
+        #{custState,jdbcType=VARCHAR},
+        #{custLending,jdbcType=VARCHAR}, 
+        #{custMark,jdbcType=VARCHAR},
+        #{teleManagerId,jdbcType=VARCHAR}, 
+        #{teleTime,jdbcType=DATE}, 
+        #{isDelivery,jdbcType=VARCHAR},
+        #{managerCode,jdbcType=VARCHAR},
+        #{createBy,jdbcType=VARCHAR}, 
+        #{createTime,jdbcType=TIMESTAMP}, 
+        #{modifyBy,jdbcType=VARCHAR}, 
+        #{modifyTime,jdbcType=TIMESTAMP},
+        #{orgCode,jdbcType=VARCHAR},
+        #{applyHostedStatus,jdbcType=VARCHAR},
+        #{teamOrgId,jdbcType=VARCHAR},
+        #{teamManagerCode,jdbcType=VARCHAR}
+        )
+  </insert>
+  
+  <!-- 修改客户信息 -->
+  <update id="update" parameterType="com.creditharmony.fortune.customer.entity.Customer">
+  	  update tz.t_tz_customer set
+  	  customer_name = #{custName,jdbcType=VARCHAR},
+  	  customer_realname = #{custRealname,jdbcType=VARCHAR},
+  	  dict_customer_sex = #{dictCustSex,jdbcType=VARCHAR},
+  	  dict_customer_source = #{dictCustSource,jdbcType=VARCHAR},
+  	  customer_mobilephone = #{custMobilephone,jdbcType=VARCHAR},
+  	  customer_tel = #{custPhone,jdbcType=VARCHAR},
+  	  customer_email = #{custEmail,jdbcType=VARCHAR},
+  	  customer_unitname = #{custUnitname,jdbcType=VARCHAR},
+  	  customer_industry = #{custIndustry,jdbcType=VARCHAR},
+  	  customer_post = #{custPost,jdbcType=VARCHAR},
+  	  customer_fax = #{custFax,jdbcType=VARCHAR},
+  	  dict_customer_cert_type = #{custCertType,jdbcType=VARCHAR},
+  	  customer_cert_num = #{custCertNum,jdbcType=VARCHAR},
+  	  customer_cert_org = #{custCertOrg,jdbcType=VARCHAR},
+  	  customer_cert_issueday = #{custCertIssuedate,jdbcType=DATE},
+  	  customer_cert_failuredate = #{custCertFailuredate,jdbcType=DATE},
+  	  customer_cert_permanent = #{custCertPermanent,jdbcType=VARCHAR},
+  	  customer_ename = #{custEname,jdbcType=VARCHAR},
+  	  dict_customer_education = #{custEducation,jdbcType=VARCHAR},
+  	  dict_customer_marriage = #{custMarriage,jdbcType=VARCHAR},
+  	  customer_birthday = #{custBirthday,jdbcType=DATE},
+  	  customer_mother_name = #{custMotherName,jdbcType=VARCHAR},
+  	  customer_first_contactday = #{custFirstContactdate,jdbcType=DATE},
+  	  customer_occupation = #{custOccupation,jdbcType=VARCHAR},
+  	  customer_work_experience = #{custWorkExperience,jdbcType=VARCHAR},
+  	  customer_unit_scale = #{custUnitScale,jdbcType=VARCHAR},
+  	  dict_customer_state = #{custState,jdbcType=VARCHAR},
+  	  customer_lending = #{custLending,jdbcType=VARCHAR},
+  	  dict_customer_mark = #{custMark,jdbcType=VARCHAR},
+  	  tele_manager_id = #{teleManagerId,jdbcType=VARCHAR},
+  	  tele_time = #{teleTime,jdbcType=DATE},
+  	  dict_source_type = #{sourceEdition,jdbcType=VARCHAR},
+  	  is_delivery = #{isDelivery,jdbcType=VARCHAR},
+  	  manager_code = #{managerCode,jdbcType=VARCHAR},
+  	  modify_by = #{modifyBy,jdbcType=VARCHAR},
+  	  modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+  	  org_code = #{orgCode,jdbcType=VARCHAR},
+  	  trusteeship_no = #{trusteeshipNo,jdbcType=VARCHAR},
+  	  apply_hosted_status = #{applyHostedStatus,jdbcType=VARCHAR},
+  	  team_org_id = #{teamOrgId,jdbcType=VARCHAR}
+  	  <where>
+  	  	  <if test="id != null and id != ''">   <!-- 客户ID  -->
+	    	  id = #{id}
+	      </if>
+	      <if test="custCode != null and custCode != ''">  <!-- 客户编号 -->
+	    	  and customer_code = #{custCode}
+	      </if>
+  	  </where>
+  </update>
+  
+  <!-- 查询客户列表  -->
+  <select id="findInvestList" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+    select * from (select c.*,
+        a.addr_province    province,
+    	a.addr_city        city,
+    	o.province_id      province_id,
+    	o.city_id          city_id,
+    	o.name             storesName,
+<!--     	utel.name  tele_manager_name, -->
+    	pool.data_type poolStatus , 
+    	mu.name  as manager_name,
+    	case when pool.data_type is null then '0' else  pool.data_type end as pool_Data_type,
+    	teamOrg.name  team_org_name,
+    	team.name  as team_manager_name
+     from   (select 
+     				ci.id as id,
+     				ci.customer_name as customer_name,
+            		ci.customer_code as customer_code,
+            		ci.customer_terminal as customer_terminal,
+            		ci.create_time as create_time,
+            		ci.dict_customer_source as dict_customer_source,
+            		ci.add_id as add_id,
+            		ci.org_code as org_code,
+            		ci.team_manager_code as team_manager_code,
+            		ci.team_org_id as team_org_id,
+            		ci.transfer_state as transfer_state,
+            		ci.customer_lending as customer_lending,
+            		ci.dict_customer_state as dict_customer_state,
+            		ci.manager_code as manager_code,
+            		ci.customer_mobilephone as customer_mobilephone,
+            		ci.customer_cert_num as customer_cert_num
+             from tz.t_tz_customer ci 
+             where 1=1 
+     		<if test="sqlMap != null and sqlMap != ''">    <!-- 权限SQL  -->
+	    		${sqlMap.dataRights}
+	    	</if>
+	    	<!-- and (transfer_state !='1' or transfer_state is null) -->
+     	)c
+       left join tz.t_tz_addr          a   on c.add_id        = a.id
+       left join tz.t_gl_org 	       o   on o.id = c.org_code
+<!--        left join tz.t_gl_user utel on c.tele_manager_id = utel.id 电销客服ID -->
+       left join tz.t_tz_customer_pool   pool on pool.customer_code = c.customer_code 
+       LEFT JOIN tz.t_gl_user mu  ON  c.manager_code = mu.id
+       <!-- 团队经理信息 -->
+       LEFT JOIN tz.t_gl_user team  ON  c.team_manager_code = team.id
+       left join tz.t_gl_org teamOrg on teamOrg.id = c.team_org_id
+    <where>
+         1 = 1
+         
+    	<if test="custName != null and custName != ''">  <!-- 客户姓名 -->
+	    	and c.customer_name like  '%'||#{custName}||'%'
+	    </if>
+	    <if test="address != null and address != ''">   <!-- 客户地址信息  -->
+	    	<if test="address.addrCity != null and address.addrCity != ''">
+	    		and a.addr_city = #{address.addrCity}
+	    	</if>
+	    </if>
+	    <if test="custMobilephone != null and custMobilephone != ''">   <!--移动电话  -->
+	    	and c.customer_mobilephone like '%${custMobilephone}%'
+	    </if>
+	    <if test="custCode != null and custCode != ''">  <!-- 客户编号 -->
+	    	and c.customer_code like '%${custCode}%'
+	    </if>
+	    <if test="dictCustSource != null and dictCustSource != ''">   <!-- 客户来源 -->
+	    	and c.dict_customer_source = #{dictCustSource}
+	    </if>
+	    <if test="custState != null and custState != ''">   <!-- 当前状态 -->
+	    	and c.dict_customer_state = #{custState}
+	    </if>
+	    <if test="custLending != null and custLending != ''">   <!-- 是否做过出借 -->
+	    	and c.customer_lending = #{custLending}
+	    </if>
+	    <if test="managerName != null and managerName != ''">
+	    	and mu.name  like  '%' || #{managerName, jdbcType=VARCHAR} || '%'
+	    </if>
+	    
+	    <if test="storesName != null and storesName != ''">   <!-- 营业部名称  -->
+	    	and o.name like  '%' || #{storesName, jdbcType=VARCHAR} || '%'
+	    </if>
+	    <if test="applyHostedStatus != null and applyHostedStatus != ''">    <!-- 托管状态 -->
+	    	and c.apply_hosted_status = #{applyHostedStatus,jdbcType=VARCHAR}
+	    </if>
+	    
+	    <if test="addrCity != null and addrCity != ''">		 <!-- 城市 -->
+			AND o.PROVINCE_ID||'_'||o.CITY_ID SIMILAR TO '%'|| replace(#{addrCity},',','%|%')|| '%'
+		</if>
+	   
+    </where>
+    <if test="page != null and page != ''">
+    	<if test="page.orderBy != null and page.orderBy != ''">   <!-- 排序  -->
+	    	order by ${page.orderBy}
+	    </if>
+    </if>
+    ) 
+    <!-- where pool_Data_type != '1' and pool_Data_type != '3'    刨除在公共池1、退回公共池3 的客户  -->
+    order by create_time desc
+  </select>
+  
+   <!-- 查询客户列表 导出客户信息数据 -->
+  <select id="findCustomExportList" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+     select * from (select c.*,
+        a.addr_province    province,
+    	a.addr_city        city,
+    	o.province_id      province_id,
+    	gp.area_name as provinceName,
+    	o.city_id          city_id,
+    	gc.area_name as cityName,
+    	o.name             storesName,
+    	pool.data_type poolStatus , 
+    	mu.name  as manager_name,
+    	case when pool.data_type is null then '0' else  pool.data_type end as pool_Data_type,
+    	teamOrg.name  team_org_name,
+    	team.name  as team_manager_name,
+    	dict1.label as customer_terminal_name,
+    	dict2.label as dict_customer_source_name,
+    	dict3.label as customer_lending_name
+     from   (select      				
+     				ci.id as id,
+     				ci.customer_name as customer_name,
+            		ci.customer_code as customer_code,
+            		ci.customer_terminal as customer_terminal,
+            		ci.create_time as create_time,
+            		ci.dict_customer_source as dict_customer_source,
+            		ci.add_id as add_id,
+            		ci.org_code as org_code,
+            		ci.team_manager_code as team_manager_code,
+            		ci.team_org_id as team_org_id,
+            		ci.transfer_state as transfer_state,
+            		ci.customer_lending as customer_lending,
+            		ci.dict_customer_state as dict_customer_state,
+            		ci.manager_code as manager_code,
+            		ci.customer_mobilephone as customer_mobilephone,
+            		ci.customer_cert_num as customer_cert_num
+             from tz.t_tz_customer ci 
+             where 1=1 
+     		<if test="sqlMap != null and sqlMap != ''">    <!-- 权限SQL  -->
+	    		${sqlMap.dataRights}
+	    	</if>
+     	)c
+       left join tz.t_tz_addr          a   on c.add_id        = a.id
+       left join tz.t_gl_org 	       o   on o.id = c.org_code
+       left join tz.t_tz_customer_pool   pool on pool.customer_code = c.customer_code 
+       LEFT JOIN tz.t_gl_user mu  ON  c.manager_code = mu.id
+       <!-- 团队经理信息 -->
+       LEFT JOIN tz.t_gl_user team  ON  c.team_manager_code = team.id
+       left join tz.t_gl_org teamOrg on teamOrg.id = c.team_org_id
+       left join (select distinct value,label from tz.t_gl_dict where type='tz_data_source') dict1 on c.customer_terminal=dict1.value 
+       left join (select distinct value,label from tz.t_gl_dict where type='tz_customer_src') dict2 on c.dict_customer_source=dict2.value 
+       left join (select distinct value,label from tz.t_gl_dict where type='tz_invest_state') dict3 on c.customer_lending=dict3.value        
+       left join tz.t_gl_province_city gp on gp.id = o.province_id
+	   left join tz.t_gl_province_city gc on gc.id = o.city_id	
+    <where>
+         1 = 1
+         
+    	<if test="custName != null and custName != ''">  <!-- 客户姓名 -->
+	    	and c.customer_name like  '%'||#{custName}||'%'
+	    </if>
+	    <if test="address != null and address != ''">   <!-- 客户地址信息  -->
+	    	<if test="address.addrCity != null and address.addrCity != ''">
+	    		and a.addr_city = #{address.addrCity}
+	    	</if>
+	    </if>
+	    <if test="custMobilephone != null and custMobilephone != ''">   <!--移动电话  -->
+	    	and c.customer_mobilephone like '%${custMobilephone}%'
+	    </if>
+	    <if test="custCode != null and custCode != ''">  <!-- 客户编号 -->
+	    	and c.customer_code like '%${custCode}%'
+	    </if>
+	    <if test="dictCustSource != null and dictCustSource != ''">   <!-- 客户来源 -->
+	    	and c.dict_customer_source = #{dictCustSource}
+	    </if>
+	    <if test="custState != null and custState != ''">   <!-- 当前状态 -->
+	    	and c.dict_customer_state = #{custState}
+	    </if>
+	    <if test="custLending != null and custLending != ''">   <!-- 是否做过出借 -->
+	    	and c.customer_lending = #{custLending}
+	    </if>
+	    <if test="managerName != null and managerName != ''">
+	    	and mu.name  like  '%' || #{managerName, jdbcType=VARCHAR} || '%'
+	    </if>
+	    
+	    <if test="storesName != null and storesName != ''">   <!-- 营业部名称  -->
+	    	and o.name like  '%' || #{storesName, jdbcType=VARCHAR} || '%'
+	    </if>
+	    <if test="applyHostedStatus != null and applyHostedStatus != ''">    <!-- 托管状态 -->
+	    	and c.apply_hosted_status = #{applyHostedStatus,jdbcType=VARCHAR}
+	    </if>
+	    
+	    <if test="addrCity != null and addrCity != ''">		 <!-- 城市 -->
+			AND o.PROVINCE_ID||'_'||o.CITY_ID SIMILAR TO '%'|| replace(#{addrCity},',','%|%')|| '%'
+		</if>
+	   
+    </where> 
+     <if test="page != null and page != ''">
+    	<if test="page.orderBy != null and page.orderBy != ''">   <!-- 排序  -->
+	    	order by ${page.orderBy}
+	    </if>
+    </if>
+    ) 
+    order by create_time desc
+  </select>
+  
+  <!-- 查询客户列表， 用户出借申请客户查询列表  -->
+  <select id="getCustomer4LendApply" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select * from (select c.*,
+        a.addr_province    province,
+    	a.addr_city        city,
+    	o.province_id      province_id,
+    	o.city_id          city_id,
+    	o.name             storesName,
+    	o.id               storesId,
+    	utel.name  tele_manager_name,
+    	pool.data_type poolStatus , 
+    	mu.name  as manager_name,
+    	case when pool.data_type is null then '0' else  pool.data_type end as pool_Data_type,
+    	teamOrg.name  team_org_name, teamUser.name as team_manager_name
+     from   tz.t_tz_customer      c
+       left join tz.t_tz_addr          a   on c.add_id        = a.id
+       left join tz.t_gl_org 	       o   on o.id = c.org_code
+       left join tz.t_gl_user utel on c.tele_manager_id = utel.id
+       left join tz.t_tz_customer_pool   pool on pool.customer_code = c.customer_code 
+       LEFT JOIN tz.t_gl_user mu  ON  c.manager_code = mu.id
+       left join tz.t_gl_org teamOrg on teamOrg.id = c.team_org_id
+       left join tz.t_gl_user teamUser on c.team_manager_code = teamUser.id
+    <where>
+         1 = 1
+         and (c.transfer_state !='1' or c.transfer_state is null)
+    	<if test="customer.custName != null and customer.custName != ''">  <!-- 客户姓名 -->
+	    	and c.customer_name like  '%'||#{customer.custName}||'%'
+	    </if>
+	    <if test="customer.custMobilephone != null and customer.custMobilephone != ''">   <!--移动电话  -->
+	    	and c.customer_mobilephone like '%${customer.custMobilephone}%'
+	    </if>
+	    <if test="customer.dictCustSource != null and customer.dictCustSource != ''">   <!-- 客户来源 -->
+	    	and c.dict_customer_source = #{customer.dictCustSource}
+	    </if>
+	    <if test="customer.custCode != null and customer.custCode != ''">  <!-- 客户编号 -->
+	    	and c.customer_code like '%${customer.custCode}%'
+	    </if>
+	    <if test="customer.custState != null and customer.custState != ''">   <!-- 当前状态 -->
+	    	and c.dict_customer_state = #{customer.custState}
+	    </if>
+	    <if test="customer.custLending != null and customer.custLending != ''">   <!-- 是否做过出借 -->
+	    	and c.customer_lending = #{customer.custLending}
+	    </if>
+	    <if test="customer.storesName != null and customer.storesName != ''">   <!-- 营业部名称  -->
+	    	and o.name like  '%' || #{customer.storesName, jdbcType=VARCHAR} || '%'
+	    </if>
+	    <if test="customer.applyHostedStatus != null and customer.applyHostedStatus != ''">    <!-- 托管状态 -->
+	    	and c.apply_hosted_status = #{customer.applyHostedStatus,jdbcType=VARCHAR}
+	    </if>
+	    <if test="customer.sqlMap != null and customer.sqlMap != ''">    <!-- 权限SQL  -->
+	    	${customer.sqlMap.dataRights}
+	    </if>
+    </where>
+    ) where pool_Data_type != '1' and pool_Data_type != '3'    <!-- 刨除在公共池1、退回公共池3 的客户  -->
+     order by customer_code
+  </select>
+  
+  <!-- 查1条客户  -->
+  <select id="getCustomer" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+    select c.*, 
+    	   extract(epoch from c.modify_time) as verTime,
+           a.addr             address,
+           a.addr_postal_code postal,
+           a.addr_province    province,
+           a.addr_city        city,
+    	   a.addr_district    district,
+           utel.name  tele_manager_name,
+    	pool.data_type poolStatus,
+    		u.name   managerName
+    from    tz.t_tz_customer      c
+	  left join tz.t_tz_addr          a   on c.add_id        = a.id
+	  left join tz.t_gl_user utel on c.tele_manager_id = utel.id
+	  left join tz.t_gl_user u on c.manager_code = u.id
+	  left join tz.t_tz_customer_pool pool on pool.customer_code = c.customer_code 
+    <where>
+    	<if test="id != null and id != ''">   <!-- 客户ID  -->
+	    	c.id = #{id}
+	    </if>
+    	<if test="custCode != null and custCode != ''">  <!--客户编号  -->
+	    	and c.customer_code = #{custCode}
+	    </if>
+    	<if test="custName != null and custName != ''">  <!-- 客户姓名  -->
+	    	and c.customer_name = #{custName}
+	    </if>
+	    <if test="custMobilephone != null and custMobilephone != ''">  <!-- 移动电话 -->
+	    	and c.customer_mobilephone = #{custMobilephone}
+	    </if>
+	     <if test="custCertType != null and custCertType != ''  and  custCertNum != null and custCertNum != ''  "> <!-- 证件类型 证件号码  -->
+	    	and c.dict_customer_cert_type = #{custCertType }
+	    	and c.customer_cert_num = #{custCertNum}
+	    </if>
+    </where>
+    limit 1
+  </select>
+  
+  <!-- 查符合条件的身份证出现的次数 -->
+  <select id="getCustomerCertNumCnt"  parameterType="com.creditharmony.fortune.customer.entity.Customer"  resultType="Integer">
+    select count(c.customer_code)
+    from    tz.t_tz_customer      c
+    <where>
+    	<if test="id != null and id != ''">  <!-- 客户ID  -->
+	    	c.id = #{id}
+	    </if>
+    	<if test="custCode != null and custCode != ''">  <!--客户编号  -->
+	    	and c.customer_code not in (#{custCode})
+	    </if>
+	     <if test="custCertType != null and custCertType != ''  and  custCertNum != null and custCertNum != ''  ">  <!-- 证件类型 证件号码  -->
+	    	and c.dict_customer_cert_type = #{custCertType }
+	    	and c.customer_cert_num = #{custCertNum }
+	    </if>
+    </where>
+  </select>
+  
+  <!-- 客户生日提醒列表 -->
+  <select id="findList" resultType="CustomerBirthdayEx">
+		SELECT
+		t.id,
+		t.customer_code as cust_code, 
+		t.customer_name as cust_name,
+		t.customer_cert_num as cust_cert_num, 
+		t.dict_customer_sex as dictCustSex, 
+		t.customer_mobilephone as cust_phone, 
+		t.customer_birthday as cust_birthday, 
+		date_part('year',age(t.customer_birthday)) as custAge,
+		tz.f_birthday2(t.customer_birthday) as lastBirthdayDay,
+		t.manager_code as managerCode
+		FROM tz.t_tz_customer t
+<!-- 		LEFT JOIN tz.t_gl_system_dict d -->
+<!-- 			ON  d.dict_id='dict_cust_sex' and d.dict_value=t.dict_customer_sex -->
+<!-- 		LEFT JOIN tz.t_gl_system_dict d1 -->
+<!-- 			ON  d1.dict_id='customer_terminal' and d1.dict_value=t.customer_terminal -->
+		<where>
+		  <if test="custCode != null  and custCode != ''">  <!--客户编号  -->
+				and	t.customer_code= #{custCode}
+	      </if>
+	      <if test="custName != null and custName != ''">  <!-- 客户姓名  -->
+	            and	t.customer_name LIKE '%'||#{custName}||'%'
+	      </if>
+	      <if test="custPhone != null and custPhone != ''">   <!-- 移动电话 -->
+	        	and t.customer_mobilephone=#{custPhone}
+	      </if>
+	      <if test="sqlMap.dataRights != null ">   <!-- 权限控制 -->
+	        	${sqlMap.dataRights}
+	      </if>
+		</where>
+		order by lastBirthdayDay asc
+	</select>
+  
+    <!--获取客户信息  -->
+    <select id="getCustomerbyphone" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+		select  
+		    c.customer_code custCode,
+		    c.customer_name custName,
+		    c.create_time createTime,
+		    c.dict_customer_state custState,
+		    c.manager_code managerCode
+		from tz.t_tz_customer c
+		<where>
+			<if test="custMobilephone != null and custMobilephone != ''">
+				c.customer_mobilephone = #{custMobilephone}
+			</if>
+		</where>
+	 </select>  
+	 <!-- 根据客户Code获取客户信息 -->
+	 <select id="getCustomerInfo" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+		 select c.*,
+        pc1.id        province,
+    	pc1.area_name provinceValue,
+    	pc2.id        city,
+    	pc2.area_name cityValue,
+    	u.name   managerName
+     from   tz.t_tz_customer      c
+       join tz.t_tz_addr          a   on c.add_id        = a.id
+  left join tz.t_gl_province_city pc1 on a.addr_province = pc1.id
+  left join tz.t_gl_province_city pc2 on a.addr_city     = pc2.id
+  left join tz.t_gl_province_city pc3 on a.addr_district = pc3.id
+  left join tz.t_gl_user  u on u.id = c.manager_code
+		<where>
+			<if test="custCode != null and custCode != ''">
+				c.customer_code = #{custCode}
+			</if>
+		</where>
+	 </select>  
+	  <!-- 根据客户Code获取客户信息2 -->
+	 <select id="getCustomerbyCode" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+		select c.*,
+		extract(epoch from c.modify_time) as verTime,
+        pc1.id        province,
+    	pc1.area_name provinceValue,
+    	pc2.id        city,
+    	pc2.area_name cityValue
+    	
+     from   tz.t_tz_customer      c
+  left join tz.t_tz_addr          a   on c.add_id        = a.id
+  left join tz.t_gl_province_city pc1 on a.addr_province = pc1.id
+  left join tz.t_gl_province_city pc2 on a.addr_city     = pc2.id
+  left join tz.t_gl_province_city pc3 on a.addr_district = pc3.id
+		<where>
+			<if test="custCode != null and custCode != ''">
+				c.customer_code = #{custCode}
+			</if>
+		</where>
+	 </select>
+	 <select id="getCustomerbyCodeForUpdate" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+		select *
+     	from t_tz_customer
+		where customer_code = #{custCode}
+		for update
+	 </select>  
+	 
+	 <!-- 抢单成功更新理财经理CODE -->
+	 <update id="updateManage" parameterType="com.creditharmony.fortune.customer.entity.Customer">
+	     update tz.t_tz_customer set
+	     manager_code = #{managerCode,jdbcType=VARCHAR}
+	     <where>
+	      <if test="custCode != null and custCode != ''">
+	    	  and customer_code = #{custCode}
+	      </if>
+  	  </where>
+	 </update>
+	 
+	 <update id="updateApplyLending" parameterType="com.creditharmony.fortune.customer.entity.Customer">
+	 	UPDATE 
+	 		t_tz_customer 
+	 	<set>
+	 		<if test="custLending != null" >
+		 		customer_lending = #{custLending},
+			</if>
+	 		<if test="modifyBy != null" >
+				modify_by=#{modifyBy},
+			</if>
+			<if test="modifyTime != null" >
+				modify_time=#{modifyTime},
+			</if> 
+	 	</set>
+	 	WHERE
+	 		customer_code = #{custCode}
+	 </update>
+	 
+	<!--  更新金账户信息 -->
+	 <update id="updateTrusteeship" parameterType="com.creditharmony.fortune.customer.entity.Customer">
+	 	update t_tz_customer 
+	 	set 
+	 		<if test="applyHostedStatus != null and applyHostedStatus != ''">
+		 		apply_hosted_status = #{applyHostedStatus,jdbcType=VARCHAR},
+	 		</if>
+	 		<if test="trusteeshipNo != null and trusteeshipNo != ''">
+		 		trusteeship_no = #{trusteeshipNo,jdbcType=VARCHAR},
+	 		</if>
+	 		<if test="trusteeshipRetCode != null and trusteeshipRetCode != ''">
+		 		trusteeship_ret_code = #{trusteeshipRetCode,jdbcType=VARCHAR},
+	 		</if>
+		 	<if test="trusteeshipRetMsg != null and trusteeshipRetMsg != ''">
+		 		trusteeship_ret_msg = #{trusteeshipRetMsg,jdbcType=VARCHAR},
+	 		</if>
+	 		modify_by = #{modifyBy,jdbcType=VARCHAR},
+  	  		modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+	 	<where>
+	 		customer_code = #{custCode,jdbcType=VARCHAR}
+	 		<if test="verTime !=null and verTime !=''">
+	 		  and extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+	 		</if> 
+	 	</where>
+	 </update>
+	 <!-- 待金账户开户，金账户开户失败的客户信息查询 -->
+	 <select id="queryCustomer" parameterType="java.util.HashMap" resultMap="BaseResultMap">
+	 	select c.*
+	 	from t_tz_customer c
+	 	<where>
+	 		<!-- 开户申请中，开户失败 -->
+	 		apply_hosted_status in ('1','3')
+	 		<if test="mobilePhone != '' and mobilePhone != null">
+	 			and customer_mobilephone=#{mobilePhone,jdbcType=VARCHAR}
+	 		</if>
+	 		<if test="idCard != '' and idCard != null">
+	 			and customer_cert_num=#{idCard,jdbcType=VARCHAR}
+	 		</if>
+	 		<if test="name != '' and name != null">
+	 			and customer_name=#{name,jdbcType=VARCHAR}
+	 		</if>
+	 	</where>
+	 </select>
+	 
+	 <update id="updateTrusteeAccountId">
+	 	update tz.t_tz_customer
+	 	<set>
+	 		trusteeship_account_id=#{accountId,jdbcType=VARCHAR}
+	 	</set>
+	 	<where>
+	 		customer_code = #{code,jdbcType=VARCHAR}
+	 	</where>
+	 </update>
+	 
+<!-- 	 <insert id="insertAgreementLib" parameterType="java.util.HashMap"> -->
+<!-- 	 	INSERT INTO t_tz_agreement_lib( -->
+<!--             id, customer_code, business_type, voice_dail, agreement_remarks,  -->
+<!--             create_by, create_time, modify_by, modify_time) -->
+<!--     VALUES (#{id}, #{customerCode}, #{businessType}, #{voiceDail}, #{agreementRemarks},  -->
+<!--             #{createBy}, #{createTime,jdbcType=TIMESTAMP}, #{modifyBy}, #{modifyTime,jdbcType=TIMESTAMP}); -->
+<!-- 	 </insert> -->
+	 <select id="forUpdate" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+	 	select c.*
+	 	from t_tz_customer c
+	 	<where>
+	 		customer_code = #{custCode,jdbcType=VARCHAR}
+	 		and extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+	 	</where>
+	 	for update
+	 </select>
+	 
+	 <update id="updateCustomer" parameterType="com.creditharmony.fortune.customer.entity.Customer">
+	 	update t_tz_customer
+	 	set manager_code=#{managerCode,jdbcType=VARCHAR},
+	 		org_code=#{orgCode,jdbcType=VARCHAR},
+	 		team_org_id=#{teamOrgId,jdbcType=VARCHAR},
+	 		dict_customer_state=#{custState,jdbcType=VARCHAR},
+	 		modify_by = #{modifyBy,jdbcType=VARCHAR},
+  	  		modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+  	  	<where>
+  	  		customer_code = #{custCode,jdbcType=VARCHAR}
+  	  	</where>
+	 </update>
+	 
+	  <select id="getCusByCode" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+	 	select 
+	 	id, 
+      customer_code, 
+      customer_name, 
+      customer_realname, 
+      dict_customer_sex, 
+      dict_customer_source, 
+      customer_terminal,
+      customer_mobilephone, 
+      customer_tel, 
+      customer_email, 
+      customer_unitname, 
+      customer_industry, 
+      customer_post, 
+      customer_fax, 
+      dict_customer_cert_type, 
+      customer_cert_num, 
+      customer_cert_org, 
+      customer_cert_issueday, 
+      customer_cert_failuredate, 
+      customer_cert_permanent, 
+      customer_ename, 
+      dict_customer_education, 
+      dict_customer_marriage, 
+      customer_birthday, 
+      customer_mother_name, 
+      customer_first_contactday, 
+      customer_occupation, 
+      customer_work_experience, 
+      customer_unit_scale, 
+      add_id,
+      dict_customer_state, 
+      customer_lending, 
+      dict_customer_mark, 
+      tele_manager_id, 
+      tele_time, 
+      is_delivery,
+      manager_code, 
+      create_by, 
+      create_time, 
+      modify_by, 
+      modify_time,
+      org_code,
+      apply_hosted_status,
+      team_org_id,
+      team_manager_code
+	 	from t_tz_customer c
+	 	<where>
+	 		customer_code = #{custCode,jdbcType=VARCHAR}
+	 	</where>
+	 </select>
+	 
+	 
+	 
+	 
+	 
+	 <!-- gaoxu 2016-11-15 11:40:51   应对电销  我的客户列表电销  -->
+  <select id="findInvestElectricList" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultMap="BaseResultMap">
+    select * from (select c.*,
+        a.addr_province    province,
+    	a.addr_city        city,
+    	o.province_id      province_id,
+    	o.city_id          city_id,
+    	o.name             storesName,
+<!--     	utel.name  tele_manager_name, -->
+    	pool.data_type poolStatus , 
+    	mu.name  as manager_name,
+    	case when pool.data_type is null then '0' else  pool.data_type end as pool_Data_type,
+    	teamOrg.name  team_org_name,
+    	team.name  as team_manager_name,
+     	ide.old_org_name as old_org_name/**原机构**/,
+    	ide.old_provinceid old_provinceid/**原省**/,
+    	ide.old_province_name old_province_name/**原省中文**/,
+    	ide.old_cityid old_cityid/**原市**/,
+    	ide.old_city_name old_city_name/**原市中文**/ 
+     from   (select 
+     				ci.id as id,
+     				ci.customer_name as customer_name,
+            		ci.customer_code as customer_code,
+            		ci.customer_terminal as customer_terminal,
+            		ci.create_time as create_time,
+            		ci.dict_customer_source as dict_customer_source,
+            		ci.add_id as add_id,
+            		ci.org_code as org_code,
+            		ci.team_manager_code as team_manager_code,
+            		ci.team_org_id as team_org_id,
+            		ci.transfer_state as transfer_state,
+            		ci.customer_lending as customer_lending,
+            		ci.dict_customer_state as dict_customer_state,
+            		ci.manager_code as manager_code,
+            		ci.customer_mobilephone as customer_mobilephone,
+            		ci.customer_cert_num as customer_cert_num
+             from tz.t_tz_customer ci 
+             where ci.manager_code in (select id from tz.t_gl_user where user_code='400801') 
+     		<!-- <if test="sqlMap != null and sqlMap != ''">    权限SQL 
+	    		${sqlMap.dataRights}
+	    	</if> -->
+	    	<!-- and (transfer_state !='1' or transfer_state is null) -->
+     	)c
+       left join tz.t_tz_addr          a   on c.add_id        = a.id
+       left join tz.t_gl_org 	       o   on o.id = c.org_code
+<!--        left join tz.t_gl_user utel on c.tele_manager_id = utel.id 电销客服ID -->
+       left join tz.t_tz_customer_pool   pool on pool.customer_code = c.customer_code 
+       LEFT JOIN tz.t_gl_user mu  ON  c.manager_code = mu.id
+       <!-- 团队经理信息 -->
+       LEFT JOIN tz.t_gl_user team  ON  c.team_manager_code = team.id
+       left join tz.t_gl_org teamOrg on teamOrg.id = c.team_org_id
+       left join (select d2.create_time as create_time, d2.customer_code as customer_code,d.org_name as org_name,
+       ior.id as ior_id,
+             ior.name as old_org_name/**原机构**/,
+    	ior.province_id old_provinceid/**原省**/,
+    	pc1.area_name old_province_name/**原省中文**/,
+    	ior.city_id old_cityid/**原市**/,
+    	pc2.area_name old_city_name/**原市中文**/ 
+    	from       (
+                        SELECT  MAX(d1.create_time) AS create_time, d1.customer_code
+                        FROM
+                            tz.int_delivery d1
+                        WHERE
+                            d1.os_type = 'XH_CHP'
+                            AND d1.customer_code IS NOT NULL
+                            AND d1.customer_code != ''
+                            AND d1.delivery_type != '4'
+                            AND d1.customer_code IN(
+                                SELECT  customer_code
+                                FROM  tz.t_tz_customer
+                                WHERE  manager_code IN( SELECT id    FROM  tz.t_gl_user  WHERE user_code = '400801' )
+                            )
+                        GROUP BY
+                            d1.customer_code
+                    ) d2
+                        left join tz.int_delivery d
+                        ON d2.customer_code = d.customer_code
+                    AND d2.create_time = d.create_time
+                  AND d2.customer_code IN(
+                                SELECT  customer_code
+                                FROM  tz.t_tz_customer
+                                WHERE  manager_code IN( SELECT id    FROM  tz.t_gl_user  WHERE user_code = '400801' )
+                            )
+                   	LEFT JOIN tz.t_gl_org ior
+                ON ior.name = d.org_name and ior.del_flag = '0'
+                left join tz.t_gl_province_city pc1 on pc1.id=ior.province_id
+				left join tz.t_gl_province_city pc2 on pc2.id=ior.city_id 
+				
+				<where>
+						1=1
+					<if test="addrCity != null and addrCity != ''">		 <!-- 城市 -->
+				 		and ior.province_id||'_'||ior.city_id SIMILAR TO '%'|| replace(#{addrCity},',','%|%')|| '%'
+					</if>
+		   				<if test="customerOldOrgId != null and customerOldOrgId != '' and customerOldOrgIdList!=null ">
+						AND ior.id in
+						<foreach collection="customerOldOrgIdList" item="item" open="(" close=")"
+							index="index" separator=",">
+							#{item}
+					</foreach>
+					</if>
+				</where>
+				
+				
+				
+				) ide on ide.customer_code = c.customer_code
+       
+    <where>
+         1 = 1
+         
+    	<if test="custName != null and custName != ''">  <!-- 客户姓名 -->
+	    	and c.customer_name like  '%'||#{custName}||'%'
+	    </if>
+	    <if test="address != null and address != ''">   <!-- 客户地址信息  -->
+	    	<if test="address.addrCity != null and address.addrCity != ''">
+	    		and a.addr_city = #{address.addrCity}
+	    	</if>
+	    </if>
+	    <if test="custMobilephone != null and custMobilephone != ''">   <!--移动电话  -->
+	    	and c.customer_mobilephone like '%${custMobilephone}%'
+	    </if>
+	    <if test="custCode != null and custCode != ''">  <!-- 客户编号 -->
+	    	and c.customer_code like '%${custCode}%'
+	    </if>
+	    <if test="dictCustSource != null and dictCustSource != ''">   <!-- 客户来源 -->
+	    	and c.dict_customer_source = #{dictCustSource}
+	    </if>
+	    <if test="custState != null and custState != ''">   <!-- 当前状态 -->
+	    	and c.dict_customer_state = #{custState}
+	    </if>
+	    <if test="custLending != null and custLending != ''">   <!-- 是否做过出借 -->
+	    	and c.customer_lending = #{custLending}
+	    </if>
+	    <if test="managerName != null and managerName != ''">
+	    	and mu.name  like  '%' || #{managerName, jdbcType=VARCHAR} || '%'
+	    </if>
+	    
+	    <if test="storesName != null and storesName != ''">   <!-- 营业部名称  -->
+	    	and o.name like  '%' || #{storesName, jdbcType=VARCHAR} || '%'
+	    </if>
+	    <if test="applyHostedStatus != null and applyHostedStatus != ''">    <!-- 托管状态 -->
+	    	and c.apply_hosted_status = #{applyHostedStatus,jdbcType=VARCHAR}
+	    </if>
+	    <if test="addrCity != null and addrCity != ''">		 <!-- 城市 -->
+			and ide.old_provinceid||'_'||ide.old_cityid SIMILAR TO '%'|| replace(#{addrCity},',','%|%')|| '%'
+		</if>
+		
+		<if test="customerOldOrgId != null and customerOldOrgId != '' and customerOldOrgIdList!=null ">
+					AND ide.ior_id in
+					<foreach collection="customerOldOrgIdList" item="item" open="(" close=")"
+						index="index" separator=",">
+						#{item}
+					</foreach>
+	    </if>
+    </where>
+    <if test="page != null and page != ''">
+    	<if test="page.orderBy != null and page.orderBy != ''">   <!-- 排序  -->
+	    	order by ${page.orderBy}
+	    </if>
+    </if>
+    ) 
+    <!-- where pool_Data_type != '1' and pool_Data_type != '3'    刨除在公共池1、退回公共池3 的客户  -->
+ order by create_time desc  
+  </select>
+	 
+	 
+	 
+	 
+	  <!-- gaoxu 2016-11-15 11:40:51   应对电销  我的客户列表电销  -->
+  <select id="findInvestElectricExcel" parameterType="com.creditharmony.fortune.customer.entity.Customer" resultType="java.util.Map">
+  select * from (select c.*,
+        a.addr_province    province,
+    	a.addr_city        city,
+    	o.province_id      province_id,
+    	o.city_id          city_id,
+    	o.name             storesName,
+<!--     	utel.name  tele_manager_name, -->
+    	pool.data_type poolStatus , 
+    	mu.name  as manager_name,
+    	case when pool.data_type is null then '0' else  pool.data_type end as pool_Data_type,
+    	teamOrg.name  team_org_name,
+    	team.name  as team_manager_name,
+     	ide.old_org_name as old_org_name/**原机构**/,
+    	ide.old_provinceid old_provinceid/**原省**/,
+    	ide.old_province_name old_province_name/**原省中文**/,
+    	ide.old_cityid old_cityid/**原市**/,
+    	ide.old_city_name old_city_name/**原市中文**/ ,
+    	    	dict3.label as invest_state_label,
+    	dict2.label as transfer_state_label
+     from   (select 
+     				ci.id as id,
+     				ci.customer_name as customer_name,
+            		ci.customer_code as customer_code,
+            		ci.customer_terminal as customer_terminal,
+            		ci.create_time as create_time,
+            		ci.dict_customer_source as dict_customer_source,
+            		ci.add_id as add_id,
+            		ci.org_code as org_code,
+            		ci.team_manager_code as team_manager_code,
+            		ci.team_org_id as team_org_id,
+            		ci.transfer_state as transfer_state,
+            		ci.customer_lending as customer_lending,
+            		ci.dict_customer_state as dict_customer_state,
+            		ci.manager_code as manager_code,
+            		ci.customer_mobilephone as customer_mobilephone,
+            		ci.customer_cert_num as customer_cert_num
+             from tz.t_tz_customer ci 
+             where ci.manager_code in (select id from tz.t_gl_user where user_code='400801') 
+     		<!-- <if test="sqlMap != null and sqlMap != ''">    权限SQL 
+	    		${sqlMap.dataRights}
+	    	</if> -->
+	    	<!-- and (transfer_state !='1' or transfer_state is null) -->
+     	)c
+       left join tz.t_tz_addr          a   on c.add_id        = a.id
+       left join tz.t_gl_org 	       o   on o.id = c.org_code
+<!--        left join tz.t_gl_user utel on c.tele_manager_id = utel.id 电销客服ID -->
+       left join tz.t_tz_customer_pool   pool on pool.customer_code = c.customer_code 
+       LEFT JOIN tz.t_gl_user mu  ON  c.manager_code = mu.id
+       <!-- 团队经理信息 -->
+       LEFT JOIN tz.t_gl_user team  ON  c.team_manager_code = team.id
+       left join tz.t_gl_org teamOrg on teamOrg.id = c.team_org_id
+       left join (select d2.create_time as create_time, d2.customer_code as customer_code,d.org_name as org_name,
+       ior.id as ior_id,
+             ior.name as old_org_name/**原机构**/,
+    	ior.province_id old_provinceid/**原省**/,
+    	pc1.area_name old_province_name/**原省中文**/,
+    	ior.city_id old_cityid/**原市**/,
+    	pc2.area_name old_city_name/**原市中文**/ 
+    	from       (
+                        SELECT  MAX(d1.create_time) AS create_time, d1.customer_code
+                        FROM
+                            tz.int_delivery d1
+                        WHERE
+                            d1.os_type = 'XH_CHP'
+                            AND d1.customer_code IS NOT NULL
+                            AND d1.customer_code != ''
+                            AND d1.delivery_type != '4'
+                            AND d1.customer_code IN(
+                                SELECT  customer_code
+                                FROM  tz.t_tz_customer
+                                WHERE  manager_code IN( SELECT id    FROM  tz.t_gl_user  WHERE user_code = '400801' )
+                            )
+                        GROUP BY
+                            d1.customer_code
+                    ) d2
+                        left join tz.int_delivery d
+                        ON d2.customer_code = d.customer_code
+                    AND d2.create_time = d.create_time
+                  AND d2.customer_code IN(
+                                SELECT  customer_code
+                                FROM  tz.t_tz_customer
+                                WHERE  manager_code IN( SELECT id    FROM  tz.t_gl_user  WHERE user_code = '400801' )
+                            )
+                   	LEFT JOIN tz.t_gl_org ior
+                ON ior.name = d.org_name and ior.del_flag = '0'
+                left join tz.t_gl_province_city pc1 on pc1.id=ior.province_id
+				left join tz.t_gl_province_city pc2 on pc2.id=ior.city_id 
+				
+				<where>
+						1=1
+					<if test="addrCity != null and addrCity != ''">		 <!-- 城市 -->
+				 		and ior.province_id||'_'||ior.city_id SIMILAR TO '%'|| replace(#{addrCity},',','%|%')|| '%'
+					</if>
+		   				<if test="customerOldOrgId != null and customerOldOrgId != '' and customerOldOrgIdList!=null ">
+						AND ior.id in
+						<foreach collection="customerOldOrgIdList" item="item" open="(" close=")"
+							index="index" separator=",">
+							#{item}
+					</foreach>
+					</if>
+				</where>
+				
+				
+				
+				) ide on ide.customer_code = c.customer_code
+        left join (select distinct value,label from tz.t_gl_dict where type='tz_transfer_state') dict2 on c.transfer_state=dict2.value 
+       left join (select distinct value,label from tz.t_gl_dict where type='tz_invest_state') dict3 on c.customer_lending=dict3.value    
+    <where>
+         1 = 1
+         
+    	<if test="custName != null and custName != ''">  <!-- 客户姓名 -->
+	    	and c.customer_name like  '%'||#{custName}||'%'
+	    </if>
+	    <if test="address != null and address != ''">   <!-- 客户地址信息  -->
+	    	<if test="address.addrCity != null and address.addrCity != ''">
+	    		and a.addr_city = #{address.addrCity}
+	    	</if>
+	    </if>
+	    <if test="custMobilephone != null and custMobilephone != ''">   <!--移动电话  -->
+	    	and c.customer_mobilephone like '%${custMobilephone}%'
+	    </if>
+	    <if test="custCode != null and custCode != ''">  <!-- 客户编号 -->
+	    	and c.customer_code like '%${custCode}%'
+	    </if>
+	    <if test="dictCustSource != null and dictCustSource != ''">   <!-- 客户来源 -->
+	    	and c.dict_customer_source = #{dictCustSource}
+	    </if>
+	    <if test="custState != null and custState != ''">   <!-- 当前状态 -->
+	    	and c.dict_customer_state = #{custState}
+	    </if>
+	    <if test="custLending != null and custLending != ''">   <!-- 是否做过出借 -->
+	    	and c.customer_lending = #{custLending}
+	    </if>
+	    <if test="managerName != null and managerName != ''">
+	    	and mu.name  like  '%' || #{managerName, jdbcType=VARCHAR} || '%'
+	    </if>
+	    
+	    <if test="storesName != null and storesName != ''">   <!-- 营业部名称  -->
+	    	and o.name like  '%' || #{storesName, jdbcType=VARCHAR} || '%'
+	    </if>
+	    <if test="applyHostedStatus != null and applyHostedStatus != ''">    <!-- 托管状态 -->
+	    	and c.apply_hosted_status = #{applyHostedStatus,jdbcType=VARCHAR}
+	    </if>
+	    <if test="addrCity != null and addrCity != ''">		 <!-- 城市 -->
+			and ide.old_provinceid||'_'||ide.old_cityid SIMILAR TO '%'|| replace(#{addrCity},',','%|%')|| '%'
+		</if>
+		
+		<if test="customerOldOrgId != null and customerOldOrgId != '' and customerOldOrgIdList!=null ">
+					AND ide.ior_id in
+					<foreach collection="customerOldOrgIdList" item="item" open="(" close=")"
+						index="index" separator=",">
+						#{item}
+					</foreach>
+	    </if>
+    </where>
+    <if test="page != null and page != ''">
+    	<if test="page.orderBy != null and page.orderBy != ''">   <!-- 排序  -->
+	    	order by ${page.orderBy}
+	    </if>
+    </if>
+    ) 
+    <!-- where pool_Data_type != '1' and pool_Data_type != '3'    刨除在公共池1、退回公共池3 的客户  -->
+ order by create_time desc  
+  </select>
+	 
+</mapper>

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.deduct.dao.PlatformRuleDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.deduct.entity.PlatformRule" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="dict_DEDUCT_PLATFORM_ID" property="dictDeductPlatformId" jdbcType="VARCHAR" />
+    <result column="dict_BANK_ID" property="dictBankId" jdbcType="VARCHAR" />
+    <result column="dict_DEDUCT_INTERFACE_TYPE" property="dictDeductInterfaceType" jdbcType="VARCHAR" />
+    <result column="single_limit_money" property="singleLimitMoney" jdbcType="DECIMAL" />
+    <result column="day_limit_money" property="dayLimitMoney" jdbcType="DECIMAL" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="DATE" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="DATE" />
+  </resultMap>
+  <select id="getPlatformRule" resultType="com.creditharmony.fortune.deduct.entity.PlatformRule" parameterType="java.util.Map">
+  		SELECT 
+  			id,
+  			dict_DEDUCT_PLATFORM_ID,
+  			dict_BANK_ID,
+  			dict_DEDUCT_INTERFACE_TYPE,
+  			single_limit_money,
+  			day_limit_money,
+  			create_by,
+  			create_time,
+  			modify_by,
+  			modify_time, 
+  			is_first, 
+  			status, 
+  			back_reason
+  		FROM t_tz_platform_rule
+  		<where>
+  			<if test="bankId !=null and bankId !='' ">
+  				dict_BANK_ID=#{bankId}
+  			</if>
+  			<if test="exportPtId !=null and exportPtId !='' ">
+  				AND dict_DEDUCT_PLATFORM_ID=#{exportPtId}
+  			</if>
+  			<if test="deductInterfaceType!=null and deductInterfaceType!='' ">
+  				AND dict_deduct_interface_type=#{deductInterfaceType}
+  			</if>
+  		</where>
+  </select>
+  
+  <select id="get" resultType="com.creditharmony.fortune.deduct.entity.PlatformRule">
+		SELECT 
+ 			id,
+ 			dict_DEDUCT_PLATFORM_ID,
+ 			dict_BANK_ID,
+ 			dict_DEDUCT_INTERFACE_TYPE,
+ 			single_limit_money,
+ 			day_limit_money,
+ 			create_by,
+ 			create_time,
+ 			modify_by,
+ 			modify_time, 
+  			is_first, 
+  			status, 
+  			back_reason
+ 		FROM t_tz_platform_rule
+ 		WHERE
+			id = #{id}
+  </select>
+  
+  <select id="getPlatformRuleList" resultType="com.creditharmony.fortune.deduct.entity.PlatformRule" parameterType="java.util.Map">
+  		SELECT 
+  			id,
+  			dict_DEDUCT_PLATFORM_ID,
+  			dict_BANK_ID,
+  			dict_DEDUCT_INTERFACE_TYPE,
+  			single_limit_money,
+  			day_limit_money,
+  			create_by,
+  			create_time,
+  			modify_by,
+  			modify_time, 
+  			is_first, 
+  			status, 
+  			back_reason
+  		FROM t_tz_platform_rule
+  		<where>
+  			<if test="bankId !=null and bankId !='' ">
+  				dict_BANK_ID=#{bankId}
+  			</if>
+  			<if test="exportPtId !=null and exportPtId !='' ">
+  				AND dict_DEDUCT_PLATFORM_ID=#{exportPtId}
+  			</if>
+  			<if test="deductInterfaceType!=null and deductInterfaceType!='' ">
+  				AND dict_deduct_interface_type=#{deductInterfaceType}
+  			</if>
+  		</where>
+  </select>
+  <insert id="insert" parameterType="com.creditharmony.fortune.deduct.entity.PlatformRule" >
+    insert into t_tz_platform_rule (id, dict_deduct_platform_id, dict_bank_id, 
+      dict_deduct_interface_type, single_limit_money, 
+      day_limit_money, create_by, create_time, 
+      modify_by, modify_time, is_first, status, back_reason)
+    values (#{id,jdbcType=VARCHAR}, #{dictDeductPlatformId,jdbcType=VARCHAR}, #{dictBankId,jdbcType=VARCHAR}, 
+      #{dictDeductInterfaceType,jdbcType=VARCHAR}, #{singleLimitMoney,jdbcType=DECIMAL}, 
+      #{dayLimitMoney,jdbcType=DECIMAL}, #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP}, #{isFirst}, #{status}, #{backReason})
+  </insert>
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.deduct.entity.PlatformRule" >
+    insert into t_tz_platform_rule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="dictDeductPlatformId != null" >
+        dict_deduct_platform_id,
+      </if>
+      <if test="dictBankId != null" >
+        dict_bank_id,
+      </if>
+      <if test="dictDeductInterfaceType != null" >
+        dict_deduct_interface_type,
+      </if>
+      <if test="singleLimitMoney != null" >
+        single_limit_money,
+      </if>
+      <if test="dayLimitMoney != null" >
+        day_limit_money,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+      <if test="isFirst != null" >
+        is_first,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="backReason != null" >
+        back_reason,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="dictDeductPlatformId != null" >
+        #{dictDeductPlatformId,jdbcType=VARCHAR},
+      </if>
+      <if test="dictBankId != null" >
+        #{dictBankId,jdbcType=VARCHAR},
+      </if>
+      <if test="dictDeductInterfaceType != null" >
+        #{dictDeductInterfaceType,jdbcType=VARCHAR},
+      </if>
+      <if test="singleLimitMoney != null" >
+        #{singleLimitMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="dayLimitMoney != null" >
+        #{dayLimitMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isFirst != null" >
+        #{isFirst},
+      </if>
+      <if test="status != null" >
+        #{status},
+      </if>
+      <if test="backReason != null" >
+        #{backReason},
+      </if>
+    </trim>
+  </insert>
+  
+  <select id="findList" resultType="com.creditharmony.fortune.deduct.entity.PlatformRule">
+		SELECT 
+			id, 
+			dict_deduct_platform_id, 
+			dict_bank_id, 
+			dict_deduct_interface_type, 
+			single_limit_money, 
+			day_limit_money, 
+			create_by, 
+			create_time, 
+			modify_by, 
+			modify_time, 
+			is_first, 
+			status, 
+			back_reason
+		FROM
+			t_tz_platform_rule
+		<where>
+			<if test="platformList !=null ">
+				AND dict_deduct_platform_id IN
+				<foreach collection="platformList" item="item" index="index" open="(" separator="," close=")">
+		    		'${item}'
+		    	</foreach>
+			</if>
+			<if test="bankList !=null ">
+				AND dict_bank_id IN
+				<foreach collection="bankList" item="item" index="index" open="(" separator="," close=")">
+		    		'${item}'
+		    	</foreach>
+			</if>
+			<if test="singleLimitMoney !=null">
+				AND single_limit_money &gt;= #{singleLimitMoney}
+			</if>
+			<if test="singleLimitMoneyTo !=null">
+	            AND single_limit_money &lt;= #{singleLimitMoneyTo}
+			</if>
+			<if test="dayLimitMoney !=null">
+				AND day_limit_money &gt;= #{dayLimitMoney}
+			</if>
+			<if test="dayLimitMoneyTo !=null">
+	            AND day_limit_money &lt;= #{dayLimitMoneyTo}
+			</if>
+			<if test="status !=null and status !=''">
+	            AND status = #{status}
+			</if>
+			<if test="status !=null and status !=''">
+	            AND status = #{status}
+			</if>
+			<if test="dictDeductInterfaceType !=null and dictDeductInterfaceType !=''">
+	            AND dict_deduct_interface_type = #{dictDeductInterfaceType}
+			</if>
+		</where>
+  </select>
+  
+  <update id="update">
+		UPDATE
+			t_tz_platform_rule
+		<set>
+			<if test="dictDeductPlatformId != null and dictDeductPlatformId != ''">
+				dict_deduct_platform_id = #{dictDeductPlatformId}, 
+			</if>
+			<if test="dictBankId != null and dictBankId != ''">
+				dict_bank_id = #{dictBankId}, 
+			</if>
+			<if test="dictDeductInterfaceType != null and dictDeductInterfaceType != ''">
+				dict_deduct_interface_type = #{dictDeductInterfaceType}, 
+			</if>
+			<if test="singleLimitMoney != null">
+			    single_limit_money = #{singleLimitMoney}, 
+			</if>
+			<if test="dayLimitMoney != null">
+			    day_limit_money = #{dayLimitMoney}, 
+			</if>
+			<if test="modifyBy != null and modifyBy != ''">
+			    modify_by = #{modifyBy}, 
+			</if>
+			<if test="modifyTime != null">
+			    modify_time = #{modifyTime}, 
+			</if>
+			<if test="isFirst != null and isFirst != ''">
+			    is_first = #{isFirst}, 
+			</if>
+			<if test="status != null and status != ''">
+			    status = #{status}, 
+			</if>
+			<if test="backReason != null and backReason != ''">
+			    back_reason = #{backReason}
+			</if>
+		</set>
+		WHERE
+			id = #{id}
+  </update>
+</mapper>

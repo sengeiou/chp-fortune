@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<!-- 导出 -->
+<mapper namespace="com.creditharmony.fortune.back.interest.common.dao.ExportDao" >
+	<sql id="from">
+		FROM t_tz_back_interest_pool pool
+			JOIN t_tz_loan_apply apply ON apply.lend_code = pool.lend_code
+			JOIN t_tz_customer cust ON cust.customer_code = apply.customer_code
+			JOIN t_tz_customer_account acco ON acco.id = apply.receiving_id
+			JOIN t_gl_tz_product prod ON prod.product_code = apply.product_code
+			LEFT JOIN (SELECT id, name as org_name FROM t_gl_org) org ON apply.store_org_id = org.id
+			LEFT JOIN (SELECT area_code, area_name as jProvince FROM t_tz_fy_area_code) fyProv ON fyProv.area_code = acco.account_addrprovince
+  			LEFT JOIN (SELECT area_code, area_name as jCity FROM t_tz_fy_area_code) fyCity ON fyCity.area_code = acco.account_addrcity	
+			LEFT JOIN (SELECT area_code,area_name as province FROM t_gl_province_city) prov ON prov.area_code = acco.account_addrprovince
+			LEFT JOIN (SELECT area_code,area_name as city FROM t_gl_province_city) city ON city.area_code
+			= acco.account_addrcity
+			LEFT JOIN (SELECT id, name as manager_name FROM t_gl_user) use ON use.id  = cust.manager_code
+			<!-- gaoxu 2017-3-23 14:46:53 到期回息是否回息字段 -->
+			LEFT JOIN (SELECT value,label FROM tz.t_gl_dict WHERE type = 'tz_back_interest_return') dict ON dict.value = pool.is_interest
+	</sql>
+	<sql id="where">
+		<where>
+			pool.back_money_status in
+			<foreach collection="status" item="item" open="(" close=")"
+				separator=",">
+				#{item}
+			</foreach>
+			<if test="so.isInterest != null and so.isInterest != ''">
+				<if test="isInterest != null">
+						AND pool.is_interest in
+						<foreach collection="isInterest" item="item" open="(" close=")"
+							index="index" separator=",">
+							#{item}
+						</foreach>
+				</if>
+			</if>
+			<if test="so.customerCode != null  and so.customerCode != ''">
+				<if test="custCode != null">
+					AND
+					<foreach collection="custCode" item="item" open="(" close=")"
+						separator="OR">
+						cust.customer_code LIKE '%${item}%'
+					</foreach>
+				</if>
+			</if>
+			<if test="so.customerName != null and so.customerName != ''">
+				<if test="custName != null">
+					AND
+					<foreach collection="custName" item="item" open="(" close=")"
+						separator="OR">
+						cust.customer_name like '%${item}%'
+					</foreach>
+				</if>
+			</if>
+			<if test="so.lendCode != null and so.lendCode != ''">
+				<if test="lenCode != null">
+					AND
+					<foreach collection="lenCode" item="item" open="(" close=")"
+						separator="OR">
+						pool.lend_code like '%${item}%'
+					</foreach>
+				</if>
+			</if>
+			<if test="so.orgId != null and so.orgId != ''">
+				<if test="orgId != null">
+					AND apply.store_org_id in
+					<foreach collection="orgId" item="item" open="(" close=")"
+						index="index" separator=",">
+						#{item}
+					</foreach>
+				</if>
+			</if>
+			<if test="so.addrCity != null and so.addrCity != ''">
+				AND	acco.account_addrprovince||'_'||acco.account_addrcity SIMILAR TO #{so.addrCity}
+			</if>
+			<if test="so.applyLendDayFrom != null and so.applyLendDayFrom != ''">
+				AND apply.apply_lend_day &gt;= #{so.applyLendDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.applyLendDayTo != null and so.applyLendDayTo != ''">
+				AND apply.apply_lend_day &lt;= #{so.applyLendDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.currentBillday != null and so.currentBillday !=''">
+				AND pool.current_billday = #{so.currentBillday,jdbcType=DATE}
+			</if>
+			<if test="so.matchingExpireDayFrom != null and so.matchingExpireDayFrom != ''">
+				AND pool.matching_expire_day &gt;= #{so.matchingExpireDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.matchingExpireDayTo != null and so.matchingExpireDayTo != ''">
+				AND pool.matching_expire_day &lt;= #{so.matchingExpireDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.applyExpireDayFrom != null and so.applyExpireDayFrom != ''">
+				AND pool.matching_expire_day &gt;= #{so.applyExpireDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.applyExpireDayTo != null and so.applyExpireDayTo != ''">
+				AND pool.matching_expire_day &lt;= #{so.applyExpireDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.applyDeductDayFrom != null and so.applyDeductDayFrom != ''">
+				AND apply.apply_deduct_day &gt;= #{so.applyDeductDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.applyDeductDayTo != null and so.applyDeductDayTo != ''">
+				AND apply.apply_deduct_day &lt;= #{so.applyDeductDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.applyLendMoneyFrom != null and so.applyLendMoneyFrom != ''">
+				AND apply.apply_lend_money &gt;= #{so.applyLendMoneyFrom,jdbcType=NUMERIC}
+			</if>
+			<if test="so.applyLendMoneyTo != null and so.applyLendMoneyTo != ''">
+				AND apply.apply_lend_money &lt;= #{so.applyLendMoneyTo,jdbcType=NUMERIC}
+			</if>
+			<if test="so.backMoneyDayFrom != null and so.backMoneyDayFrom != ''">
+				AND pool.back_money_day &gt;= #{so.backMoneyDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.backMoneyDayTo != null and so.backMoneyDayTo != ''">
+				AND pool.back_money_day &lt;= #{so.backMoneyDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.backDayFrom != null and so.backDayFrom != ''">
+				AND pool.back_day &gt;= #{so.backDayFrom,jdbcType=DATE}
+			</if>
+			<if test="so.backDayTo != null and so.backDayTo != ''">
+				AND pool.back_day &lt;= #{so.backDayTo,jdbcType=DATE}
+			</if>
+			<if test="so.applyPay != null and so.applyPay != ''">
+					AND apply.apply_pay in
+					<foreach collection="pay" item="item" open="(" close=")"
+						index="index" separator=",">
+						#{item}
+					</foreach>
+			</if>
+			<if test="so.dictValue != null and so.dictValue != ''">
+					AND acco.account_card_or_booklet in
+					<foreach collection="cardOrBooklet" item="item" open="("
+						close=")" index="index" separator=",">
+						#{item}
+					</foreach>
+			</if>
+			<if test="so.platformCode != null and so.platformCode != ''">
+				AND pool.platform_id in
+				<foreach collection="plat" item="item" open="(" close=")"
+					index="index" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.productCode != null and so.productCode != ''">
+				AND apply.product_code in
+				<foreach collection="prod" item="item" open="(" close=")"
+					index="index" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.trusteeshipFlag != null or so.trusteeshipFlag !=''">
+				<if test="payType != null">
+					AND apply.apply_pay in
+					<foreach collection="payType" item="item" open="(" close=")"
+						index="index" separator=",">
+						#{item}
+					</foreach>
+				</if>
+			</if>
+			<if test="so.accountBank != null and so.accountBank != ''">
+				AND acco.account_bank in
+				<foreach collection="accBank" item="item" open="(" close=")"
+					index="index" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.platFlag != null and so.platFlag !=''">
+				AND pool.plat_flag in
+				<foreach collection="platFlag" item="item" open="(" close=")"
+					index="index" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.applyAgreementEdition != null and so.applyAgreementEdition !=''">
+				AND apply.apply_agreement_edition in
+				<foreach collection="edition" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.backResult != null and so.backResult != ''">
+				AND pool.back_result in
+				<foreach collection="result" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.matchingFlag != null and so.matchingFlag != ''">
+				AND acco.find_flag = #{so.matchingFlag, jdbcType= VARCHAR}			
+			</if>
+		</where>
+	</sql>
+
+	<!-- 待回息申请列表以及待回息申请确认列表导出Excel -->
+	<select id="applyAndApplyConfrim" parameterType="java.util.Map">
+		SELECT 
+	  		pool.lend_code,
+	  		pool.backi_id,
+	  		acco.account_no,
+	  		acco.account_name,
+	  		round(pool.back_real_money,2) as back_real_money,
+	  		acco.account_bank,
+	  		acco.account_branch,
+	  		acco.account_card_or_booklet,
+	  		prov.province,
+	  		city.city,
+	  		prod.product_name,
+	  		pool.current_billday,
+	  		apply.apply_lend_day,
+	  		round(apply.apply_lend_money,2) as apply_lend_money,
+	  		apply.apply_pay,
+	  		org.org_name
+  		
+  		<include refid="from"></include>
+  		<where>
+	  		apply.apply_pay in
+	  		<foreach collection="payType" item="item" open="(" close=")" separator=",">
+	  			#{item}
+	  		</foreach>
+	  		<if test="so.backiId != null and so.backiId !=''">
+	  		AND pool.backi_id in
+				<foreach collection="codes" item="item" index="index" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+	  		</if>
+	  		<if test="so.backiId == null or so.backiId ==''">
+			AND	pool.backi_id in
+				(	
+					SELECT pool.backi_id
+					 <include refid="from"></include>
+					 <include refid="where"></include>
+					 AND pool.interest_return is null
+				)
+	  		</if>
+  		</where>
+  	</select>
+  	
+  	
+  	
+  	
+  	<!-- 到期待回息申请列表以及待回息申请确认列表导出Excel  gaoxu   2017-3-23 14:31:29-->
+	<select id="returnApplyAndApplyConfrim" parameterType="java.util.Map">
+		SELECT 
+	  		pool.lend_code,
+	  		pool.backi_id,
+	  		acco.account_no,
+	  		acco.account_name,
+	  		round(pool.back_real_money,2) as back_real_money,
+	  		acco.account_bank,
+	  		acco.account_branch,
+	  		acco.account_card_or_booklet,
+	  		prov.province,
+	  		city.city,
+	  		prod.product_name,
+	  		pool.current_billday,
+	  		apply.apply_lend_day,
+	  		round(apply.apply_lend_money,2) as apply_lend_money,
+	  		apply.apply_pay,
+	  		org.org_name,
+  			apply.apply_expire_day,
+  			decode(dict.label,null,'否',dict.label) as isInterest
+  		<include refid="from"></include>
+  		<where>
+	  		apply.apply_pay in
+	  		<foreach collection="payType" item="item" open="(" close=")" separator=",">
+	  			#{item}
+	  		</foreach>
+	  		<if test="so.backiId != null and so.backiId !=''">
+	  		AND pool.backi_id in
+				<foreach collection="codes" item="item" index="index" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+	  		</if>
+	  		<if test="so.backiId == null or so.backiId ==''">
+			AND	pool.backi_id in
+				(	
+					SELECT pool.backi_id
+					 <include refid="from"></include>
+					 <include refid="where"></include>
+					 AND pool.interest_return = #{interestReturn}
+				)
+	  		</if>
+  		</where>
+  		ORDER BY pool.create_time desc
+  	</select>
+  	
+  	
+  
+   <!-- 待回息申请列表以及待回息申请确认列表导出待金账户回息明细 -->
+	<select id="applyGoldAccountExportExl" parameterType="java.util.Map">
+		SELECT
+			pool.backi_id,
+	  		cust.trusteeship_no,
+	  		round(apply.apply_lend_money,2) as apply_lend_money,
+	  		apply.apply_lend_day,
+	  		pool.current_billday,
+	  		round(pool.back_real_money,2) as back_real_money,
+	  		pool.lend_code,
+	  		acco.account_name,
+	  		acco.account_card_or_booklet,
+	  		fyProv.jProvince,
+	  		fyCity.jCity,
+	  		org.org_name,
+	  		prod.product_name
+	  		
+		<include refid="from"></include>
+  	
+  		<where>
+  			apply.apply_pay in
+			<foreach collection="payType" item="item" index="index" open="(" separator="," close=")">
+				#{item} 
+			</foreach>
+  			<if test="so.backiId != null and so.backiId != ''">
+  				 AND pool.backi_id in
+				<foreach collection="codes" item="item" index="index" open="(" separator="," close=")">
+					#{item} 
+				</foreach>
+  			</if>
+  			<if test="so.backiId == null or so.backiId == ''">
+  				AND pool.backi_id in
+  				(
+  					SELECT pool.backi_id 
+  					<include refid="from"></include>
+  					<include refid="where"></include>
+  					AND pool.interest_return is null
+  				)
+  			</if>
+  		</where>
+	</select>
+	
+	
+	
+	<!-- 到期待回息申请列表以及待回息申请确认列表导出待金账户回息明细 gaoxu 2017-3-23 15:03:16-->
+	<select id="returnApplyGoldAccountExportExl" parameterType="java.util.Map">
+		SELECT
+			pool.backi_id,
+	  		cust.trusteeship_no,
+	  		round(apply.apply_lend_money,2) as apply_lend_money,
+	  		apply.apply_lend_day,
+	  		pool.current_billday,
+	  		round(pool.back_real_money,2) as back_real_money,
+	  		pool.lend_code,
+	  		acco.account_name,
+	  		acco.account_card_or_booklet,
+	  		fyProv.jProvince,
+	  		fyCity.jCity,
+	  		org.org_name,
+	  		prod.product_name,
+	  		apply.apply_expire_day,
+  			decode(dict.label,null,'否','','否',dict.label) as isInterest
+		<include refid="from"></include>
+  	
+  		<where>
+  			apply.apply_pay in
+			<foreach collection="payType" item="item" index="index" open="(" separator="," close=")">
+				#{item} 
+			</foreach>
+  			<if test="so.backiId != null and so.backiId != ''">
+  				 AND pool.backi_id in
+				<foreach collection="codes" item="item" index="index" open="(" separator="," close=")">
+					#{item} 
+				</foreach>
+  			</if>
+  			<if test="so.backiId == null or so.backiId == ''">
+  				AND pool.backi_id in
+  				(
+  					SELECT pool.backi_id 
+  					<include refid="from"></include>
+  					<include refid="where"></include>
+  					AND pool.interest_return = #{interestReturn}
+  				)
+  			</if>
+  			ORDER BY pool.create_time desc
+  		</where>
+	</select>
+	
+	<!-- 待回息审批列表导出Excel -->
+	<select id="approvalExportExl" parameterType="java.util.Map">
+  		SELECT
+	  		pool.lend_code,
+	  		round(pool.back_real_money,2) as back_real_money,
+	  		apply.apply_lend_day,
+	  		round(apply.apply_lend_money,2) as apply_lend_money,
+	  		apply.apply_expire_day,
+	  		cust.customer_name,
+	  		acco.account_no,
+	  		acco.account_bank,
+	  		acco.account_branch,
+	  		prod.product_name,
+	  		org.org_name,
+	  		use.manager_name,
+	  		cust.apply_hosted_status,
+	  		apply.apply_pay,
+	  		apply.apply_agreement_edition
+  		
+  		<include refid="from"></include>
+  		<where>
+  			<if test="so.backiId != null and so.backiId != ''">
+				pool.backi_id in
+				<foreach collection="codes" item="item" index="index" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+  			</if>
+  			<if test="so.backiId == null or so.backiId == ''">
+  				pool.backi_id in
+  				(
+  					SELECT pool.backi_id
+  					<include refid="from"></include>
+  					<include refid="where"></include>
+  				)
+  			
+  			</if>
+		</where>
+	</select>
+	
+	<!-- 回息确认列表导出Excel -->
+	<select id="confrimExportExcel" parameterType="java.util.Map">
+		SELECT
+	  		pool.lend_code,
+	  		cust.customer_name,
+	  		prod.product_name,
+	  		acco.account_bank,
+	  		pool.platform_id,
+	  		prov.province,
+	  		city.city,
+	  		fyProv.jProvince,
+	  		fyCity.jCity,
+	  		pool.back_money_day,
+	  		pool.back_money_status,
+	  		cust.trusteeship_no,
+	  		round(pool.back_real_money,2) as back_real_money
+  		
+  		<include refid="from"></include>
+		<where>
+			<if test="so.backiId != null and so.backiId != ''">
+  				pool.backi_id in
+  				<foreach collection="codes" item="item" open="(" close=")" separator=",">
+  					#{item}
+  				</foreach>
+	  		</if>
+			<if test="so.backiId == null or so.backiId == ''">
+				pool.backi_id in
+		  			(
+		  				select 
+		  					pool.backi_id
+						<include refid="from"></include>
+						<include refid="where"></include>
+		  			)	
+  			</if>
+  		</where>
+	</select>
+	
+	<!-- 已回息列表导出Excel -->
+	<select id="finishExportExl" parameterType="java.util.Map">
+	  	SELECT 
+	  		apply.lend_code,
+	  		acco.account_no,
+	  		acco.account_name,
+	  		pool.back_real_money,
+	  		round(pool.back_real_money,2) as back_real_money,
+	  		ROUND(cast(pool.back_real_money as numeric),2)  as back_real_money_round,
+	  		acco.account_bank,
+	  		acco.account_branch,
+	  		prov.province,
+	  		city.city,
+	  		fyProv.jProvince,
+	  		fyCity.jCity,
+	  		pool.back_money_day,
+	  		cust.trusteeship_no,
+	  		pool.current_billday,
+	  		decode(dict.label,'','否','','否',dict.label) as is_retrun_interest
+	  		<include refid="from"></include>
+	  		
+		<where>
+			<if test="so.backiId != null and so.backiId != ''">
+				pool.backi_id in
+				<foreach collection="codes" item="item" index="index" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.backiId == null or so.backiId == ''">
+				pool.backi_id in
+				(
+					SELECT pool.backi_id 
+					<include refid="from"></include>
+					<include refid="where"></include>
+				)
+			</if>
+		</where>
+	</select>
+	
+	<!-- 富友平台导出 -->
+	<select id="fuyouExport" parameterType="java.util.Map">
+	   SELECT
+	   		pool.backi_id,  
+	 		acco.account_bank,
+	 		acco.account_branch,
+	 		prov.province,
+	 		city.city,
+	 		acco.account_no,
+	 		acco.account_name,
+	 		round(pool.back_real_money,2) as back_real_money,
+	  		round(pool.success_money,2) as success_money,
+	 		prod.product_name,
+	 		cust.customer_mobilephone,
+	 		pool.current_billday,
+	 		pool.lend_code
+	   	
+	   	<include refid="from"></include>
+		<where>
+		   	<if test="so.backiId != null and so.backiId !=''">
+				pool.backi_id in
+				<foreach collection="codes" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+				
+			</if>
+			<if test="so.backiId == null or so.backiId==''">
+				pool.backi_id in
+				(
+					SELECT pool.backi_id
+					<include refid="from"></include>
+					<include refid="where"></include>
+				)				
+			</if>
+		</where> 
+	</select>
+	
+	<!-- 执行回息列表导出Excel -->
+	<select id="excuteExportExl" parameterType="java.util.Map">
+	  	SELECT 
+	  		pool.backi_id,
+	  		pool.lend_code,
+	  		acco.account_no,
+	  		acco.account_name,
+	  		round(pool.back_real_money,2) as back_real_money,
+	  		round(pool.success_money, 2) as success_money,
+	  		acco.account_bank,
+	  		acco.account_branch,
+	  		acco.account_card_or_booklet,
+	  		prov.province,
+	  		city.city,
+	  		pool.current_billday,
+	  		prod.product_name,
+	  		apply.apply_agreement_edition
+	
+			<include refid="from"></include>	  	
+		<where>
+			apply.apply_pay in
+			<foreach collection="payType" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+			<if test="so.backiId != null and so.backiId !=''">
+				AND pool.backi_id in
+				<foreach collection="codes" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+				
+			</if>
+			<if test="so.backiId == null or so.backiId==''">
+				AND pool.backi_id in
+				(
+					SELECT pool.backi_id
+					<include refid="from"></include>
+					<include refid="where"></include>
+				)				
+			</if>
+		</where>
+	</select>
+	
+	<!-- 执行回息列表待金账户回息明细 -->
+	<select id="excuteGoldAccountExportExl" parameterType="java.util.Map">
+	  	SELECT
+	  		pool.backi_id,
+	  		pool.lend_code,
+	  		round(pool.back_real_money,2) as back_real_money,
+	  		round(pool.success_money,2) as success_money,
+	  		cust.trusteeship_no,
+	  		prod.product_name,
+	  		cust.customer_realname,
+	  		pool.current_billday
+	  		
+	  	<include refid="from"></include>
+		<where>
+			apply.apply_pay in
+			<foreach collection="payType" item="item" open="(" close=")" separator=",">
+				#{item}
+			</foreach>
+			<if test="so.backiId != null and so.backiId !=''">
+				and pool.backi_id in
+				<foreach collection="codes" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+				
+			</if>
+			<if test="so.backiId == null or so.backiId==''">
+				AND pool.backi_id in
+				(
+					SELECT pool.backi_id
+					<include refid="from"></include>
+					<include refid="where"></include>
+				)				
+			</if>
+		</where>
+	</select>
+	
+	<!-- 通联导出 -->
+	<select id="communExport" parameterType="java.util.Map">
+		SELECT
+			cust.customer_code,
+			acco.account_bank,
+			acco.account_card_or_booklet,
+			acco.account_no,
+			acco.account_name,
+			prov.province,
+	  		city.city,
+	  		round(pool.back_real_money,2) as back_real_money,
+	  		round(pool.success_money,2) as success_money,
+			cust.dict_customer_cert_type,
+			cust.customer_cert_num,
+			cust.customer_mobilephone,
+			pool.current_billday,
+			pool.lend_code,
+			pool.backi_id
+		
+		<include refid="from"></include>			
+		<where>
+			<if test="so.backiId != null and so.backiId !=''">
+				pool.backi_id in
+					<foreach collection="codes" item="item" open="(" close=")" separator=",">
+						#{item}
+					</foreach>
+				and apply.apply_pay in
+					<foreach collection="payType" item="item" open="(" close=")" separator=",">
+						#{item}
+					</foreach>
+			</if>
+			<if test="so.backiId == null or so.backiId == ''">
+				pool.backi_id in
+				(
+					SELECT
+				   		pool.backi_id
+				   	<include refid="from"></include>
+				   	<include refid="where"></include>
+				)
+			</if>
+		</where>
+	</select>
+	
+	<!-- 中金导出 -->
+	<select id="chinaFinaceExport" parameterType="java.util.Map">
+		SELECT
+			round(pool.back_real_money,2) as back_real_money,
+	  		round(pool.success_money,2) as success_money,
+			acco.account_bank,
+			acco.account_name,
+			acco.account_no,
+			acco.account_branch,
+			prov.province,
+			city.city,
+			pool.backi_id,
+			cust.dict_customer_cert_type,
+			cust.customer_mobilephone,
+			cust.customer_email,
+			cust.customer_cert_num,
+			pool.current_billday,
+			pool.lend_code
+			<include refid="from"></include>
+		<where>
+			<if test="so.backiId != null and so.backiId != ''">
+				pool.backi_id in
+				<foreach collection="codes" item="item" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.backiId == null or so.backiId == ''">
+				pool.backi_id in
+				(
+					SELECT pool.backi_id
+					<include refid="from"></include>
+					<include refid="where"></include>
+				)
+			</if>
+		</where>
+	</select>
+	
+	
+	<!-- 卡联支付导出 -->
+	<select id="cardPaymentExport" parameterType="java.util.Map">
+		SELECT 
+			acco.account_name,
+			acco.account_no,
+			acco.account_bank,
+			prov.province,
+			city.city,
+			acco.account_branch,
+			pool.lend_code,
+			pool.current_billday,
+			acco.account_card_or_booklet,
+			pool.success_money,
+			pool.back_real_money
+			
+			<include refid="from"></include>
+		
+		<where>
+			<if test="so.backiId != null and so.backiId !=''">
+				pool.backi_id in
+				<foreach collection="codes" item="item" open="(" close=")" separator="," >
+					#{item}
+				</foreach>
+			</if>
+			<if test="so.backiId == null or so.backiId == ''">
+				pool.backi_id in
+				(	
+					SELECT
+						pool.backi_id
+					<include refid="from"></include>
+					<include refid="where"></include>
+				)
+			</if>
+		</where>
+	</select>
+</mapper>

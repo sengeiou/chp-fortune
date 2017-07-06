@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.customer.dao.LoanConfigurationDao">
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.customer.entity.LoanConfiguration">
+    <result column="id" jdbcType="VARCHAR" property="id" />
+    <result column="customer_code" jdbcType="VARCHAR" property="custCode" />
+    <result column="loan_bill_recv" jdbcType="VARCHAR" property="loanBillRecv" />
+    <result column="loan_sign" jdbcType="BIT" property="loanSign" />
+    <result column="loan_agreement_type" jdbcType="VARCHAR" property="loanAgreementType" />
+    <result column="loan_agreement_edition" jdbcType="VARCHAR" property="loanAgreementEdition" />
+    <result column="agreemrnt_sign_day" jdbcType="DATE" property="agreemrntSignDate" />
+    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_by" jdbcType="VARCHAR" property="modifyBy" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+  </resultMap>
+  
+  <insert id="insert" parameterType="com.creditharmony.fortune.customer.entity.LoanConfiguration">
+    insert into t_tz_loan_info (id, customer_code, loan_bill_recv, 
+      loan_sign, loan_agreement_type, loan_agreement_edition, 
+      agreemrnt_sign_day, create_by, create_time, 
+      modify_by, modify_time)
+    values (#{id,jdbcType=VARCHAR}, #{custCode,jdbcType=VARCHAR}, #{loanBillRecv,jdbcType=VARCHAR}, 
+      #{loanSign,jdbcType=BIT}, #{loanAgreementType,jdbcType=VARCHAR}, #{loanAgreementEdition,jdbcType=VARCHAR}, 
+      #{agreemrntSignDate,jdbcType=DATE}, #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <select id="get" parameterType="com.creditharmony.fortune.customer.entity.LoanConfiguration" resultMap="BaseResultMap">
+      select * from tz.t_tz_loan_info
+      <where>
+          <if test="id != null and id != ''">
+          	   id = #{id}
+          </if>
+          <if test="custCode != null and custCode != ''">
+          	   and customer_code = #{custCode}
+          </if>
+      </where>
+  </select>
+  
+  <update id="update" parameterType="com.creditharmony.fortune.customer.entity.LoanConfiguration">
+  	  update tz.t_tz_loan_info
+  	  set 
+  	  	loan_bill_recv = #{loanBillRecv,jdbcType=VARCHAR},
+  	  	loan_sign = #{loanSign,jdbcType=BIT},
+  	  	loan_agreement_type = #{loanAgreementType,jdbcType=VARCHAR},
+  	  	loan_agreement_edition = #{loanAgreementEdition,jdbcType=VARCHAR},
+  	  	agreemrnt_sign_day = #{agreemrntSignDate,jdbcType=DATE},
+  	  	modify_by = #{modifyBy,jdbcType=VARCHAR},
+  	  	modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+  	  <where>
+  	  	  <if test="id != null and id != ''">
+          	   id = #{id}
+          </if>
+          <if test="custCode != null and custCode != ''">
+          	   and customer_code = #{custCode}
+          </if>
+  	  </where>
+  </update>
+  
+</mapper>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.borrow.dao.BorrowMonthDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.borrow.entity.BorrowMonth" >
+     <id column="credit_mon_id" property="creditMonId" jdbcType="VARCHAR" />
+    <result column="credit_value_id" property="creditValueId" jdbcType="VARCHAR" />
+    <result column="loan_code" property="loanCode" jdbcType="VARCHAR" />
+    <result column="loan_id" property="loanId" jdbcType="VARCHAR" />
+    <result column="loan_name" property="loanName" jdbcType="VARCHAR" />
+    <result column="loan_idcard" property="loanIdcard" jdbcType="VARCHAR" />
+    <result column="loan_job" property="loanJob" jdbcType="VARCHAR" />
+    <result column="loan_product" property="loanProduct" jdbcType="VARCHAR" />
+    <result column="loan_purpose" property="loanPurpose" jdbcType="VARCHAR" />
+    <result column="dict_loan_type" property="dictLoanType" jdbcType="VARCHAR" />
+    <result column="loan_outmoney_day" property="loanOutmoneyDay" jdbcType="DATE" />
+    <result column="loan_backmoney_firday" property="loanBackmoneyFirday" jdbcType="DATE" />
+     <result column="loan_backmoney_day" property="loanBackmoneyDay" jdbcType="INTEGER" />
+    <result column="loan_credit_day_usable" property="loanCreditDayUsable" jdbcType="DATE" />
+    <result column="loan_day" property="loanDay" jdbcType="INTEGER" />
+    <result column="loan_available_days" property="loanAvailableDays" jdbcType="INTEGER" />
+    <result column="loan_endmoney_day" property="loanEndmoneyDay" jdbcType="DATE" />
+    <result column="loan_month_rate" property="loanMonthRate" jdbcType="NUMERIC" />
+    <result column="loan_credit_value" property="loanCreditValue" jdbcType="NUMERIC" />
+    <result column="loan_availabe_value" property="loanAvailabeValue" jdbcType="NUMERIC" />
+    <result column="loan_value_year" property="loanValueYear" jdbcType="NUMERIC" />
+    <result column="loan_months" property="loanMonths" jdbcType="INTEGER" />
+    <result column="loan_months_surplus" property="loanMonthsSurplus" jdbcType="INTEGER" />
+    <result column="dict_loan_free_flag" property="dictLoanFreeFlag" jdbcType="VARCHAR" />
+    <result column="loan_trustee_flag" property="loanTrusteeFlag" jdbcType="VARCHAR" />
+    <result column="dic_loan_distinguish" property="dicLoanDistinguish" jdbcType="VARCHAR" />
+    <result column="loan_modified_day" property="loanModifiedDay" jdbcType="TIMESTAMP" />
+    <result column="loan_freeze_day" property="loanFreezeDay" jdbcType="TIMESTAMP" />
+    <result column="loan_car_number" property="loanCarNumber" jdbcType="VARCHAR" />
+   	<result column="loan_middle_man" property="loanMiddleMan" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <insert id="insert" parameterType="com.creditharmony.fortune.borrow.entity.BorrowMonth" >
+     insert into t_tz_borrow_month (credit_mon_id, credit_value_id, loan_code, 
+      loan_id, loan_name, loan_idcard, 
+      loan_job, loan_product, loan_purpose, 
+      dict_loan_type, loan_outmoney_day, loan_backmoney_day, 
+      loan_backmoney_firday, loan_credit_day_usable, loan_day, 
+      loan_available_days, loan_endmoney_day, loan_month_rate, 
+      loan_credit_value, loan_availabe_value, loan_value_year, 
+      loan_months, loan_months_surplus, dict_loan_free_flag, 
+      loan_trustee_flag,dic_loan_distinguish, loan_modified_day, loan_freeze_day, 
+      loan_car_number,loan_middle_man, create_by, create_time, 
+      modify_by, modify_time)
+    values (#{creditMonId,jdbcType=VARCHAR}, #{creditValueId,jdbcType=VARCHAR}, #{loanCode,jdbcType=VARCHAR}, 
+      #{loanId,jdbcType=VARCHAR}, #{loanName,jdbcType=VARCHAR}, #{loanIdcard,jdbcType=VARCHAR}, 
+      #{loanJob,jdbcType=VARCHAR}, #{loanProduct,jdbcType=VARCHAR}, #{loanPurpose,jdbcType=VARCHAR}, 
+      #{dictLoanType,jdbcType=VARCHAR}, #{loanOutmoneyDay,jdbcType=DATE}, #{loanBackmoneyDay,jdbcType=INTEGER}, 
+      #{loanBackmoneyFirday,jdbcType=DATE}, #{loanCreditDayUsable,jdbcType=DATE}, #{loanDay,jdbcType=INTEGER}, 
+      #{loanAvailableDays,jdbcType=INTEGER}, #{loanEndmoneyDay,jdbcType=DATE}, #{loanMonthRate,jdbcType=NUMERIC}, 
+      #{loanCreditValue,jdbcType=NUMERIC}, #{loanAvailabeValue,jdbcType=NUMERIC}, #{loanValueYear,jdbcType=NUMERIC}, 
+      #{loanMonths,jdbcType=INTEGER}, #{loanMonthsSurplus,jdbcType=INTEGER}, #{dictLoanFreeFlag,jdbcType=VARCHAR}, 
+      #{loanTrusteeFlag,jdbcType=VARCHAR},#{dicLoanDistinguish,jdbcType=VARCHAR},#{loanModifiedDay,jdbcType=TIMESTAMP}, #{loanFreezeDay,jdbcType=TIMESTAMP}, 
+      #{loanCarNumber,jdbcType=VARCHAR},#{loanMiddleMan,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+ 
+  <!--获得单个月满盈债权  -->
+  <select id="get" parameterType="com.creditharmony.fortune.borrow.entity.BorrowMonth" resultMap="BaseResultMap">
+  SELECT 
+  extract(epoch from modify_time) as "verTime",
+  *
+  FROM 
+  tz.t_tz_borrow_month
+  <where>
+  	<if test="creditMonId!=null and creditMonId!='' ">
+  		credit_mon_id = #{creditMonId}
+  	</if>
+  	<if test="creditValueId!=null and creditValueId!='' ">
+  		AND credit_value_id =#{creditValueId}
+  	</if>
+  </where>
+  </select>
+  
+  <!--获取月满盈债权回池信息  -->
+  <select id="findBorrowMonthBackTool" parameterType="java.lang.String" resultType="com.creditharmony.fortune.borrow.view.BorrowMonthBackToolView">
+  	SELECT
+    a.credit_mon_id AS creditMonId,
+    a.loan_availabe_value AS loanAvailabeValue,
+    extract(epoch from a.modify_time) AS "borrowMonthVerTime",
+    b.credit_value_id AS creditValueId,
+    extract(epoch from b.modify_time) AS "borrowVerTime"
+	FROM
+    tz."t_tz_borrow_month" A LEFT JOIN tz."t_tz_borrow" b
+        ON a.credit_value_id = b.credit_value_id
+    where a.credit_mon_id= #{creditMonId}
+  </select>
+  <!--更新月满盈债权  -->
+  <update id="update" parameterType="com.creditharmony.fortune.borrow.entity.BorrowMonth">
+	UPDATE tz.t_tz_borrow_month
+	<include refid="updateField"/>
+	<where>
+	    1=1
+		<if test="loanCode != null and loanCode != '' ">
+			AND loan_code = #{loanCode}
+		</if>
+		<if test="creditMonId!=null and creditMonId != '' ">
+			AND	credit_mon_id = #{creditMonId}
+		</if>
+		<if test="creditValueId!=null and creditValueId != '' ">
+			AND	credit_value_id = #{creditValueId}
+		</if>
+		<if test="verTime != null and verTime != '' ">
+			AND extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+		</if>
+	</where>
+  </update>
+  
+  <!--分页查询月满盈债权列表  -->
+  <select id="findBorrowMonth" parameterType="java.util.Map" resultMap="BaseResultMap">
+   SELECT
+   *
+   FROM 
+   tz.t_tz_borrow_month
+   <include refid="tremField"></include>
+   order by loan_trustee_flag asc,dict_loan_type asc,loan_availabe_value desc
+  </select>
+  <!--查询列表  -->
+  <select id="exportExcel" parameterType="java.util.Map" resultMap="BaseResultMap">
+   SELECT
+ 	loan_name AS loan_name,
+ 	loan_idcard AS loan_idcard,
+ 	loan_purpose,
+ 	loan_trustee_flag AS loan_trustee_flag,
+ 	loan_product AS loan_product,
+ 	loan_job AS loan_job,
+ 	loan_backmoney_firday AS loan_backmoney_firday,
+ 	loan_backmoney_day AS loan_backmoney_day,
+ 	loan_months AS loan_months,
+ 	loan_months_surplus AS loan_months_surplus,
+ 	loan_endmoney_day AS loan_backmoney_lastday,
+ 	loan_month_rate AS loan_month_rate,
+ 	loan_value_year AS loan_value_year,
+ 	loan_credit_value AS loan_quota,
+ 	loan_availabe_value AS loan_credit_value
+   FROM 
+   tz.t_tz_borrow_month
+   <include refid="tremField"></include>
+  </select>
+  <!-- 查询总金额 -->
+  <select id="findAllMoney" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+  
+  	SELECT SUM(cast(loan_availabe_value as numeric)) as loan_availabe_value FROM tz.t_tz_borrow_month
+  	<include refid="tremField"></include>
+  </select>
+  
+  <!--sql块  -->
+  <!-- 修改月满盈债权字段 -->
+  <sql id="updateField">
+  <set>
+	<if test="loanCreditValue != null ">
+		loan_credit_value = #{loanCreditValue,jdbcType=NUMERIC},
+	</if>
+	<if test="loanAvailabeValue != null">
+		loan_availabe_value = #{loanAvailabeValue,jdbcType=NUMERIC},
+	</if>
+	<if test="loanAvailableDays != null">
+		loan_available_days = #{loanAvailableDays,jdbcType=INTEGER},
+	</if>
+	<if test="loanMonthsSurplus != null">
+		loan_months_surplus = #{loanMonthsSurplus,jdbcType=INTEGER},
+	</if>
+	<if test="dictLoanFreeFlag != null">
+		dict_loan_free_flag = #{dictLoanFreeFlag,jdbcType=VARCHAR},
+	</if>
+	<if test="loanFreezeDay != null">
+		loan_freeze_day = #{loanFreezeDay,jdbcType=TIMESTAMP},
+	</if>
+	<if test="loanModifiedDay != null">
+		loan_modified_day = #{loanModifiedDay,jdbcType=TIMESTAMP},
+	</if>
+	<if test="modifyBy != null">
+		modify_by = #{modifyBy,jdbcType=VARCHAR},
+	</if>
+	<if test="modifyTime != null">
+		modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+	</if>
+  </set>
+  </sql>
+  <sql id="tremField">
+ 	 <where>
+ 	  and dict_loan_free_flag = #{borrowFreeFlag}
+ 	 	<if test="borrowerName != null and borrowerName != '' ">
+ 	 	AND loan_name like '%${borrowerName}%'
+ 	 	</if>
+ 	 	<if test="borrowerJob != null and borrowerJob != '' ">
+ 	 	 AND loan_job  in <foreach collection="borrowerJob" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowAvailabeValueFrom != null and borrowAvailabeValueFrom != '' ">
+ 	 	AND loan_availabe_value <![CDATA[>=]]>${borrowAvailabeValueFrom}
+ 	 	</if>
+ 	 	<if test="borrowAvailabeValueTo  != null and borrowAvailabeValueTo  != '' ">
+ 	 	AND loan_availabe_value <![CDATA[<=]]>${borrowAvailabeValueTo }
+ 	 	</if>
+ 	 	<if test="borrowDaysSurplusFrom != null ">
+		AND loan_months_surplus <![CDATA[>=]]> ${borrowDaysSurplusFrom} 	 	
+ 	 	</if>
+ 	 	<if test="borrowDaysSurplusTo != null">
+		AND loan_months_surplus <![CDATA[<=]]> ${borrowDaysSurplusTo} 	 	
+ 	 	</if>
+ 	 	<if test="borrowMonthRate != null and borrowMonthRate != '' ">
+ 	 	AND loan_month_rate = ${borrowMonthRate}
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayFrom !=null and borrowBackmoneyFirdayFrom != '' ">
+ 	 	<!-- AND loan_backmoney_firday <![CDATA[>=]]> #{borrowBackmoneyFirdayFrom} -->
+ 	 	<![CDATA[ AND loan_backmoney_firday >= to_timestamp(#{borrowBackmoneyFirdayFrom},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayTo !=null and borrowBackmoneyFirdayTo != '' ">
+ 	 	<!-- AND loan_backmoney_firday <![CDATA[<=]]>#{borrowBackmoneyFirdayTo} -->
+ 	 	<![CDATA[ AND loan_backmoney_firday <=to_timestamp(#{borrowBackmoneyFirdayTo},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="borrowTrusteeFlag != null and borrowTrusteeFlag != '' ">
+ 	 	 AND loan_trustee_flag in <foreach collection="borrowTrusteeFlag" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<!--债权区分  -->
+ 	 	<if test="dicLoanDistinguish !=null and dicLoanDistinguish != '' ">
+ 	 	AND dic_loan_distinguish in <foreach collection="dicLoanDistinguish" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 </where>
+ 	</sql>
+</mapper>

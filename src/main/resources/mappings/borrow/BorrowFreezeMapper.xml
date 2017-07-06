@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.borrow.dao.BorrowFreezeDao">
+<!--查询列表  -->
+	<select id="findBorrowFreeze" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.entity.ex.BorrowFreezeEx">
+		select * from(
+		  select 
+		  <include refid="queryField1"/> 
+		  from
+		  tz.t_tz_borrow a
+		  where a.loan_months_surplus >= 0
+		  UNION ALL
+		  select
+		  <include refid="queryField2"/>
+		  from
+		  tz.t_tz_borrow_monthable b
+		  where b.dict_loan_type = '1'
+		  and loan_available_days >= 0
+		)
+		<include refid="qurySql"/>
+		order by dictLoanType desc,loanCreditValue desc
+	</select>
+<!--导出Excel  -->
+<select id="exportExcel" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.entity.ex.BorrowFreezeEx">
+		select * from(
+		  select 
+		 	 a.loan_name AS loan_name,
+		 	 a.loan_idcard AS loan_idcard,
+		 	 a.dict_loan_type AS dict_loan_type,
+		 	 a.loan_product AS loan_product,
+		 	 a.loan_purpose AS loan_purpose,
+		 	 a.loan_job AS loan_job,
+		 	 a.loan_backmoney_firday AS loan_backmoney_firday,
+		 	 a.loan_backmoney_day AS loan_backmoney_day,
+		 	 a.loan_months AS loan_months,
+		 	 a.loan_months_surplus AS loan_months_surplus,
+		 	 a.loan_backmoney_lastday AS loan_backmoney_lastday,
+		 	 a.loan_month_rate AS loan_month_rate,
+		 	 a.loan_quota AS loan_quota,
+		 	 a.loan_credit_value AS loan_credit_value,
+		 	 a.loan_value_year AS loan_value_year,
+		 	 a.loan_freeze_day AS loan_freeze_day
+		  from
+		  tz.t_tz_borrow a
+		  where a.dict_loan_free_flag ='2'
+		  UNION ALL
+		  select
+		 	 b.loan_name AS loan_name,
+		 	 b.loan_idcard AS loan_idcard,
+		 	 b.dict_loan_type AS dict_loan_type,
+		 	 b.loan_product AS loan_product,
+		 	 b.loan_purpose AS loan_purpose,
+		 	 b.loan_job AS loan_job,
+		 	 b.loan_backmoney_firday AS loan_backmoney_firday,
+		 	 0 AS loan_backmoney_day,
+		 	 b.loan_day AS loan_months,
+		 	 b.loan_available_days AS loan_months_surplus,
+		 	 b.loan_backmoney_day AS loan_backmoney_lastday,
+		 	 b.loan_month_rate AS loan_month_rate,
+		 	 b.loan_credit_value AS loan_quota,
+		 	 b.loan_availabe_value AS loan_credit_value,
+		 	 b.loan_value_year AS loan_value_year,
+		 	 b.loan_freeze_day AS loan_freeze_day
+		  from
+		  tz.t_tz_borrow_monthable b
+		  where b.dict_loan_type = '1' 
+		  and b.dict_loan_free_flag ='2'
+		)
+		<where>
+ 	 	1=1
+ 	 	<if test="borrowerName != null and borrowerName != '' ">
+ 	 	AND loan_name like '%${borrowerName}%'
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowMonthsSurplusFrom != null and borrowMonthsSurplusFrom != '' ">
+ 	 	  AND loan_months_surplus <![CDATA[>=]]> ${borrowMonthsSurplusFrom}
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusTo != null and borrowMonthsSurplusTo != '' ">
+ 	 	  AND loan_months_surplus <![CDATA[<=]]> ${borrowMonthsSurplusTo}
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowCreditValueFrom != null and borrowCreditValueFrom != '' ">
+ 	 	AND loan_credit_value <![CDATA[>=]]>${borrowCreditValueFrom}
+ 	 	</if>
+ 	 	<if test="borrowCreditValueTo != null and borrowCreditValueTo != '' ">
+ 	 	AND loan_credit_value <![CDATA[<=]]>${borrowCreditValueTo}
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowBakcmoneyDay != null and borrowBakcmoneyDay != '' ">
+ 	 	AND loan_backmoney_day in <foreach collection="borrowBakcmoneyDay" index="index" item="item" open="(" separator="," close=")">  
+            ${item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowMonthRate != null and borrowMonthRate != '' ">
+ 	 	AND loan_month_rate = ${borrowMonthRate}
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowBackmoneyFirdayFrom !=null and borrowBackmoneyFirdayFrom != '' ">
+ 	 	    <!-- AND loan_backmoney_firday <![CDATA[>=]]>  #{borrowBackmoneyFirdayFrom} -->
+ 	 	    <![CDATA[ AND loan_backmoney_firday >=to_timestamp(#{borrowBackmoneyFirdayFrom},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayTo !=null and borrowBackmoneyFirdayTo != '' ">
+ 	 	    <!--  AND loan_backmoney_firday <![CDATA[<=]]>  #{borrowBackmoneyFirdayTo} -->
+ 	 	    <![CDATA[ AND loan_backmoney_firday <=to_timestamp(#{borrowBackmoneyFirdayTo},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowerJob != null and borrowerJob != '' ">
+ 	 	  AND loan_job in <foreach collection="borrowerJob" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowType != null and borrowType != '' ">
+ 	 	AND	dict_loan_type in <foreach collection="borrowType" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	
+ 	 	<if test="loanFreezeDayFrom !=null and loanFreezeDayFrom != '' ">
+ 	 	AND To_CHAR(loan_freeze_day,'yyyy-MM-dd') <![CDATA[>=]]> To_CHAR(to_timestamp(#{loanFreezeDayFrom},'yyyy-MM-dd'),'yyyy-MM-dd')
+ 	 	</if>
+ 	 	<if test="loanFreezeDayTo !=null and loanFreezeDayTo != '' ">
+ 	 	AND To_CHAR(loan_freeze_day,'yyyy-MM-dd') <![CDATA[<=]]> To_CHAR(to_timestamp(#{loanFreezeDayTo},'yyyy-MM-dd'),'yyyy-MM-dd')
+ 	 	</if>
+ 	 </where>
+	</select>
+<!--查询总金额  -->
+<select id="findAllMoney" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+	select sum(loanCreditValue) from(
+		  select 
+		  <include refid="queryField1"/> 
+		  from
+		  tz.t_tz_borrow a
+		  UNION ALL
+		  select
+		  <include refid="queryField2"/>
+		  from
+		  tz.t_tz_borrow_monthable b
+		  where b.dict_loan_type = '1'
+		)
+		<include refid="qurySql"/>
+</select>
+	
+<!--查看冻结债权的信息  -->
+<select id="borrowFreezeLook" resultType="com.creditharmony.fortune.borrow.entity.ex.BorrowFreezeLookEx" parameterType="java.util.Map">
+	<!-- select
+	a.trade_id AS id,
+	d.customer_name as name,
+	a.trade_mate_money as tradeMoney,
+	e.phase_number as backMoneyNum,
+	e.phase_principal_surplus as surplusMoney
+	from
+	tz.t_tz_creditor_trade a
+	left join tz.t_tz_matching_creditor b on a.lend_code=b.lend_code
+	left join tz.t_tz_loan_apply c on c.lend_code=b.lend_code
+	left join tz.t_tz_loanphase e on e.phase_mate_id = a.trade_id
+	left join tz.t_tz_customer d on c.customer_code=d.customer_code
+	INNER JOIN(
+        SELECT
+            phase_mate_id,
+            MAX(phase_number) as maxNum
+        FROM
+            tz.t_tz_loanphase
+             where lend_code=#{code}
+        GROUP BY
+            phase_mate_id
+    ) f on f.phase_mate_id = e.phase_mate_id and e.phase_number = f.maxNum
+	where a.credit_code = #{code} -->
+	SELECT
+    a.trade_id AS id,
+	e.customer_name as name,
+	a.trade_mate_money as tradeMoney,
+	c.phase_number as backMoneyNum,
+	c.phase_principal_surplus as surplusMoney
+FROM
+    (
+        SELECT
+            trade_id,
+            trade_mate_money,
+            lend_code
+        FROM
+            tz."t_tz_creditor_trade"
+        WHERE
+            credit_code = #{code}
+    ) A INNER JOIN(
+        SELECT
+            phase_mate_id,
+            MAX(phase_number) AS maxNum
+        FROM
+            tz."t_tz_loanphase"
+        WHERE
+            loan_code = #{code}
+        GROUP BY
+            phase_mate_id
+    ) b
+        ON a.trade_id = b.phase_mate_id INNER JOIN(
+        SELECT
+            phase_mate_id,
+            phase_number,
+            phase_principal_surplus
+        FROM
+            tz."t_tz_loanphase"
+        WHERE
+            loan_code =#{code}
+    ) C
+        ON b.maxNum = c.phase_number
+    AND b.phase_mate_id = c.phase_mate_id INNER JOIN tz.t_tz_loan_apply d
+        ON d.lend_code = a.lend_code INNER JOIN tz.t_tz_customer e
+        ON e.customer_code = d.customer_code
+</select>
+<!--封装查询sql  -->
+<sql id="queryField1">
+ 	 a.credit_value_id AS creditValueId,
+ 	 a.loan_name AS loanName,
+ 	 a.loan_idcard AS loanIdcard,
+ 	 a.dict_loan_type AS dictLoanType,
+ 	 a.loan_product AS loanProduct,
+ 	 a.loan_purpose AS loanPurpose,
+ 	 a.loan_job AS loanJob,
+ 	 a.loan_backmoney_firday AS loanBackmoneyFirday,
+ 	 a.loan_backmoney_day AS loanBackmoneyDay,
+ 	 a.loan_months AS loanMonths,
+ 	 a.loan_months_surplus AS loanMonthsSurplus,
+ 	 a.loan_backmoney_lastday AS loanBackmoneyLastday,
+ 	 a.loan_month_rate AS loanMonthRate,
+ 	 a.loan_quota AS loanQuota,
+ 	 a.loan_credit_value AS loanCreditValue,
+ 	 a.loan_value_year AS loanValueYear,
+ 	 a.loan_freeze_day AS loanFreezeDay,
+ 	 a.dict_loan_free_flag AS loanFreeFlag
+ 	</sql>
+ 	<sql id="queryField2">
+ 	 b.credit_monable_id AS creditValueId,
+ 	 b.loan_name AS loanName,
+ 	 b.loan_idcard AS loanIdcard,
+ 	 b.dict_loan_type AS dictLoanType,
+ 	 b.loan_product AS loanProduct,
+ 	 b.loan_purpose AS loanPurpose,
+ 	 b.loan_job AS loanJob,
+ 	 b.loan_backmoney_firday AS loanBackmoneyFirday,
+ 	 0 AS loanBackmoneyDay,
+ 	 b.loan_day AS loanMonths,
+ 	 b.loan_available_days AS loanMonthsSurplus,
+ 	 b.loan_backmoney_day AS loanBackmoneyLastday,
+ 	 b.loan_month_rate AS loanMonthRate,
+ 	 b.loan_credit_value AS loanQuota,
+ 	 b.loan_availabe_value AS loanCreditValue,
+ 	 b.loan_value_year AS loanValueYear,
+ 	 b.loan_freeze_day AS loanFreezeDay,
+ 	 b.dict_loan_free_flag AS loanFreeFlag
+ 	</sql>
+ 	<sql id="qurySql">
+ 	 <where>
+ 	 	loanFreeFlag = #{borrowFreeFlag}
+ 	 	<if test="borrowerName != null and borrowerName != '' ">
+ 	 	AND loanName like '%${borrowerName}%'
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowMonthsSurplusFrom != null and borrowMonthsSurplusFrom != '' ">
+ 	 	  AND loanMonthsSurplus <![CDATA[>=]]> ${borrowMonthsSurplusFrom}
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusTo != null and borrowMonthsSurplusTo != '' ">
+ 	 	  AND loanMonthsSurplus <![CDATA[<=]]> ${borrowMonthsSurplusTo}
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowCreditValueFrom != null and borrowCreditValueFrom != '' ">
+ 	 	AND loanCreditValue <![CDATA[>=]]>${borrowCreditValueFrom}
+ 	 	</if>
+ 	 	<if test="borrowCreditValueTo != null and borrowCreditValueTo != '' ">
+ 	 	AND loanCreditValue <![CDATA[<=]]>${borrowCreditValueTo}
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowBakcmoneyDay != null and borrowBakcmoneyDay != '' ">
+ 	 	AND loanBackmoneyDay in <foreach collection="borrowBakcmoneyDay" index="index" item="item" open="(" separator="," close=")">  
+            ${item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowMonthRate != null and borrowMonthRate != '' ">
+ 	 	AND loanMonthRate = ${borrowMonthRate}
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowBackmoneyFirdayFrom !=null and borrowBackmoneyFirdayFrom != '' ">
+ 	 	AND loanBackmoneyFirday <![CDATA[>=]]>  #{borrowBackmoneyFirdayFrom}
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayTo !=null and borrowBackmoneyFirdayTo != '' ">
+ 	 	AND loanBackmoneyFirday <![CDATA[<=]]>  #{borrowBackmoneyFirdayTo}
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowerJob != null and borrowerJob != '' ">
+ 	 	  AND loanJob in <foreach collection="borrowerJob" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	
+ 	 	<if test="borrowType != null and borrowType != '' ">
+ 	 	AND	dictLoanType in <foreach collection="borrowType" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	
+ 	 	<if test="loanFreezeDayFrom !=null and loanFreezeDayFrom != '' ">
+ 	 	AND To_CHAR(loanFreezeDay,'yyyy-MM-dd') <![CDATA[>=]]> To_CHAR(to_timestamp(#{loanFreezeDayFrom},'yyyy-MM-dd'),'yyyy-MM-dd')
+ 	 	</if>
+ 	 	<if test="loanFreezeDayTo !=null and loanFreezeDayTo != '' ">
+ 	 	AND To_CHAR(loanFreezeDay,'yyyy-MM-dd') <![CDATA[<=]]> To_CHAR(to_timestamp(#{loanFreezeDayTo},'yyyy-MM-dd'),'yyyy-MM-dd')
+ 	 	</if>
+ 	 </where>
+ 	</sql>
+
+
+</mapper>

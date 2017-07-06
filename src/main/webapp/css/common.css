@@ -1,0 +1,120 @@
+@CHARSET "UTF-8";
+
+html, body { 
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+    height: 100%;
+}
+.disable-scroll{
+    overflow:hidden !important;
+}
+
+#loading-wait-mark{
+    width:160px;
+    height:160px;
+}
+
+#loading-wait-mark div{
+    width:130px;
+    height:130px;
+    background-image:url(../img/loading_middle.gif);
+    background-repeat:no-repeat;
+    background-position:center;
+}
+
+.optionGroup{
+	font-style:inherit;
+    font-size:18px;
+    font-weight:800 !important;
+    color:#333;
+    font-family:'黑体';
+}
+
+.optionChild{
+	padding-left:30px !important;
+}
+
+#modal-sub {
+	width: 80%;
+    top: 5%;
+    margin: 0 auto;
+    overflow-y: hidden;
+}
+
+#modal-sub .modal-dialog {
+	width: 98%;
+    height: 90%;
+}
+#modal-sub .modal-dialog .modal-content {	
+    height: 100%;
+}
+#modal-sub .modal-dialog .modal-content .modal-header {	
+    height: 10%;
+}
+#modal-sub .modal-dialog .modal-content .modal-body  {	
+    padding: 0;
+    height: 80%;
+    width: 100%;
+    overflow-y: auto;
+}
+#modal-sub .modal-dialog .modal-content .modal-body.loading {
+	background-image: url(../img/loading_middle.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100px;
+}
+#modal-sub .modal-dialog .modal-footer {	
+    padding: 4px 5px 5px;
+    height: 10%;
+}
+#modal-org-sub .modal-dialog {
+	height: 90%;
+	overflow-y: hidden;
+}
+#modal-org-sub .modal-dialog .modal-content {	
+    height: 100%;
+}
+#modal-org-sub .modal-dialog .modal-content .modal-body  {	
+    padding: 0;
+    height: 80%;
+    overflow-y: auto;
+}
+#modal-org-sub .modal-dialog .modal-footer {	
+    padding: 4px 5px 5px;
+    line-height: 0px;
+    margin-bottom:20px;
+}
+/* 
+.box5 {
+	position: relative;
+    width: 100%;
+    height: 350px;
+    top: 0px;
+    left: 0px;
+    overflow-y: auto;
+    overflow: auto;
+    width: 100%;
+    margin-bottom: 40px
+}
+
+div.pagination:not(.sub_pagination) {
+    display: inline-block;
+    padding-left: 0;
+    margin: 0;
+    border-radius: 4px;
+    background: #fff;
+    width: 100%;
+    padding-left: 0;
+    border-radius: 4px;
+    height: 31px;
+    position: fixed;
+    bottom: 0px;
+    right: 5px;
+}
+.body_r {
+	position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+} */

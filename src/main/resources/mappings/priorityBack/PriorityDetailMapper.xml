@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.priority.common.dao.PriorityDetailDao" >
+<resultMap id="BaseResultMap" type="com.creditharmony.fortune.common.entity.Attachment" >
+    <id column="atta_id" property="attaId" jdbcType="VARCHAR" />
+    <result column="atta_file_owner" property="attaFileOwner" jdbcType="VARCHAR" />
+    <result column="atta_table_id" property="attaTableId" jdbcType="VARCHAR" />
+    <result column="loan_code" property="loanCode" jdbcType="VARCHAR" />
+    <result column="atta_filename" property="attaFilename" jdbcType="VARCHAR" />
+    <result column="atta_newfilename" property="attaNewfilename" jdbcType="VARCHAR" />
+    <result column="atta_filepath" property="attaFilepath" jdbcType="VARCHAR" />
+    <result column="dict_atta_flag" property="dictAttaFlag" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="atta_file_type" property="attaFileType" jdbcType="VARCHAR" />
+     <result column="is_discard" property="isDiscard" jdbcType="VARCHAR" />
+  </resultMap>
+	<!-- 根据ID获取优先回款申请的详细信息 -->
+	<select id="getDetail" parameterType="java.lang.String"  
+			resultType="com.creditharmony.fortune.back.priority.common.view.PriorityDetailItem">
+		SELECT
+			tpbp.priority_id	AS	priorityId,
+			tpbp.priority_back_state	AS	priorityBackState,
+			tpbp.apply_by	AS	applyBy,
+			tpbp.apply_time	AS	applyTime,
+			tpbp.create_by	AS	createBy,
+			tpbp.create_time	AS	createTime,
+			z.check_time AS checkTime,
+			z.check_examinetype AS checkExaminetype,
+			z.check_examine AS checkExamine,
+			cust.customer_name	AS	customerName,
+			cust.customer_code	AS	customerCode,
+			cust.customer_cert_num	AS	customerCertNum,			
+			
+			acc.account_bank AS  accountBank,
+			pc1.area_name AS accountAddrprovince,
+			pc2.area_name AS accountAddrcity,
+			pc3.area_name AS accountAddrdistrict,
+			account_card_or_booklet	AS  accountCardOrBooklet,
+			account_branch	AS	accountBranch,
+			account_name	AS	accountName,
+			account_no	AS	accountNo,
+		
+			loan.lend_code	AS	lendCode,
+			loan.id AS id,
+			loan.apply_deduct_day	AS	applyDeductDay,
+			loan.apply_lend_day	 AS	applyLendDay,
+			loan.apply_contract_no	AS	applyContractNo,
+			loan.apply_agreement_edition	AS	applyAgreementEdition,
+			loan.apply_pay	AS	applyPay,
+			loan.apply_lend_money	AS	applyLendMoney,
+			product_name	AS	productName,
+			pool.dict_back_status AS dictBackStatus
+		FROM
+			tz.t_tz_priority_back_pool  tpbp
+		LEFT JOIN
+			tz.t_tz_loan_apply loan ON tpbp.lend_code=loan.lend_code
+		LEFT JOIN
+			tz.t_tz_back_money_pool pool  ON  pool.lend_code=loan.lend_code
+		LEFT JOIN
+			tz.t_gl_tz_product p ON p.product_code=loan.product_code
+		LEFT JOIN
+			tz.t_gl_org org ON org.id=loan.store_org_id
+		LEFT JOIN
+			tz.t_tz_customer cust ON cust.customer_code=loan.customer_code
+		LEFT JOIN
+			tz.t_tz_customer_account acc ON acc.id=loan.receiving_id
+		LEFT JOIN
+			tz.t_gl_province_city pc1 ON pc1.id=acc.account_addrprovince
+		LEFT JOIN
+			tz.t_gl_province_city pc2 ON pc2.id=acc.account_addrcity
+		LEFT JOIN
+			tz.t_gl_province_city pc3 ON pc3.id=acc.account_addrdistrict
+		LEFT JOIN
+			tz.t_tz_fy_area_code fpc1 ON fpc1.area_code=acc.account_addrprovince
+		LEFT JOIN
+			tz.t_tz_fy_area_code fpc2 ON fpc2.area_code=acc.account_addrcity
+		LEFT JOIN
+			tz.t_tz_fy_area_code fpc3 ON fpc3.area_code=acc.account_addrdistrict
+		LEFT JOIN
+			(SELECT 
+				plog.priority_id,
+				plog.check_examinetype,
+				plog.check_examine,
+				plog.check_reason,
+				plog.check_time
+			FROM
+				tz.t_tz_priority_back_log plog
+			INNER JOIN
+				(SELECT
+					priority_id, 
+					MAX(create_time) crttm 
+				FROM
+					tz.t_tz_priority_back_log  
+				GROUP BY 
+					priority_id) x ON plog.create_time=x.crttm
+						and plog.priority_id=x.priority_id) z ON z.priority_id=tpbp.priority_id	
+			
+		WHERE
+			tpbp.priority_id=#{priorityId};
+	</select>
+	
+	
+	<!-- 添加审批记录 -->
+	<insert id="insertLog" parameterType="com.creditharmony.fortune.back.priority.common.view.PriorityBackLog" >
+		INSERT  INTO  tz.t_tz_priority_back_log(
+			id,priority_id,priority_back_state,check_examine,check_examinetype,
+			check_by_id,check_time,apply_by,apply_time,create_by,create_time,
+			modify_by,modify_time,check_reason ) VALUES (
+			#{id},#{priorityId},#{priorityBackState},#{checkExamine},#{checkExaminetype},
+			#{checkById},#{checkTime},#{applyBy},#{applyTime},#{createBy},#{createTime},
+			#{modifyBy},#{modifyTime},#{checkReason});
+	</insert>
+	
+	<update id="updateApply" parameterType="com.creditharmony.fortune.back.priority.common.view.PriorityListItemView">
+		UPDATE t_tz_priority_back_pool  SET  priority_back_state=#{priorityBackState} WHERE priority_id=#{priorityId};
+	</update>	
+	
+	
+	<select id="getPriortyList" resultType="com.creditharmony.fortune.back.priority.common.view.PriorityDetailItem" parameterType="com.creditharmony.fortune.back.priority.common.view.PriorityListItemView">
+		SELECT
+			tpbp.priority_id	AS	priorityId,
+			tpbp.priority_back_state	AS	priorityBackState,
+			z.check_time AS checkTime,
+			z.check_examinetype AS checkExaminetype,
+			z.check_examine AS checkExamine,
+			cust.customer_name	AS	customerName,
+			cust.customer_code	AS	customerCode,
+			cust.customer_cert_num	AS	customerCertNum,			
+			
+			acc.account_bank AS  accountBank,
+			pc1.area_name AS accountAddrprovince,
+			pc2.area_name AS accountAddrcity,
+			pc3.area_name AS accountAddrdistrict,
+			account_card_or_booklet	AS  accountCardOrBooklet,
+			account_branch	AS	accountBranch,
+			account_name	AS	accountName,
+			account_no	AS	accountNo,
+		
+			loan.lend_code	AS	lendCode,
+			loan.apply_deduct_day	AS	applyDeductDay,
+			loan.apply_lend_day	 AS	applyLendDay,
+			loan.apply_contract_no	AS	applyContractNo,
+			loan.apply_agreement_edition	AS	applyAgreementEdition,
+			loan.apply_pay	AS	applyPay,
+			loan.apply_lend_money	AS	applyLendMoney,
+			product_name	AS	productName,
+			pool.dict_back_status AS dictBackStatus
+		FROM
+			tz.t_tz_priority_back_pool  tpbp
+		LEFT JOIN
+			tz.t_tz_loan_apply loan ON tpbp.lend_code=loan.lend_code
+		LEFT JOIN
+			tz.t_tz_back_money_pool pool  ON  pool.lend_code=loan.lend_code
+		LEFT JOIN
+			tz.t_gl_tz_product p ON p.product_code=loan.product_code
+		LEFT JOIN
+			tz.t_gl_org org ON org.id=loan.store_org_id
+		LEFT JOIN
+			tz.t_tz_customer cust ON cust.customer_code=loan.customer_code
+		LEFT JOIN
+			tz.t_tz_customer_account acc ON acc.id=loan.receiving_id
+		LEFT JOIN
+			tz.t_gl_province_city pc1 ON pc1.id=acc.account_addrprovince
+		LEFT JOIN
+			tz.t_gl_province_city pc2 ON pc2.id=acc.account_addrcity
+		LEFT JOIN
+			tz.t_gl_province_city pc3 ON pc3.id=acc.account_addrdistrict
+		LEFT JOIN
+			tz.t_tz_fy_area_code fpc1 ON fpc1.area_code=acc.account_addrprovince
+		LEFT JOIN
+			tz.t_tz_fy_area_code fpc2 ON fpc2.area_code=acc.account_addrcity
+		LEFT JOIN
+			tz.t_tz_fy_area_code fpc3 ON fpc3.area_code=acc.account_addrdistrict
+		LEFT JOIN
+			(SELECT 
+				plog.priority_id,
+				plog.check_examinetype,
+				plog.check_examine,
+				plog.check_reason,
+				plog.check_time
+			FROM
+				tz.t_tz_priority_back_log plog
+			INNER JOIN
+				(SELECT
+					priority_id, 
+					MAX(create_time) crttm 
+				FROM
+					tz.t_tz_priority_back_log  
+				GROUP BY 
+					priority_id) x ON plog.create_time=x.crttm
+						and plog.priority_id=x.priority_id) z ON z.priority_id=tpbp.priority_id	
+		<where>
+			<if test="prioIds != null and prioIds !='' and  priorityIds !=null ">
+  				AND tpbp.priority_id IN 
+		    	<foreach collection="priorityIds" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+  			</if>
+  			<if test="priorityBack != null and priorityBack !='' ">
+  				AND pool.priority_back = #{priorityBack}
+  			</if>
+			<if test="customerNameList !=null">
+	      		AND
+				<foreach collection="customerNameList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_name like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="customerCodeList !=null">
+				AND
+				<foreach collection="customerCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		cust.customer_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="lendCodeList !=null">
+				AND 
+				<foreach collection="lendCodeList" item="item" index="index" open="(" separator="OR" close=")">
+		    		loan.lend_code like '%${item}%'
+		    	</foreach>
+			</if>
+			<if test="applyLendDay !=null and applyLendDay !=''">
+				AND loan.apply_lend_day &gt;= #{applyLendDay}
+			</if>
+			<if test="applyLendDayTo !=null and applyLendDayTo !=''">
+	            AND loan.apply_lend_day &lt;= #{applyLendDayTo}
+			</if>
+			<if test="applyExpireDay !=null and applyExpireDay !=''">
+				AND loan.apply_expire_day &gt;= #{applyExpireDay}
+			</if>
+			<if test="applyExpireDayTo !=null and applyExpireDayTo !=''">
+	            AND loan.apply_expire_day &lt;= #{applyExpireDayTo}
+			</if>
+			<if test="backMoneyDay !=null and backMoneyDay !=''">
+				AND pool.back_money_day &gt;= #{backMoneyDay}
+			</if>
+			<if test="backMoneyDayTo !=null and backMoneyDayTo !=''">
+	            AND pool.back_money_day &lt;= #{backMoneyDayTo}
+			</if>
+			
+			<if test="approveDateStart !=null and approveDateStart !=''">
+				AND loan.approve_date &gt;= #{approveDateStart}
+			</if>
+			<if test="approveDateEnd !=null and approveDateEnd !=''">
+	            AND loan.approve_date &lt;= #{approveDateEnd}
+			</if>
+			
+			<if test="applyLendMoney !=null and applyLendMoney !=''">
+				AND loan.apply_lend_money &gt;= #{applyLendMoney}
+			</if>
+			<if test="applyLendMoneyTo !=null and applyLendMoneyTo !=''">
+	            AND loan.apply_lend_money &lt;= #{applyLendMoneyTo}
+			</if>
+			<if test="productList !=null ">
+				AND loan.product_code IN
+				<foreach collection="productList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="applyPayList !=null ">
+				AND loan.apply_pay IN
+				<foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<if test="orgList !=null ">
+				AND loan.store_org_id IN
+				<foreach collection="orgList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+			<!-- 申请列表过滤完结状态：未完结或null -->
+			<if test="listFlag =='apply'">
+				AND (loan.dict_apply_end_state = '1' or loan.dict_apply_end_state is null)  
+			</if>
+			
+			<!-- 优先回款审批日期 -->
+			<if test="checkTime !=null and checkTime !=''">
+				AND z.check_time &gt;= #{checkTime}
+			</if>
+			<if test="checkTimeTo !=null and checkTimeTo !=''">
+	            AND z.check_time &lt;= #{checkTimeTo}
+			</if>
+			
+			<!-- 优先回款审批状态 -->
+			<if test="priorityBackStateAS !=null and priorityBackStateAS !=''">
+	            AND tpbp.priority_back_state IN
+				<foreach collection="priorityBackStateAS" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+		</where>
+	</select>
+	
+	
+	<!-- 获取附件  -->
+	 <select id="findFileList" parameterType="java.util.HashMap" resultMap="BaseResultMap">
+	    select * from tz.t_tz_attachment
+	    <where>
+	    	is_discard = '1'   <!-- 只查有效的附件 -->
+		    <!-- 所属表ID -->
+		    <if test="attaTableId != null and attaTableId != ''">
+		    	AND atta_table_id in 
+		    	<foreach collection="attaTableId" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+		    </if>
+		    <!-- 所属表 -->
+		    <if test="attaFileOwner != null and attaFileOwner != ''">
+		    	AND atta_file_owner  in
+		    	<foreach collection="attaFileOwner" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+		    </if>	 	    
+	    	<if test="loanCode != null and loanCode != ''">
+		    	AND loan_code = '${loanCode}'
+		    </if>
+	    </where>
+	</select>
+	
+	<select id="searchLog" resultType="com.creditharmony.fortune.back.priority.common.view.PriorityBackLog">
+		select 	
+			log.check_by_id   AS  checkById,
+			log.check_time   AS  checkTime
+		from  
+			tz.t_tz_priority_back_log log
+		INNER JOIN
+			(SELECT
+				priority_id, 
+				MAX(check_time) crttm 
+			FROM
+				tz.t_tz_priority_back_log  
+			WHERE
+				check_time IS NOT NULL
+			GROUP BY 
+				priority_id
+			) a  
+		ON a.priority_id = log.priority_id  AND a.crttm = log.check_time 
+		WHERE
+			log.priority_id=#{priorityId}; 
+	</select>
+</mapper>

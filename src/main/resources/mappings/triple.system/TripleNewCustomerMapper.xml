@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.triple.system.dao.TripleNewCustomerDao">
+<!-- 根据手机号查询客户 -->
+<select id="searchCustomerByPhoneNum" resultType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+    select  
+        p.login_name as "loginName",
+        p.phone as "phone",
+		p.os_type as "osType",
+		p.emp_code as "empCode",
+		p.create_time as "createTime",
+		p.customer_code as "customerCode"
+	from tz.int_phone p
+	<where>
+		p.phone = #{phone,jdbcType=VARCHAR} 
+		<if test="osType != null and osType != ''">
+		    and p.os_type = #{osType,jdbcType=VARCHAR}
+		</if>
+	</where>
+</select>
+<!-- 根据证件号查询客户 -->
+<select id="searchCustomerByCertNum" resultType="com.creditharmony.fortune.triple.system.entity.IntCard">
+	select
+		c.id id,
+		c.user_name userName,
+		c.card_type cardType,
+		c.card_id cardId,
+		c.birthday birthday,
+		c.sex sex,
+		c.mail mail,
+		c.emp_code empCode,
+		c.order_status orderStatus,
+		c.order_time orderTime,
+		c.create_time createTime
+	from tz.int_card c
+	<where>
+		c.card_id = #{cardId,jdbcType=VARCHAR}
+		<if test="cardType != null and cardType != ''">
+			and c.card_type = #{cardType,jdbcType=VARCHAR}
+		</if>
+	</where>
+</select>
+<!--根据理财经理编号查询信息  -->
+<select id="checkManager" resultType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+	select
+	u.user_code as "empCode"
+	from tz.t_gl_user_role_org uro
+	left join tz.t_gl_user u on uro.user_id = u.id
+	<where>
+		<if test="empCode != null and empCode != ''">
+			u.user_code = #{empCode,jdbcType=VARCHAR}
+		</if>
+		and uro.role_id = '6450000002'
+		and u.status = '1'
+	</where>
+</select>
+<!--判断理财经理是否是离职理财经理  -->
+<select id="checkStopManager" resultType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+    select
+        u.user_code as "empCode"
+    from tz.t_gl_user_role_org uro
+    left join tz.t_gl_user u on uro.user_id = u.id
+    <where>
+        <if test="empCode != null and empCode != ''">
+            u.user_code = #{empCode,jdbcType=VARCHAR}
+        </if>
+        and uro.role_id = '6450000002'  
+        and u.status = '0'
+    </where>
+</select>
+<!-- 根据id查询理财经理编号 -->
+<select id="findEmpCodeById" resultType='com.creditharmony.fortune.triple.system.entity.IntPhone'>
+    select 
+        u.user_code as "empCode"
+    from tz.t_gl_user u
+    <where>
+            u.id = #{id,jdbcType=VARCHAR}
+    </where>
+</select>
+<!-- 插入数据到三网 -->
+<insert id="insertIntPhone" parameterType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+    insert into tz.int_phone 
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">id,</if>
+        <if test="loginName != null and loginName != ''">login_name,</if>
+        <if test="phone != null and phone != ''">phone,</if>
+        <if test="osType != null and osType != ''">os_type,</if>
+        <if test="osId != null and osId != ''">os_id,</if>
+        <if test="customerCode != null and customerCode != ''">customer_code,</if>
+        <if test="empCode != null and empCode != ''">emp_code,</if>
+        <if test="createTime != null and createTime != ''">create_time,</if>
+        <if test="faileName != null and faileName != ''">failename,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">#{id,jdbcType=VARCHAR},</if>
+        <if test="loginName != null and loginName != ''">#{loginName,jdbcType=VARCHAR},</if>
+        <if test="phone != null and phone != ''">#{phone,jdbcType=VARCHAR},</if>
+        <if test="osType != null and osType != ''">#{osType,jdbcType=VARCHAR},</if>
+        <if test="osId != null and osId != ''">#{osId,jdbcType=VARCHAR},</if>
+        <if test="customerCode != null and customerCode != ''">#{customerCode,jdbcType=VARCHAR},</if>
+        <if test="empCode != null and empCode != ''">#{empCode,jdbcType=VARCHAR},</if>
+        <if test="createTime != null and createTime != ''">#{createTime,jdbcType=TIMESTAMP},</if>
+        <if test="faileName != null and faileName != ''">#{faileName,jdbcType=VARCHAR},</if>
+    </trim>
+</insert>
+<!-- 根据修改三网客户手机号 -->
+<update id="updatePhone" parameterType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+    update tz.int_phone
+    <trim prefix="SET" suffixOverrides=",">
+         <if test="newPhone != null and newPhone != ''">phone = #{newPhone,jdbcType=VARCHAR},</if>
+         <if test="empCode != null and empCode != ''">emp_code = #{empCode,jdbcType=VARCHAR},</if>
+    </trim>
+    <where>
+        phone = #{phone,jdbcType=VARCHAR}
+        <if test="osType !=  null and osType != ''">
+            and os_type = #{osType,jdbcType=VARCHAR}
+        </if>
+    </where>
+</update>
+<!--修改手机号  -->
+<update id="updatePhoneCardByPhone" parameterType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+    update tz.int_phone_card
+    <trim prefix="SET" suffixOverrides=",">
+         <if test="newPhone != null and newPhone != ''">phone = #{newPhone,jdbcType=VARCHAR},</if>
+    </trim>
+    <where>
+        phone = #{phone,jdbcType=VARCHAR}
+    </where>
+</update>
+<!-- 根据手机号修改手机号对应的理财经理 -->
+<update id="updateEmpCodeByPhone" parameterType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+	update tz.int_phone
+	<trim prefix="SET" suffixOverrides=",">
+		<if test="empCode != null ">emp_code = #{empCode,jdbcType=VARCHAR},</if>
+		<if test="loginName != null and loginName != ''">login_name = #{loginName,jdbcType=VARCHAR},</if>
+	</trim>
+	<where>
+		phone = #{phone,jdbcType=VARCHAR}
+		<if test="osType != null and osType !=  ''">
+			and os_type = #{osType,jdbcType=VARCHAR}
+		</if>
+	</where>
+</update>
+<!-- 根据系统类型和手机号修改手机号对应的理财经理 -->
+<update id="updateEmpCodeByOsTypePhone" parameterType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+	update tz.int_phone
+	<trim prefix="SET" suffixOverrides=",">
+		<if test="empCode != null and empCode != ''">emp_code = #{empCode,jdbcType=VARCHAR},</if>
+	</trim>
+	<where>
+		phone = #{phone,jdbcType=VARCHAR}
+		<if test="osType != null and osType != ''">
+			and os_type = #{osType,jdbcType=VARCHAR}
+		</if>
+	</where>
+</update>
+<!--修改证件号对应的理财经理  -->
+<update id="updateEmpCodeByCertNum" parameterType="com.creditharmony.fortune.triple.system.entity.IntCard">
+	update tz.int_card
+	<trim prefix="SET" suffixOverrides=",">
+		<if test="empCode != null">emp_code = #{empCode,jdbcType=VARCHAR},</if>
+		<if test="orderStatus != null and orderStatus != ''">order_status = #{orderStatus,jdbcType=VARCHAR},</if>
+		<if test="orderTime != null and orderTime != ''">order_time = #{orderTime},</if>
+	</trim>
+	<where>
+		card_id = #{cardId,jdbcType=VARCHAR}
+	</where>
+</update>
+<!-- 插入数据到三网证件号 -->
+<insert id="insertIntCard" parameterType="com.creditharmony.fortune.triple.system.entity.IntCard">
+    insert into tz.int_card
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">id,</if>
+        <if test="userName != null and userName != ''">user_name,</if>
+        <if test="cardType != null and cardType != ''">card_type,</if>
+        <if test="cardId != null and cardId != ''">card_id,</if>
+        <if test="birthday != null and birthday != ''">birthday,</if>
+        <if test="sex != null and sex != ''">sex,</if>
+        <if test="mail != null and mail != ''">mail,</if>
+        <if test="empCode != null and empCode != ''">emp_code,</if>
+        <if test="orderStatus != null and orderStatus != ''">order_status,</if>
+        <if test="orderTime != null and orderTime != ''">order_time,</if>
+        <if test="createTime != null and createTime != ''">create_time,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+       <if test="id != null and id != ''">#{id,jdbcType=VARCHAR},</if>
+        <if test="userName != null and userName != ''">#{userName,jdbcType=VARCHAR},</if>
+        <if test="cardType != null and cardType != ''">#{cardType,jdbcType=VARCHAR},</if>
+        <if test="cardId != null and cardId != ''">#{cardId,jdbcType=VARCHAR},</if>
+        <if test="birthday != null and birthday != ''">#{birthday,jdbcType=VARCHAR},</if>
+        <if test="sex != null and sex != ''">#{sex,jdbcType=VARCHAR},</if>
+        <if test="mail != null and mail != ''">#{mail,jdbcType=VARCHAR},</if>
+        <if test="empCode != null and empCode != ''">#{empCode,jdbcType=VARCHAR},</if>
+        <if test="orderStatus != null and orderStatus != ''">#{orderStatus,jdbcType=VARCHAR},</if>
+        <if test="orderTime != null and orderTime != ''">#{orderTime,jdbcType=TIMESTAMP},</if>
+        <if test="createTime != null and createTime != ''">#{createTime,jdbcType=TIMESTAMP},</if>
+    </trim>
+</insert>
+<!-- 插入手机号证件号中间表 -->
+<insert id="insertIntPhoneCard" parameterType="com.creditharmony.fortune.triple.system.entity.IntPhoneCard">
+  insert into tz.int_phone_card 
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">id,</if>
+        <if test="phone != null and phone != ''">phone,</if>
+        <if test="cardId != null and cardId != ''">card_id,</if>
+        <if test="createTime != null and createTime != ''">create_time,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">#{id,jdbcType=VARCHAR},</if>
+        <if test="phone != null and phone != ''">#{phone,jdbcType=VARCHAR},</if>
+        <if test="cardId != null and cardId != ''">#{cardId,jdbcType=VARCHAR},</if>
+        <if test="createTime != null and createTime != ''">#{createTime,jdbcType=TIMESTAMP},</if>
+    </trim>
+</insert>
+<!--根据证件号查询对应的手机号 及根据手机号查询对应的证件号 -->
+<select id="findPhoneByCertNum" resultType="com.creditharmony.fortune.triple.system.entity.IntPhoneCard">
+	select
+	ipc.id as "id",
+	ipc.phone as "phone",
+	ipc.card_id as "cardId",
+	ipc.create_time as "createTime"
+	from tz.int_phone_card ipc
+	<where>
+		<if test="cardId != null and cardId != ''">
+			and ipc.card_id = #{cardId,jdbcType=VARCHAR}
+		</if>
+		<if test="phone != null and phone != ''">
+			and ipc.phone = #{phone,jdbcType=VARCHAR}
+		</if>
+	</where>
+</select>
+<!--分组时根据手机号查询对应的证件号 -->
+<select id="findCardForGroup" resultType="com.creditharmony.fortune.triple.system.entity.IntPhoneCard">
+    select 
+        distinct ipc.card_id  as cardId
+    from tz.int_phone_card ipc
+    <where>
+		<if test="phoneList != null">
+		    and ipc.phone in
+		     <foreach collection="phoneList" item="item"  index="index" open="(" separator="," close=")">  
+                     '${item}' 
+             </foreach>
+		</if>
+    </where>
+</select>
+<!--分组时根据证件号查询对应的手机号-->
+<select id="findPhoneForGroup" resultType="com.creditharmony.fortune.triple.system.entity.IntPhoneCard">
+    select 
+         distinct ipc.phone  as phone
+    from tz.int_phone_card ipc
+    <where>
+		<if test="cardList != null">
+		    and  ipc.card_id in
+		    <foreach collection="cardList" item="item"  index="index" open="(" separator="," close=")">  
+                    '${item}' 
+            </foreach>
+		</if>
+    </where>
+</select>
+<!-- 根据旧手机号修改手机号和理财经理 -->
+<update id="updateOldPhone" parameterType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+    update int_phone
+    <trim prefix="SET" suffixOverrides=",">
+         <if test="empCode != null and empCode != ''">emp_code = #{empCode,jdbcType=VARCHAR},</if>
+         <if test="newPhone != null and newPhone != ''">phone = #{newPhone,jdbcType=VARCHAR},</if>
+    </trim>
+    <where>
+		      phone = #{phone,jdbcType=VARCHAR}
+    </where>
+</update>
+<!-- 查询手机号是否是chp并且未成单 -->
+<select id="checkIsChpPhone" resultType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+    select 
+        p.phone as "phone",
+        p.login_name as "loginName",
+        p.os_type as "osType"
+	from tz.int_phone p
+	<where>
+	    ( p.os_type = 'XH_DJR' OR p.os_type = 'XH_JX')   
+	    <if test="phone != null and phone != ''">
+	        and p.phone = #{phone,jdbcType=VARCHAR}
+	    </if>
+	</where>
+</select>
+<!-- 插入客户备份信息 -->
+<insert id="insertTripleCustomer" parameterType="com.creditharmony.fortune.triple.system.entity.IntCustomerBean">
+  insert into tz.int_customer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">id,</if>
+        <if test="osId != null and osId != ''">os_id,</if>
+        <if test="empCode != null and empCode != ''">emp_code,</if>
+        <if test="newPhone != null and newPhone != ''">new_phone,</if>
+        <if test="oldPhone != null and oldPhone != ''">old_phone,</if>
+        <if test="userName != null and userName != ''">user_name,</if>
+        <if test="logName != null and logName != ''">log_name,</if>
+        <if test="cardType != null and cardType != ''">card_type,</if>
+        <if test="cardId != null and cardId != ''">card_id,</if>
+        <if test="mail != null and mail != ''">mail,</if>
+        <if test="sex != null and sex != ''">sex,</if>
+        <if test="osType != null and osType != ''">os_type,</if>
+        <if test="birthday != null and birthday != ''">birthday,</if>
+        <if test="createTime != null and createTime != ''">create_time,</if>
+        <if test="sendStatus != null and sendStatus != ''">send_status,</if>
+        <if test="crmSendStatus != null and crmSendStatus != ''">crm_send_status,</if>
+        <if test="sendType != null and sendType != ''">send_type,</if>
+        <if test="sendTime != null and sendTime != ''">send_time,</if>
+        <if test="operation != null and operation != ''">operation,</if>
+        <if test="uniqueNum != null and uniqueNum != ''">unique_num,</if>
+        <if test="cusSource != null and cusSource != ''">cus_source,</if>
+        <if test="userNumber != null and userNumber != ''">user_number,</if>
+        <if test="ICEName != null and ICEName != ''">ice_name,</if>
+        <if test="ICECardType != null and ICECardType != ''">ice_card_type,</if>
+        <if test="ICECardId != null and ICECardId != ''">ice_card_id,</if>
+        <if test="ICEPhone != null and ICEPhone != ''">ice_phone,</if>
+        <if test="ICEArea != null and ICEArea != ''">ice_area,</if>
+        <if test="ICEAddress != null and ICEAddress != ''">ice_address,</if>
+        <if test="ICEEmail != null and ICEEmail != ''">ice_email,</if>
+        <if test="ICERelation != null and ICERelation != ''">ice_relation,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">#{id,jdbcType=VARCHAR},</if>
+        <if test="osId != null and osId != ''">#{osId,jdbcType=VARCHAR},</if>
+        <if test="empCode != null and empCode != ''">#{empCode,jdbcType=VARCHAR},</if>
+        <if test="newPhone != null and newPhone != ''">#{newPhone,jdbcType=VARCHAR},</if>
+        <if test="oldPhone != null and oldPhone != ''">#{oldPhone,jdbcType=VARCHAR},</if>
+        <if test="userName != null and userName != ''">#{userName,jdbcType=VARCHAR},</if>
+        <if test="logName != null and logName != ''">#{logName,jdbcType=VARCHAR},</if>
+        <if test="cardType != null and cardType != ''">#{cardType,jdbcType=VARCHAR},</if>
+        <if test="cardId != null and cardId != ''">#{cardId,jdbcType=VARCHAR},</if>
+        <if test="mail != null and mail != ''">#{mail,jdbcType=VARCHAR},</if>
+        <if test="sex != null and sex != ''">#{sex,jdbcType=VARCHAR},</if>
+        <if test="osType != null and osType != ''">#{osType,jdbcType=VARCHAR},</if>
+        <if test="birthday != null and birthday != ''">#{birthday,jdbcType=VARCHAR},</if>
+        <if test="createTime != null and createTime != ''">#{createTime,jdbcType=TIMESTAMP},</if>
+        <if test="sendStatus != null and sendStatus != ''">#{sendStatus,jdbcType=VARCHAR},</if>
+        <if test="crmSendStatus != null and crmSendStatus != ''">#{crmSendStatus,jdbcType=VARCHAR},</if>
+        <if test="sendType != null and sendType != ''">#{sendType,jdbcType=VARCHAR},</if>
+        <if test="sendTime != null and sendTime != ''">#{sendTime,jdbcType=TIMESTAMP},</if>
+        <if test="operation != null and operation != ''">#{operation,jdbcType=VARCHAR},</if>
+        <if test="uniqueNum != null and uniqueNum != ''">#{uniqueNum,jdbcType=VARCHAR},</if>
+        <if test="cusSource != null and cusSource != ''">#{cusSource,jdbcType=VARCHAR},</if>
+        <if test="userNumber != null and userNumber != ''">#{userNumber,jdbcType=VARCHAR},</if>
+        <if test="ICEName != null and ICEName != ''">#{ICEName,jdbcType=VARCHAR},</if>
+        <if test="ICECardType != null and ICECardType != ''">#{ICECardType,jdbcType=VARCHAR},</if>
+        <if test="ICECardId != null and ICECardId != ''">#{ICECardId,jdbcType=VARCHAR},</if>
+        <if test="ICEPhone != null and ICEPhone != ''">#{ICEPhone,jdbcType=VARCHAR},</if>
+        <if test="ICEArea != null and ICEArea != ''">#{ICEArea,jdbcType=VARCHAR},</if>
+        <if test="ICEAddress != null and ICEAddress != ''">#{ICEAddress,jdbcType=VARCHAR},</if>
+        <if test="ICEEmail != null and ICEEmail != ''">#{ICEEmail,jdbcType=VARCHAR},</if>
+        <if test="ICERelation != null and ICERelation != ''">#{ICERelation,jdbcType=VARCHAR},</if>
+    </trim>
+</insert>
+<!-- 三网日志表 -->
+<insert id="insertTripleLog" parameterType="com.creditharmony.fortune.triple.system.entity.IntLogBean">
+    insert into tz.int_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">id,</if>
+        <if test="typeId != null and typeId != ''">type_id,</if>
+        <if test="content != null and content != ''">content,</if>
+        <if test="opType != null and opType != ''">op_type,</if>
+        <if test="createTime != null and createTime != ''">create_time,</if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">#{id,jdbcType=VARCHAR},</if>
+        <if test="typeId != null and typeId != ''">#{typeId,jdbcType=VARCHAR},</if>
+        <if test="content != null and content != ''">#{content,jdbcType=VARCHAR},</if>
+        <if test="opType != null and opType != ''">#{opType,jdbcType=VARCHAR},</if>
+        <if test="createTime != null and createTime != ''">#{createTime,jdbcType=TIMESTAMP},</if>
+    </trim>
+</insert>
+<!--  根据证件号查询证件号下的手机号对应的信息-->
+<select id="findCertNumPhoneList" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+    select 
+        p.login_name as "loginName",
+        p.phone as "phone",
+        p.emp_code as "empCode",
+        p.os_type as "osType"
+    from tz.int_phone_card pc
+    left join int_phone p on p.phone = pc.phone
+    <where>
+            pc.card_id = #{cardId,jdbcType=VARCHAR}
+    </where>
+</select>
+
+<!-- 根据手机号查询对应信息 -->
+<select id="findAllInfoByPhoneList" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+	select
+	p.phone as "phone",
+	p.os_type as "osType",
+	p.emp_code as "empCode",
+	c.card_id as "cardId",
+	c.card_type as "cardType",
+	c.order_status as "orderStatus"
+	from tz.int_phone p
+	left join tz.int_phone_card pc on pc.phone = p.phone
+	left join tz.int_card c on c.card_id = pc.card_id
+	<where>
+		(p.emp_code !='' and p.emp_code is not null)
+		and p.phone = #{phone,jdbcType=VARCHAR}
+	</where>
+</select>
+<!-- 根据三网消息反馈结果修改发送状态 -->
+<update id="updateSendStatus" parameterType="com.creditharmony.fortune.triple.system.entity.IntCustomerBean">
+    update tz.int_customer
+    <trim prefix="SET" suffixOverrides=",">
+         <if test="sendStatus != null and sendStatus != ''">send_status = #{sendStatus,jdbcType=VARCHAR},</if>
+    </trim>
+    <where>
+		      unique_num = #{uniqueNum,jdbcType=VARCHAR}
+    </where>
+</update>
+<!-- 根据三网消息反馈结果修改发送状态 成功-->
+<update id="updateSendStatusSucBatch" parameterType="java.util.List">
+    update tz.int_customer
+     set  send_status = '0'
+    <where>
+		     unique_num in 
+		       <foreach item="item" index="index" collection="list" open="(" separator="," close=")"> #{item.uniqueNum} </foreach> 
+    </where>
+</update>
+<!-- 根据三网消息反馈结果修改发送状态 失败-->
+<update id="updateSendStatusFailBatch" parameterType="java.util.List">
+    update tz.int_customer
+      set   send_status ='1'
+    <where>
+		      unique_num in 
+		       <foreach item="item" index="index" collection="list" open="(" separator="," close=")"> #{item.uniqueNum} </foreach> 
+    </where>
+</update>
+<!-- 查询创建时间最早理财经理 -->
+<select id="findManagerByCreateTime" resultType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+    select 
+        distinct phone, 
+        emp_code empCode, 
+        a.create_time createTime
+	from tz.int_phone a
+	where 
+	    a.phone = #{phone,jdbcType=VARCHAR}
+        and create_time = (select min(create_time) createTime
+	                       from tz.int_phone
+	                       where phone = #{phone,jdbcType=VARCHAR})
+    limit 1
+</select>
+<!--查询成单时间最早  -->
+<select id="findManagerByOrderTime" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+    select a.card_type cardType,
+		       a.card_id cardId,
+		       a.emp_code empCode,
+		       order_status orderStatus,
+		       to_char(order_time, 'YYYY-MM-DD hh24:mi:ss') orderTime
+    from tz.int_card a, tz.int_phone_card b
+    where a.card_id = b.card_id
+	      and b.phone = #{phone,jdbcType=VARCHAR}
+	      and order_time = (select min(order_time) orderTime
+	                       from tz.int_card a, tz.int_phone_card b
+	                      where a.card_id = b.card_id
+	                        and b.phone = #{phone,jdbcType=VARCHAR})
+	 limit 1
+</select>
+<!-- 根据出借编号查询出借成功次数 -->
+<select id="findLendApply" resultType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+    select lend_code lendCode 
+    from tz.t_tz_loan_apply
+    where 
+        customer_code = #{customerCode,jdbcType=VARCHAR}
+        and lend_status = '11'
+</select>
+
+<delete id="deletePhoneCard" parameterType="com.creditharmony.fortune.triple.system.entity.IntPhoneCard">
+	delete
+	from tz.int_phone_card
+	<where>
+	    phone = #{phone,jdbcType=VARCHAR}
+	    and card_id = #{cardId,jdbcType=VARCHAR}
+	</where>
+</delete>
+
+<!--根据唯一编号查询发送次数  -->
+<select id="countSendNum" resultType="com.creditharmony.fortune.triple.system.entity.IntLogBean">
+     select 
+         id as "id",
+         type_id as typeId
+      from tz.int_log
+      <where>
+         unique_num = #{uniqueNum,jdbcType=VARCHAR}
+      </where>
+</select>
+<!--修改chp客户表客户对应理财经理-->
+<update id="updateCustomerEmpByManagerId" parameterType="com.creditharmony.fortune.triple.system.entity.ext.IntDeliveryEx">
+	update tz.t_tz_customer
+	<trim prefix="SET" suffixOverrides=",">
+		<if test="newEmpCode != null and newEmpCode != ''">manager_code = #{newEmpCode,jdbcType=VARCHAR},</if>
+		<if test="newTeamManagerId != null and newTeamManagerId != ''">team_manager_code = #{newTeamManagerId,jdbcType=VARCHAR},</if>
+		<if test="newTeamId != null and newTeamId != ''">team_org_id= #{newTeamId,jdbcType=VARCHAR},</if>
+		<if test="newOrgId != null and newOrgId != ''">org_code = #{newOrgId,jdbcType=VARCHAR},</if>
+		<if test="modifyBy != null and modifyBy != ''">modify_by = #{modifyBy,jdbcType=VARCHAR},</if>
+		<if test="modifyTime != null and modifyTime != ''">modify_time = #{modifyTime,jdbcType=TIMESTAMP},</if>
+	</trim>
+	<where>
+		manager_code = #{empId,jdbcType=VARCHAR}
+	</where>
+</update>
+	<!--根据手机号查询empCode-->
+	<select id="findEmpCodeByPhone" resultType="string">
+		select ip.emp_code from tz.int_phone ip
+		left join tz.t_gl_user u
+		on u.user_code = ip.emp_code
+		<where>
+			ip.phone=#{_parameter,jdbcType=VARCHAR}
+			and status='1' and del_flag='0'
+		</where>
+	</select>
+	<!--根据手机号查询card并倒叙得到首单的empCode-->
+	<select id="findCardByPhone" resultType="com.creditharmony.fortune.triple.system.entity.IntCard">
+		select * 
+			from tz.int_card where card_id in (
+				select distinct card_id 
+					from tz.int_phone_card 
+					where phone in
+					<foreach collection="phoneList" item="phone"  index="index" open="(" separator="," close=")">  
+						'${phone}' 
+					</foreach>
+			)
+		order by order_time 
+	</select>
+	<!--根据手机号查询理财经理不为空的 首单最早的 证件号信息 -->
+	<select id="findCardFirstOrderTimeByPhone" resultType="com.creditharmony.fortune.triple.system.entity.IntCard">
+		select * from tz.int_card where card_id in (
+				select distinct card_id 
+					from tz.int_phone_card 
+					where phone in
+					<foreach collection="phoneList" item="phone"  index="index" open="(" separator="," close=")">  
+						'${phone}' 
+					</foreach>
+			)
+		and order_status ='1' and emp_code is not null and emp_code !='' 
+		order by  order_time asc
+	</select>
+	<!--根据手机号列表查询注册时间最早的客户 （排除理财经理为空的记录） -->
+	<select id="findFirstRegTimeByPhone" resultType="com.creditharmony.fortune.triple.system.entity.IntPhone">
+		select * 
+			from tz.int_phone where phone in
+					<foreach collection="phoneList" item="phone"  index="index" open="(" separator="," close=")">  
+						'${phone}' 
+					</foreach>
+			
+		and emp_code is not null and emp_code !='' 
+		order by create_time asc 
+	</select>
+	<select id="checkCardIsSingle" resultType="com.creditharmony.fortune.triple.system.entity.IntCard">
+		select * from tz.int_card ic where ic.card_id 
+		in (
+			select card_id from tz.int_phone_card ipc 
+			where ipc.phone in
+			<foreach collection="phoneList" item="item"  index="index" open="(" separator="," close=")">  
+				'${item}' 
+			</foreach>
+		)
+		and ic.order_status='1'
+	</select>
+	
+	<!-- 根据客户姓名和证件号获取客户编号 -->
+	<select id="selectCustomer" resultType="string">
+		SELECT 
+			apply.lend_code
+		FROM
+			tz.t_tz_loan_apply   apply	
+		LEFT  JOIN
+			tz.t_tz_customer   cust  ON  cust.customer_code = apply.customer_code
+		WHERE  
+	<!-- 		cust.customer_name = #{custCode} 
+		AND cust.customer_cert_num = #{custName}; -->
+		cust.customer_name = #{customerName} 
+		AND cust.customer_cert_num = #{custCertNum};
+	</select>
+	
+	<!-- 根据客户姓名和证件号获取客户编号 -->
+	<update id="updateChpPhone" >
+		update tz.t_tz_customer  tc set customer_mobilephone =#{newPhone} where customer_mobilephone =#{oldPhone}
+	</update>
+	
+</mapper>

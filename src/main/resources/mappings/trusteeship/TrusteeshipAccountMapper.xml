@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.trusteeship.dao.TrusteeshipAccountDao" >
+  <select id="findList" resultType="com.creditharmony.fortune.trusteeship.entity.TrusteeshipAccount" parameterType="java.util.Map" >
+    select distinct
+    	customer.id,
+    	customer.customer_name as "customerName",
+    	customer.customer_code as "customerCode",
+    	customer.customer_cert_num as "customerCertNum",
+    	customer.dict_customer_cert_type as "customerCertType",
+		customer.customer_mobilephone as "mobilephone",
+    	customer.customer_email as "email",
+    	bank.account_bank as "bankId",
+    	fy_province.area_name as "addrprovince",
+    	fy_city.area_name as "addrcity",
+    	fy_city.area_code as "addrcityId",
+    	bank.account_addrdistrict as "addrdistrict",
+    	bank.account_branch as "branch",
+    	bank.account_name as "accountName",
+    	bank.account_no as "accountNo",
+    	customer.apply_hosted_status as "applyHostedStatus",
+    	customer.trusteeship_ret_code as "trusteeshipRetCode",
+    	customer.trusteeship_ret_msg as "trusteeshipRetmsg",
+    	extract(epoch from customer.modify_time) as "verTime"
+    from t_tz_loan_apply loan
+    left join t_tz_customer_account bank 
+    	on  bank.id = loan.repay_id
+    left join t_tz_customer customer
+    	on customer.customer_code = loan.customer_code
+    left join t_tz_fy_area_code fy_province
+    	on fy_province.area_code = bank.account_addrprovince
+    left join t_tz_fy_area_code fy_city
+    	on fy_city.area_code = bank.account_addrcity
+    where 1=1 and customer.apply_hosted_status in ('1','3')<!-- 1金账户申请中, 3开户失败 -->
+    	<!-- 金账户待开户 -->
+    	and (loan.lend_status = '0')  <!--  0 金账户待开户  -->
+    	<if test="lendCode != null and lendCode != ''" >
+			and loan.lend_code = #{lendCode,jdbcType=VARCHAR}
+		</if>
+		<if test="customerName != null and customerName != ''" >
+			and customer.customer_name like '%'||#{customerName}||'%'
+		</if>
+		<if test="customerCode != null and customerCode != ''" >
+			and customer.customer_code = #{customerCode,jdbcType=VARCHAR}
+		</if>
+		<if test="customerCertNum != null and customerCertNum != ''" >
+			and customer.customer_cert_num = #{customerCertNum,jdbcType=VARCHAR}
+		</if>
+		<if test="bankId != null and customerCertNum != ''" >
+			and bank.account_bank in
+			<foreach item="item" index="index" collection="bankId" open="(" separator="," close=")"> 
+				 #{item}
+			</foreach>
+		</if>
+		<if test="applyHostedStatus != null and applyHostedStatus != ''" >
+			and customer.apply_hosted_status = #{applyHostedStatus,jdbcType=VARCHAR}
+		</if>
+		<if test="customerCodes != null and customerCodes != ''">
+			and customer.customer_code in
+			<foreach collection="customerCodes" item="item" open="(" close=")" separator=",">
+		  		#{item}
+		  	</foreach>
+		</if>
+  </select>
+  
+  <select id="findProtocalList" resultType="com.creditharmony.fortune.trusteeship.entity.ProtocalExportExcel" parameterType="java.util.Map">
+  	select distinct
+    	customer.customer_name as "customerName",
+    	customer.customer_mobilephone as "mobilePhone",
+    	customer.dict_customer_cert_type as "credentialsType",
+    	customer.customer_cert_num as "credentialsNum",
+    	bank.account_no as "account",
+    	bank.account_bank as "bankId"
+    from t_tz_loan_apply loan
+    left join t_tz_customer_account bank 
+    	on  bank.id = loan.repay_id
+    left join t_tz_customer customer
+    	on customer.customer_code = loan.customer_code
+    where 1=1 and customer.apply_hosted_status in ('1','3')
+    	<!-- 金账户待开户 -->
+    	and loan.lend_status = '0'
+    	<if test="lendCode != null and lendCode != ''" >
+			and loan.lend_code = #{lendCode,jdbcType=VARCHAR}
+		</if>
+		<if test="customerName != null and customerName != ''" >
+			and customer.customer_name like '%'||#{customerName}||'%'
+		</if>
+		<if test="customerCode != null and customerCode != ''" >
+			and customer.customer_code = #{customerCode,jdbcType=VARCHAR}
+		</if>
+		<if test="customerCertNum != null and customerCertNum != ''" >
+			and customer.customer_cert_num = #{customerCertNum,jdbcType=VARCHAR}
+		</if>
+		<if test="bankId != null and customerCertNum != ''" >
+			and bank.account_bank in
+			<foreach item="item" index="index" collection="bankId" open="(" separator="," close=")"> 
+				 #{item}
+			</foreach>
+		</if>
+		<if test="applyHostedStatus != null and applyHostedStatus != ''" >
+			and customer.apply_hosted_status = #{applyHostedStatus,jdbcType=VARCHAR}
+		</if>
+    	<if test="customerCodes != null and customerCodes != ''">
+			and customer.customer_code in
+			<foreach collection="customerCodes" item="item" open="(" close=")" separator=",">
+		  		#{item}
+		  	</foreach>
+		</if>
+    	
+  </select>
+  <select id="getAccountByCustomerCode" parameterType="java.lang.String" resultType="com.creditharmony.fortune.trusteeship.entity.TrusteeshipAccount">
+  	select 
+    	customer.customer_name as "customerName",
+    	customer.customer_code as "customerCode",
+    	customer.customer_cert_num as "customerCertNum",
+    	customer.customer_mobilephone as "mobilephone",
+    	customer.customer_email as "email",
+    	customer.dict_customer_cert_type as "customerCertType",
+    	bank.account_bank as "bankId",
+    	bank.account_addrprovince as "addrprovince",
+    	bank.account_addrcity as "addrcity",
+    	bank.account_addrdistrict as "addrdistrict",
+    	bank.account_branch as "branch",
+    	bank.account_name as "accountName",
+    	bank.account_no as "accountNo",
+    	customer.apply_hosted_status as "applyHostedStatus",
+    	customer.trusteeship_ret_code as "trusteeshipRetCode",
+    	customer.trusteeship_ret_msg as "trusteeshipRetmsg"
+    from t_tz_customer customer left join t_tz_customer_account bank on bank.id = customer.trusteeship_account_id
+    where customer.customer_code = #{1}
+  </select>
+</mapper>

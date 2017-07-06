@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.interest.applyConfrim.dao.BackInterestApplyConfrimDao" >
+  
+	<!-- 上传回息金额 -->
+	<update id="uploadMoney" parameterType="com.creditharmony.fortune.back.interest.entity.BackInterestPool">
+		UPDATE
+			t_tz_back_interest_pool
+		SET
+			back_real_money = #{backRealMoney},
+			modify_by = #{modifyBy},
+			modify_time = #{modifyTime}
+		<where>
+	  		backi_id = #{backiId} 
+	  		AND back_money_status IN
+	  		<foreach collection="verState" item="item" open="(" close=")" separator=",">
+				#{item}	  		
+	  		</foreach> 
+	  		AND interest_return is null
+	  	</where>
+	</update>
+</mapper>

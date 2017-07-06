@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.deduct.dao.TheDayDeductDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.deduct.entity.ThedayDeductPool" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="deduct_apply_id" property="deductApplyId" jdbcType="VARCHAR" />
+    <result column="dict_deduct_status" property="dictDeductStatus" jdbcType="VARCHAR" />
+    <result column="actual_deduct_money" property="actualDeductMoney" jdbcType="NUMERIC" />
+    <result column="deduct_validity_date" property="deductValidityDate" jdbcType="TIMESTAMP" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="loan_money" property="loanMoney" jdbcType="NUMERIC" />
+    <result column="deduct_succeed_money" property="deductSucceedMoney" jdbcType="NUMERIC" />
+    <result column="deduct_fail_money" property="deductFailMoney" jdbcType="NUMERIC" />
+    <result column="deduct_time" property="deductTime" jdbcType="TIMESTAMP" />
+    <result column="no_deduct_money" property="noDeductMoney" jdbcType="NUMERIC" />
+    <result column="verTime" property="verTime" jdbcType="NUMERIC" />
+    
+    <result column="jump_amount" property="jumpAmount" jdbcType="NUMERIC" />
+    <result column="jump_rule" property="jumpRule" jdbcType="VARCHAR" />
+    <result column="theday_jump_flag" property="thedayJumpFlag" jdbcType="VARCHAR" />
+    <result column="all_deduct_fail_money" property="allDeductFailMoney" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    	id, deduct_apply_id, dict_deduct_status, actual_deduct_money, 
+       deduct_validity_date, create_by, create_time, modify_by, modify_time, 
+       loan_money, deduct_succeed_money, deduct_fail_money, deduct_time,no_deduct_money ,
+       jump_amount,jump_rule,theday_jump_flag,all_deduct_fail_money,
+       extract(epoch from modify_time) as "verTime"
+  </sql>
+  <select id="get" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.deduct.entity.ThedayDeductPool" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_theday_deduct_pool
+    <where>
+    	<if test="id != null and id != ''">
+    		and id = #{id,jdbcType=VARCHAR} 
+    	</if>
+    	<if test="verTime != null and verTime != ''">
+    		and extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+    	</if>
+    </where>
+  </select>
+  <select id="getForUpdate" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_theday_deduct_pool
+    where id = #{id,jdbcType=VARCHAR} 
+    and extract(epoch from modify_time) =cast ( COALESCE(#{verTime},'0') as numeric)
+    for update
+  </select>
+  
+  <select id="findAllList" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.deduct.entity.ThedayDeductPool" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_theday_deduct_pool
+    <where>
+    	<if test="deductApplyId != null and deductApplyId != ''">
+    		 and deduct_apply_id = #{deductApplyId}
+    	</if>
+    	<if test="id != null and id != ''">
+    		 and id = #{id}
+    	</if>
+    	<if test="dictDeductStatusList != null and dictDeductStatusList.size() > 0" >
+		        and dict_deduct_status in
+		        <foreach collection="dictDeductStatusList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		</if>
+    </where>
+    order by deduct_time desc
+  </select>
+  
+  <select id="findListForUpdate" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.deduct.entity.ThedayDeductPool" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_theday_deduct_pool
+    <where>
+    	<if test="deductApplyId != null and deductApplyId != ''">
+    		 and deduct_apply_id = #{deductApplyId} for update
+    	</if>
+    </where>
+  </select>
+  <!-- 判断是当前划扣是否有划扣处理中和二次划扣中的状态（即没有回盘结果） -->
+   <select id="checkProcessingStatus" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_theday_deduct_pool
+    <where>
+    	<if test="deductApplyId != null and deductApplyId != ''">
+    		deduct_apply_id = #{deductApplyId}
+    	</if>
+    	<if test="deductStatusList != null and deductStatusList.size() > 0" >
+		        and dict_deduct_status in
+		        <foreach collection="deductStatusList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		</if>
+    </where>
+    order by deduct_time desc
+  </select>
+  
+  <select id="findList" resultType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx"
+  		parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx">
+		SELECT 
+				p.deduct_apply_id, 
+				p.customer_code as cust_code, 
+				p.lend_code as apply_code, 
+				the.dict_deduct_status,
+<!-- 				p.actual_deduct_money, -->
+				a.lend_code,
+				c.customer_name as cust_name,
+				glp.product_name,
+				<!-- mc.dict_matching_filesend_status, -->
+				a.apply_pay,
+				a.dict_apply_deduct_type,
+				ca.account_bank,
+				ca.account_no,
+				a.apply_lend_day as apply_lend_date,
+				a.apply_deduct_day as apply_deduct_date,
+				a.apply_lend_money,
+				a.apply_deduct_money,
+				the.actual_deduct_money,
+				the.id,
+				the.deduct_validity_date,
+				the.deduct_fail_money as failMoney,
+				the.no_deduct_money as noDeductMoney,
+				the.deduct_succeed_money as deductSucceedMoney,
+				the.fail_reason confirmOpinion,
+				the.all_deduct_fail_money,
+				the.jump_amount,
+				a.apply_expire_day as apply_expire_date,
+				glp.product_name,
+				b.bespoke_date as bespokeDate,
+				o.name as orgName,
+				extract(epoch from the.modify_time) as "verTime"
+	  		<include refid="joinSql"/>
+	  		<include refid="querySql"/>
+  </select>
+  <!--查询总金额  -->
+  <select id="getApplyLendMoneyAndActualDeductMoney" resultType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx" parameterType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx">
+  	select coalesce(sum(the.actual_deduct_money),0) as actualDeductMoney,coalesce(sum(a.apply_lend_money),0) as applyLendMoney
+  	<include refid="joinSql"/>
+	<include refid="querySql"/>
+  </select>
+ 
+  <!--checkbox计算金额  -->
+  <select id="checkboxReckonMoney" resultType="com.creditharmony.fortune.deduct.entity.ext.DeductPoolEx" parameterType="java.lang.String">
+	  select sum(actual_deduct_money) as actualDeductMoney,sum(loan_money) as applyLendMoney
+	  from tz.t_tz_theday_deduct_pool
+      where id in <foreach collection="array" index="index" item="item"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+  </select>
+    
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_tz_theday_deduct_pool
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.deduct.entity.ThedayDeductPool" >
+    insert into t_tz_theday_deduct_pool (id, deduct_apply_id, dict_deduct_status, 
+      actual_deduct_money, deduct_validity_date, 
+      create_by, create_time, modify_by, 
+      modify_time,no_deduct_money,loan_money,
+      jump_amount,jump_rule,theday_jump_flag,all_deduct_fail_money)
+    values (#{id,jdbcType=VARCHAR}, #{deductApplyId,jdbcType=VARCHAR}, #{dictDeductStatus,jdbcType=VARCHAR}, 
+      #{actualDeductMoney,jdbcType=NUMERIC}, #{deductValidityDate,jdbcType=TIMESTAMP}, 
+      #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, 
+      #{modifyTime,jdbcType=TIMESTAMP},cast(#{noDeductMoney} as decimal(18,2)),cast(#{loanMoney} as decimal(18,2)),
+      cast(#{jumpAmount} as decimal(18,2)),#{jumpRule,jdbcType=VARCHAR},
+      #{thedayJumpFlag,jdbcType=VARCHAR},cast(#{allDeductFailMoney}as decimal(18,2)))
+  </insert>
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.deduct.entity.ThedayDeductPool" >
+    insert into t_tz_theday_deduct_pool
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="deductApplyId != null" >
+        deduct_apply_id,
+      </if>
+      <if test="dictDeductStatus != null" >
+        dict_deduct_status,
+      </if>
+      <if test="actualDeductMoney != null" >
+        actual_deduct_money,
+      </if>
+      <if test="deductValidityDate != null" >
+        deduct_validity_date,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+      <if test="noDeductMoney != null" >
+        no_deduct_money,
+      </if>
+      <if test="jumpAmount != null" >
+        jump_amount,
+      </if>
+      <if test="jumpRule != null" >
+        jump_rule,
+      </if>
+      <if test="thedayJumpFlag != null" >
+        theday_jump_flag,
+      </if>
+      <if test="allDeductFailMoney != null" >
+        all_deduct_fail_money,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="deductApplyId != null" >
+        #{deductApplyId,jdbcType=VARCHAR},
+      </if>
+      <if test="dictDeductStatus != null" >
+        #{dictDeductStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="actualDeductMoney != null" >
+        #{actualDeductMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="deductValidityDate != null" >
+        #{deductValidityDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="noDeductMoney != null" >
+       	cast(#{noDeductMoney} as decimal(18,2)),
+      </if>
+      <if test="jumpAmount != null" >
+         cast(#{jumpAmount} as decimal(18,2)),
+      </if>
+      <if test="jumpRule != null" >
+         #{jumpRule,jdbcType=TIMESTAMP},
+      </if>
+      <if test="thedayJumpFlag != null" >
+        #{thedayJumpFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="allDeductFailMoney != null" >
+        cast(#{allDeductFailMoney}as decimal(18,2)),
+      </if>
+    </trim>
+  </insert>
+  <update id="update" parameterType="com.creditharmony.fortune.deduct.entity.ThedayDeductPool" >
+    update t_tz_theday_deduct_pool
+    <set >
+      <if test="deductApplyId != null and deductApplyId != '' " >
+        deduct_apply_id = #{deductApplyId,jdbcType=VARCHAR},
+      </if>
+      <if test="dictDeductStatus != null and dictDeductStatus != '' " >
+        dict_deduct_status = #{dictDeductStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="actualDeductMoney != null and actualDeductMoney != '' " >
+        actual_deduct_money = #{actualDeductMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="deductValidityDate != null and deductValidityDate != '' " >
+        deduct_validity_date = #{deductValidityDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null and createBy != '' " >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null and createTime != '' " >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null and modifyBy != '' " >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null and modifyTime != '' " >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="noDeductMoney != null" >
+        no_deduct_money = cast(#{noDeductMoney} as decimal(18,2)),
+      </if>
+      <if test="deductSucceedMoney != null" >
+        deduct_succeed_money = cast(#{deductSucceedMoney} as decimal(18,2)),
+      </if>
+      <if test="deductFailMoney != null" >
+        deduct_fail_money = cast(#{deductFailMoney} as decimal(18,2)),
+      </if>
+      <if test="failReason != null and failReason != '' " >
+        fail_reason = #{failReason,jdbcType=VARCHAR},
+      </if>
+       <if test="deductTime != null and deductTime != '' " >
+        deduct_time = #{deductTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="jumpAmount != null and jumpAmount != '' " >
+        jump_amount = cast(#{jumpAmount} as decimal(18,2)),
+      </if>
+      <if test="jumpRule != null and jumpRule != '' " >
+        jump_rule = #{jumpRule,jdbcType=VARCHAR},
+      </if>
+      <if test="thedayJumpFlag != null" >
+        theday_jump_flag = #{thedayJumpFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="allDeductFailMoney != null" >
+        all_deduct_fail_money = cast(#{allDeductFailMoney}as decimal(18,2)),
+      </if>
+    </set>
+    <where>
+    	<if test="id != null and id !='' ">
+    		id = #{id,jdbcType=VARCHAR}
+    	</if>
+    	<if test="deductApplyId != null and deductApplyId != ''">
+    		and deduct_apply_id = #{deductApplyId}
+    	</if>
+    </where>
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.creditharmony.fortune.deduct.entity.ThedayDeductPool" >
+    update t_tz_theday_deduct_pool
+    set deduct_apply_id = #{deductApplyId,jdbcType=VARCHAR},
+      dict_deduct_status = #{dictDeductStatus,jdbcType=VARCHAR},
+      actual_deduct_money = #{actualDeductMoney,jdbcType=NUMERIC},
+      deduct_validity_date = #{deductValidityDate,jdbcType=TIMESTAMP},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_by = #{modifyBy,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      jump_amount = cast(#{jumpAmount} as decimal(18,2)),
+      jump_rule = #{jumpRule,jdbcType=VARCHAR},
+      theday_jump_flag = #{thedayJumpFlag,jdbcType=VARCHAR},
+      all_deduct_fail_money = cast(#{allDeductFailMoney}as decimal(18,2))
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <!-- 根据 划扣申请id获得今天划扣金额--> 
+  <select id="getActualDeductMoneySum" parameterType="java.lang.String" resultType="java.math.BigDecimal">
+	SELECT
+	sum(actual_deduct_money)
+	FROM
+	tz."t_tz_theday_deduct_pool"
+	WHERE
+	id in
+	<foreach collection="array" index="index" item="item"
+		open="(" separator="," close=")">
+		#{item}
+	</foreach>
+  </select>
+  <!--根据分天划扣id获得要填充的预约伐扣信息  -->
+  <select id="findDeductBespokeByDayDeductId" resultType="com.creditharmony.fortune.deduct.entity.DeductBespoke" parameterType="java.lang.String">
+  	select     
+   	<!-- 出借编号 -->
+    b.lend_code as lendCode,
+    <!--  划扣银行ID -->
+   	c.repay_id as bankId,
+    <!-- 银行代码 -->
+    e.account_bank as bankNo,
+    <!-- 账户号码 -->
+    e.account_no as accountNo,
+    <!-- 账户名称 -->
+    e.account_name as accountName,
+    <!-- 账户类型(银行卡|存折|信用卡) -->
+    e.account_card_or_booklet as taccountType,
+    <!-- 预约划扣金额 -->
+    a.actual_deduct_money as bespokeDeductMoney,
+    <!--预约划扣状态  -->
+    a.dict_deduct_status AS dictDeductStatus,
+    <!-- 证件类型 -->
+    d.dict_customer_cert_type as dictCustomerCertType,
+    <!-- 证件号码 -->
+    d.customer_cert_num as customerCertNum,
+    <!-- 银行卡所在城市省 -->
+    e.account_addrprovince as accountAddrprovince,
+    <!-- 银行卡所在城市市 -->
+    e.account_addrcity as accountAddrcity,
+    <!-- 具体支行 -->
+    e.account_branch as accountBranch,
+    <!-- 客户邮箱 -->
+    d.customer_email as customerEmail,
+    <!-- 移动电话 -->
+    d.customer_mobilephone as mobilephone
+	from tz."t_tz_theday_deduct_pool" a
+	left join tz."t_tz_deduct_pool" b on a.deduct_apply_id = b.deduct_apply_id
+	left join tz."t_tz_loan_apply" c on b.lend_code = c.lend_code
+	left join tz."t_tz_customer" d on c.customer_code = d.customer_code
+	left join tz."t_tz_customer_account" e
+		ON d.customer_code = e.customer_code 
+		AND c.repay_id=e.id
+	where a.id = #{id}
+  </select>
+  
+  	<!-- 划扣结算、划扣失败线上划扣 -->
+	<select id="getBaseExportModel" parameterType="java.util.Map" 
+		resultType="com.creditharmony.fortune.deduct.entity.ext.BaseExportModel">
+		SELECT 	
+			p.lend_code,
+			ca.customer_code,
+			ca.account_bank, 
+			ca.account_branch, 
+			ca.account_addrprovince, 
+       		ca.account_addrcity, 
+       		ca.account_addrdistrict, 
+       		ca.account_card_or_booklet, 
+       		ca.account_name, 
+       		ca.account_no, 
+			c.dict_customer_cert_type,
+			c.customer_cert_num,
+			c.customer_mobilephone,
+			the.actual_deduct_money as deductMoney       		
+		FROM tz."t_tz_theday_deduct_pool" the
+		LEFT JOIN tz.t_tz_deduct_pool   p
+			ON p.deduct_apply_id=the.deduct_apply_id
+		LEFT JOIN tz.t_tz_loan_apply a
+  			ON p.lend_code=a.lend_code
+  		LEFT JOIN tz.t_tz_customer c
+  			ON c.customer_code=p.customer_code
+  		LEFT JOIN tz.t_tz_customer_account ca
+  			ON a.customer_code=ca.customer_code 
+  			AND a.repay_id=ca.id
+  		WHERE the.id=#{theDayId}
+	</select>
+  
+  <!--sql块  -->
+  <sql id="querySql">
+  	<where>
+<!-- 	  		<![CDATA[the.deduct_validity_date < to_timestamp(current_date || ' 23:59:59','YYYY-MM-DD HH24:MI:SS')]]> -->
+  			<if test="applyCode != null and applyCode !='' ">
+  				and a.lend_code=#{applyCode}
+  			</if>
+  			<if test="applyCodes != null and applyCodes.size() > 0 ">
+  				and a.lend_code in 
+		    	<foreach collection="applyCodes" item="item" index="index" open="(" separator="," close=")">
+		    			#{item}
+		    	</foreach>
+  			</if>
+  			<if test="custName != null and custName !='' ">
+  				and c.customer_name LIKE '%'||#{custName}||'%'
+  			</if>
+  		  	<if test="dictMatchingFilesendStatus != null and dictMatchingFilesendStatus !='' ">
+  				<![CDATA[and mc.dict_matching_filesend_status=#{dictMatchingFilesendStatus}]]>
+  			</if>
+  			<!-- <if test="matchingFirstdayFlag != null and matchingFirstdayFlag !='' ">
+  				and mc.matching_firstday_flag=#{matchingFirstdayFlag}
+  			</if> -->
+  			<if test="applyLendDateStart != null and applyLendDateStart !='' ">
+  				<![CDATA[and a.apply_lend_day >=to_timestamp(#{applyLendDateStart},'YYYY-MM-DD')]]>
+  			</if>
+  			<if test="applyLendDateEnd != null and applyLendDateEnd !='' ">
+  				<![CDATA[ and a.apply_lend_day <= to_timestamp(#{applyLendDateEnd},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="applyDeductDateStart != null and applyDeductDateStart !='' ">
+  				<![CDATA[ and the.deduct_validity_date >= to_timestamp(#{applyDeductDateStart},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="applyDeductDateEnd != null and applyDeductDateEnd !='' ">
+  				<![CDATA[ and the.deduct_validity_date <= to_timestamp(#{applyDeductDateEnd},'YYYY-MM-DD') ]]>
+  			</if>
+  			<if test="checkNode != null and checkNode !='' ">
+<!--   				and org.store_code = #{checkNode} -->
+  			</if>
+  			<if test="applyLendMoneyStart != null and applyLendMoneyStart !='' ">
+  				<![CDATA[and a.apply_lend_money >= to_number(#{applyLendMoneyStart}) ]]>
+  			</if>
+  			<if test="applyLendMoneyEnd != null and applyLendMoneyEnd !='' ">
+  				<![CDATA[and a.apply_lend_money <= to_number(#{applyLendMoneyEnd}) ]]>
+  			</if>
+  			<if test="applyDeductMoneyStart != null and applyDeductMoneyStart !='' ">
+  				<![CDATA[and a.apply_deduct_money >=to_number(#{applyDeductMoneyStart}) ]]>
+  			</if>
+  			<if test="applyDeductMoneyEnd != null and applyDeductMoneyEnd !='' ">
+  				<![CDATA[and a.apply_deduct_money <= to_number(#{applyDeductMoneyEnd}) ]]>
+  			</if>
+  			<if test="applyPay != null and applyPay !='' ">
+  				and a.apply_pay = #{applyPay}
+  			</if>
+  			<if test="productCode != null and productCode !='' ">
+  				and a.product_code = #{productCode}
+  			</if>
+<!--   			<if test="dictApplyDeductType != null and dictApplyDeductType !='' "> -->
+<!--   				and a.dict_apply_deduct_type = #{dictApplyDeductType} -->
+<!--   			</if> -->
+  			<if test="accountBank != null and accountBank !='' ">
+  				and ca.account_bank = #{accountBank}
+  			</if>
+		   <if test="deductStatusList != null and deductStatusList.size() > 0" >
+		        and the.dict_deduct_status in
+		        <foreach collection="deductStatusList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <if test="thedayJumpFlag != null and thedayJumpFlag != ''" >
+		        and the.theday_jump_flag = #{thedayJumpFlag}
+		    </if>
+<!-- 	  		<if test="dictDeductStatus != null and dictDeductStatus !=''" > -->
+<!-- 		        and the.dict_deduct_status =#{dictDeductStatus} -->
+<!-- 		    </if> -->
+<!-- 		    <if test="dictDeductStatusOr != null and dictDeductStatusOr !=''" > -->
+<!-- 		        or p.dict_deduct_status =#{dictDeductStatusOr} -->
+<!-- 		    </if> -->
+		    <!-- 银行集合 -->
+		    <if test="accountBankList != null and accountBankList.size() > 0" >
+		        and p.dict_deduct_status in
+		        <foreach collection="accountBankList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 产品集合 -->
+		    <if test="productCodeList != null and productCodeList.size() > 0" >
+		        and a.product_code in
+		        <foreach collection="productCodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 划扣平台集合 -->
+		    <if test="dictApplyDeductTypeList != null and dictApplyDeductTypeList.size() > 0" >
+		        and a.dict_apply_deduct_type in
+		        <foreach collection="dictApplyDeductTypeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 支付方式 -->
+		    <if test="applyPayList != null and applyPayList.size() > 0" >
+		        and a.apply_pay in
+		        <foreach collection="applyPayList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <!-- 营业部 -->
+		    <if test="checkNodeList != null and checkNodeList.size() > 0" >
+		        and o.store_code in
+		        <foreach collection="checkNodeList" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+		    </if>
+		    <if test="bespokeStatus != null and bespokeStatus != ''">
+		    	and b.dict_deduct_status = #{bespokeStatus}
+		    </if>
+		 </where>
+  </sql>
+  <!--连接查询  -->
+  <sql id="joinSql">
+	FROM t_tz_theday_deduct_pool the
+	LEFT JOIN tz.t_tz_deduct_pool p
+	ON the.deduct_apply_id=p.deduct_apply_id
+	LEFT JOIN tz.t_tz_deduct_bespoke b
+	ON b.day_deduct_id=the.id and b.dict_deduct_status='14'
+	LEFT JOIN tz.t_tz_loan_apply a
+	ON p.lend_code=a.lend_code
+	LEFT JOIN tz.t_tz_customer c
+	ON c.customer_code=p.customer_code
+	LEFT JOIN tz.t_tz_customer_account ca
+	ON a.customer_code=ca.customer_code
+	AND a.repay_id=ca.id
+	LEFT JOIN tz.t_gl_tz_product glp
+	ON a.product_code=glp.product_code
+	LEFT JOIN tz.t_gl_org o on a.store_org_id = o.id
+	<!-- LEFT JOIN tz.t_tz_matching_creditor mc
+	ON mc.lend_code=a.lend_code -->
+  </sql>
+  <select id="getTheDaysById" resultType="java.util.Map" parameterType="java.util.Map">
+  	SELECT distinct p1.lend_code
+  		FROM t_tz_theday_deduct_pool p
+		left join t_tz_deduct_pool p1 
+			on p.deduct_apply_id=p1.deduct_apply_id
+	<where>
+		<if test="id != null and id != ''">
+			p.id=#{id}
+		</if>
+	</where>
+  </select>
+  
+ <select id="getLastThedayDeductPool" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.deduct.entity.ThedayDeductPool" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_theday_deduct_pool
+    <where>
+    	<if test="deductApplyId != null and deductApplyId != ''">
+    		 and deduct_apply_id = #{deductApplyId} 
+    		 AND to_char(deduct_validity_date,'YYYY-MM-DD') = to_char(
+		        (
+		            SELECT
+		                MAX(deduct_validity_date) AS deduct_validity_date
+		            FROM
+		                tz."t_tz_theday_deduct_pool"
+		            WHERE
+		                deduct_apply_id = #{deductApplyId}
+		        ),
+		        'YYYY-MM-DD'
+	    		)
+    	</if>
+    </where>
+  </select>
+</mapper>

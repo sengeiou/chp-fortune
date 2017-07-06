@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.CreditorperUpperDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.creditor.matching.entity.CreditorperUpper" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="dict_loan_type" property="dictLoanType" jdbcType="VARCHAR" />
+    <result column="proof_type" property="proofType" jdbcType="VARCHAR" />
+    <result column="upper_money" property="upperMoney" jdbcType="NUMERIC" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+     <result column="use_flag" property="useFlag" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, dict_loan_type, proof_type, upper_money, create_by, create_time, modify_by, 
+    modify_time,use_flag
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_creditorper_config_upper
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <select id="findList" parameterType="java.util.Map"  resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_creditorper_config_upper
+     where 1=1 
+     <if test="useFlag != null and useFlag !='' " >
+       and  use_flag = #{useFlag,jdbcType=VARCHAR}
+      </if>
+      <if test="dictLoanTypes != null and dictLoanTypes.size()>0 " >
+	        and  dict_loan_type  in 
+	       <foreach collection="dictLoanTypes" index="index" item="item" open="(" separator="," close=")">
+		            #{item}
+		        </foreach>
+      </if>
+      <if test="proofTypes != null and proofTypes " >
+	        and  proof_type  in 
+	       <foreach collection="proofTypes" index="index" item="item" open="(" separator="," close=")">
+		            #{item}
+		        </foreach>
+      </if>
+      order by create_time desc
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from t_tz_creditorper_config_upper
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.creditor.matching.entity.CreditorperUpper" >
+    insert into t_tz_creditorper_config_upper (id, dict_loan_type, proof_type, 
+      upper_money, create_by, create_time, 
+      modify_by, modify_time, use_flag
+      )
+    values (#{id,jdbcType=VARCHAR}, #{dictLoanType,jdbcType=VARCHAR}, #{proofType,jdbcType=VARCHAR}, 
+      #{upperMoney,jdbcType=NUMERIC}, #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP}, #{useFlag,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.CreditorperUpper" >
+    insert into t_tz_creditorper_config_upper
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="dictLoanType != null" >
+        dict_loan_type,
+      </if>
+      <if test="proofType != null" >
+        proof_type,
+      </if>
+      <if test="upperMoney != null" >
+        upper_money,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="dictLoanType != null" >
+        #{dictLoanType,jdbcType=VARCHAR},
+      </if>
+      <if test="proofType != null" >
+        #{proofType,jdbcType=VARCHAR},
+      </if>
+      <if test="upperMoney != null" >
+        #{upperMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="freeFlag != null" >
+        #{freeFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.creditharmony.fortune.creditor.matching.entity.CreditorperUpper" >
+    update t_tz_creditorper_config_upper
+    <set >
+      <if test="dictLoanType != null" >
+        dict_loan_type = #{dictLoanType,jdbcType=VARCHAR},
+      </if>
+      <if test="proofType != null" >
+        proof_type = #{proofType,jdbcType=VARCHAR},
+      </if>
+      <if test="upperMoney != null" >
+        upper_money = #{upperMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.creditharmony.fortune.creditor.matching.entity.CreditorperUpper" >
+    update t_tz_creditorper_config_upper
+    set dict_loan_type = #{dictLoanType,jdbcType=VARCHAR},
+      proof_type = #{proofType,jdbcType=VARCHAR},
+      upper_money = #{upperMoney,jdbcType=NUMERIC},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_by = #{modifyBy,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+   <delete id="deleteByIds" parameterType="java.lang.String" >
+       delete from t_tz_creditorper_config_upper
+       where id
+       in (
+	      <foreach item="id" index="index" collection="array"  
+	            separator=","> #{id,jdbcType=VARCHAR} 
+	      </foreach>
+       )
+  </delete>
+  <!-- 更新状态处理 -->
+  <update id="updateStatusByIds" parameterType="java.lang.String" >
+    update t_tz_creditorper_config_upper
+    set use_flag = 1- cast(use_flag as INTEGER)
+    where id 
+    in (
+     <foreach item="id" index="index" collection="array"  
+           separator=","> #{id,jdbcType=VARCHAR} 
+     </foreach>
+    )
+  </update>
+  <!-- 批量启动停用 -->
+  <update id="updateBatchStatusByIds" parameterType="java.lang.String" >
+    update t_tz_creditorper_config_upper
+    set use_flag = #{useFlag,jdbcType=VARCHAR}
+    where id 
+    in (
+     <foreach item="id" index="index" collection="updateIds"  
+           separator=","> #{id,jdbcType=VARCHAR} 
+     </foreach>
+    )
+  </update>
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.customer.dao.EmergencyContactDao">
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.customer.entity.EmergencyContact">
+    <result column="id" jdbcType="VARCHAR" property="id" />
+    <result column="customer_code" jdbcType="VARCHAR" property="custCode" />
+    <result column="emer_name" jdbcType="VARCHAR" property="emerName" />
+    <result column="emer_ename" jdbcType="VARCHAR" property="emerEname" />
+    <result column="emer_sex" jdbcType="VARCHAR" property="emerSex" />
+    <result column="emer_type" jdbcType="VARCHAR" property="emerType" />
+    <result column="emer_cert_no" jdbcType="VARCHAR" property="emerCertNum" />
+    <result column="emer_mobilephone" jdbcType="VARCHAR" property="emerMobilephone" />
+    <result column="emer_birthday" jdbcType="DATE" property="emerBirthday" />
+    <result column="emer_relationship" jdbcType="VARCHAR" property="emerRelationship" />
+    <result column="emer_phone" jdbcType="VARCHAR" property="emerPhone" />
+    <result column="emer_email" jdbcType="VARCHAR" property="emerEmail" />
+    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_by" jdbcType="VARCHAR" property="modifyBy" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
+    <result column="add_id" property="address.id" jdbcType="VARCHAR" />
+    <result column="province" property="address.addrProvince" jdbcType="VARCHAR" />
+    <result column="provinceValue" property="address.addrProvinceValue" jdbcType="VARCHAR" />
+    <result column="city" property="address.addrCity" jdbcType="VARCHAR" />
+    <result column="cityValue" property="address.addrCityValue" jdbcType="VARCHAR" />
+    <result column="district" property="address.addrDistrict" jdbcType="VARCHAR" />
+    <result column="districtValue" property="address.addrDistrictValue" jdbcType="VARCHAR" />
+    <result column="address" property="address.addr" jdbcType="VARCHAR" />
+    <result column="postal" property="address.addrPostalCode" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List">
+    id, customer_code, emer_name, emer_ename, emer_sex, emer_type, emer_cert_no, emer_mobilephone, 
+    emer_birthday, emer_relationship, emer_phone, emer_email, add_id, create_by, create_time, 
+    modify_by, modify_time
+  </sql>
+  
+  <select id="get" parameterType="com.creditharmony.fortune.customer.entity.EmergencyContact" resultMap="BaseResultMap">
+    select em.*,
+           a.addr             address,
+           a.addr_postal_code postal,
+           a.addr_province    province,
+           a.addr_city        city,
+    	   a.addr_district    district,
+    	   a.id               add_id
+    from tz.t_tz_customer_emergency em
+    left join tz.t_tz_addr          a      on em.add_id       = a.id
+    <where>
+    	<if test="custCode != null and custCode != ''">
+    		customer_code = #{custCode}
+    	</if>
+    	<if test="id != null and id != ''">
+    		and id = #{id}
+    	</if>
+    </where>
+  </select>
+  
+  <insert id="insert" parameterType="com.creditharmony.fortune.customer.entity.EmergencyContact">
+    insert into t_tz_customer_emergency (id, customer_code, emer_name, 
+      emer_ename, emer_sex, emer_type, 
+      emer_cert_no, emer_mobilephone, emer_birthday, 
+      emer_relationship, emer_phone, emer_email, 
+      add_id, create_by, create_time, 
+      modify_by, modify_time)
+    values (#{id,jdbcType=VARCHAR}, #{custCode,jdbcType=VARCHAR}, #{emerName,jdbcType=VARCHAR}, 
+      #{emerEname,jdbcType=VARCHAR}, #{emerSex,jdbcType=VARCHAR}, #{emerType,jdbcType=VARCHAR}, 
+      #{emerCertNum,jdbcType=VARCHAR}, #{emerMobilephone,jdbcType=VARCHAR}, #{emerBirthday,jdbcType=DATE}, 
+      #{emerRelationship,jdbcType=VARCHAR}, #{emerPhone,jdbcType=VARCHAR}, #{emerEmail,jdbcType=VARCHAR}, 
+      #{address.id,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+  
+  <update id="update" parameterType="com.creditharmony.fortune.customer.entity.EmergencyContact">
+    update t_tz_customer_emergency
+    set 
+      emer_name = #{emerName,jdbcType=VARCHAR},
+      emer_ename = #{emerEname,jdbcType=VARCHAR},
+      emer_sex = #{emerSex,jdbcType=VARCHAR},
+      emer_type = #{emerType,jdbcType=VARCHAR},
+      emer_cert_no = #{emerCertNum,jdbcType=VARCHAR},
+      emer_mobilephone = #{emerMobilephone,jdbcType=VARCHAR},
+      emer_birthday = #{emerBirthday,jdbcType=DATE},
+      emer_relationship = #{emerRelationship,jdbcType=VARCHAR},
+      emer_phone = #{emerPhone,jdbcType=VARCHAR},
+      emer_email = #{emerEmail,jdbcType=VARCHAR},
+      modify_by = #{modifyBy,jdbcType=VARCHAR},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    <where>
+      	<if test="id != null and id != ''">
+      		id = #{id}
+      	</if>
+      	<if test="custCode != null and custCode != ''">
+      		and customer_code = #{custCode}
+      	</if>
+    </where>
+  </update>
+  
+</mapper>

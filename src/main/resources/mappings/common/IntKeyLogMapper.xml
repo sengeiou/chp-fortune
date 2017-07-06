@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.common.dao.IntKeyLogDao">
+	<insert id="insert" parameterType="com.creditharmony.fortune.common.entity.IntKeyLog">
+		insert into tz.int_key_log (
+			id,message,stacktrace,node,create_by,create_time,remark
+		) values (
+			#{id,jdbcType=VARCHAR},
+			#{message,jdbcType=VARCHAR},
+			#{stackTrace,jdbcType=VARCHAR},
+			#{node,jdbcType=VARCHAR},
+			#{createBy,jdbcType=VARCHAR},
+			#{createTime,jdbcType=TIMESTAMP},
+			#{remark,jdbcType=VARCHAR}
+		)
+	</insert>
+</mapper>

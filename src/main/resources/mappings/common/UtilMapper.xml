@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.common.dao.UtilDao">
+  <select id="findProvinceCityOption" resultType="com.creditharmony.core.users.entity.ProvinceCity" parameterType="java.util.Map">
+    select * from (
+		select area_name, id||'_' as id,area_type from t_gl_province_city where area_type=#{province_type,jdbcType=VARCHAR} 
+		union all 
+		select area_name, parent_id||'_'||id as id,area_type from t_gl_province_city where area_type=#{city_type,jdbcType=VARCHAR} and id != parent_id
+	)
+	order by id asc
+  </select>
+  <select id="findProductOption" resultType="com.creditharmony.fortune.customer.entity.Product" parameterType="java.util.Map" >
+    select product_code,product_name
+    from t_gl_tz_product
+    where product_status = #{productStatus,jdbcType=VARCHAR}
+  </select>
+  <select id="findProvinceOption" resultType="com.creditharmony.core.users.entity.ProvinceCity" parameterType="java.util.Map">
+    select area_name,id
+    from t_gl_province_city
+    where area_type=#{province_type,jdbcType=VARCHAR}
+  </select>
+  <select id="findCityOption" resultType="com.creditharmony.core.users.entity.ProvinceCity" parameterType="java.util.Map">
+    select area_name,id
+    from t_gl_province_city
+    where area_type=#{city_type,jdbcType=VARCHAR}
+    <if test="province_id != null and province_id != ''">
+   	  AND parent_id = #{province_id}
+     </if>    
+  </select>
+  <select id="findDistrictOption" resultType="com.creditharmony.core.users.entity.ProvinceCity" parameterType="java.util.Map">
+    select area_name,id
+    from t_gl_province_city
+    where area_type=#{district_type,jdbcType=VARCHAR}
+    <if test="city_id != null and city_id != ''">
+   	  AND parent_id = #{city_id}
+     </if>    
+  </select>
+  <select id="findFYProvince" resultType="com.creditharmony.core.users.entity.ProvinceCity" parameterType="java.util.Map">
+  	select area_name,area_code
+    from t_tz_fy_area_code
+    where area_type=#{province_type,jdbcType=VARCHAR}
+  </select>
+  <select id="findFYCity" resultType="com.creditharmony.core.users.entity.ProvinceCity" parameterType="java.util.Map">
+  	select area_name,area_code
+    from t_tz_fy_area_code
+    where area_type=#{city_type,jdbcType=VARCHAR}
+    <if test="province_id != null and province_id != ''">
+   	  AND parent_id = #{province_id}
+     </if>   
+  </select>
+  <select id="getLabel" parameterType="java.lang.String" resultType="java.lang.String">
+  	select area_name
+    from t_tz_fy_area_code
+    where area_code=#{id,jdbcType=VARCHAR}
+  </select>
+    <!-- 根据区域name，type，parentId查询区域所在code -->
+	<select id="getAreaCodeByName" resultType="java.lang.String" parameterType="java.util.Map">
+		select area_code from t_gl_province_city where area_name = #{area_name,jdbcType=VARCHAR} 
+		and area_type = #{area_type,jdbcType=VARCHAR}  and parent_id = #{parent_id,jdbcType=VARCHAR} 
+	</select>
+	
+	 <select id="getProductList" resultType="com.creditharmony.fortune.customer.entity.Product" parameterType="java.util.Map" >
+    select product_code,product_name,product_periods,remark
+    from t_gl_tz_product
+    where product_status = #{productStatus,jdbcType=VARCHAR}
+  </select>
+</mapper>

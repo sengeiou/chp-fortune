@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.CreditorConfigDao">
+<select id="findList" resultType="com.creditharmony.fortune.creditor.matching.entity.CreditorConfig">
+	select 
+	    cc.id as "id",
+	    cc.config_credit_day as "configCreditDay",
+	    cc.config_repay_day as "configRepayDay",
+	    cc.dictconfig_status as "dictConfigStatus",
+	    cc.dict_config_zdr as "dictConfigZdr"  
+	from  t_tz_creditor_config cc
+	<where>
+		dict_config_zdr != '-1'
+	    <if test="configCreditDay != null and configCreditDay != ''">
+	        and cc.config_credit_day = #{configCreditDay}
+	    </if>
+	    <if test="configRepayDay != null and configRepayDay != ''">
+	        and cc.config_repay_day = #{configRepayDay}
+	    </if>
+	    <if test="dictConfigStatus !=  null and dictConfigStatus != ''">
+	        and cc.dictconfig_status = #{dictConfigStatus}
+	    </if>
+	    <if test="dictConfigZdr != null and dictConfigZdr != ''">
+	        and cc.dict_config_zdr = #{dictConfigZdr}
+	    </if>
+	</where>
+	order by cc.modify_time Desc 
+</select>
+<!-- 通过账单日查询错期集合 -->
+<select id = "findByMatchingBillDay"  resultType="com.creditharmony.fortune.creditor.matching.entity.CreditorConfig" parameterType="com.creditharmony.fortune.creditor.matching.entity.CreditorConfig">
+    select 
+	    cc.id as "id",
+	    cc.config_credit_day as "configCreditDay",
+	    cc.config_repay_day as "configRepayDay",
+	    cc.dictconfig_status as "dictConfigStatus",
+	    cc.dict_config_zdr as "dictConfigZdr"  
+	from  t_tz_creditor_config cc
+	<where>
+	    <if test="configCreditDay != null and configCreditDay != ''">
+	        and cc.config_credit_day = #{configCreditDay}
+	    </if>
+	    <if test="configRepayDay != null and configRepayDay != ''">
+	        and cc.config_repay_day = #{configRepayDay}
+	    </if>
+	    <if test="dictConfigStatus !=  null and dictConfigStatus != ''">
+	        and cc.dictconfig_status = #{dictConfigStatus}
+	    </if>
+	    <if test="dictConfigZdr != null and dictConfigZdr != ''">
+	        and cc.dict_config_zdr = #{dictConfigZdr}
+	    </if>
+	</where>
+</select>
+<update id="updateStatus" parameterType="com.creditharmony.fortune.creditor.matching.entity.CreditorConfig">
+    update t_tz_creditor_config
+    <trim prefix="SET" suffixOverrides=",">
+        <if test="dictConfigZdr != null and dictConfigZdr != ''">dict_config_zdr = #{dictConfigZdr},</if>
+        <if test="modifyBy != null and modifyBy != ''">modify_by = #{modifyBy},</if>
+        <if test="modifyTime != null and modifyTime != ''">modify_time = #{modifyTime,jdbcType=TIMESTAMP},</if>
+    </trim>
+    <where>
+        <if test="id != null and id != ''">
+            id = #{id}
+        </if>
+    </where>
+</update>
+<insert id="add" parameterType="com.creditharmony.fortune.creditor.matching.entity.CreditorConfig">
+    insert into tz.t_tz_creditor_config
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">
+            id,
+        </if>
+        <if test="configCreditDay != null and configCreditDay != ''">
+            config_credit_day,
+        </if>
+        <if test="configRepayDay != null and configRepayDay != ''">
+            config_repay_day,
+        </if>
+        <if test="dictConfigStatus != null and dictConfigStatus != ''">
+            dictconfig_status,
+        </if>
+        <if test="dictConfigZdr != null and dictConfigZdr != ''">
+            dict_config_zdr,
+        </if>
+        <if test="createBy != null and createBy != ''">
+            create_by,
+        </if>
+        <if test="createTime != null and createTime != ''">
+            create_time,
+        </if>
+        <if test="modifyBy != null and modifyBy != ''">
+            modify_by,
+        </if>
+        <if test="modifyTime != null and modifyTime != ''">
+            modify_time,
+        </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        <if test="id != null and id != ''">
+            #{id},
+        </if>
+        <if test="configCreditDay != null and configCreditDay != ''">
+            #{configCreditDay},
+        </if>
+        <if test="configRepayDay != null and configRepayDay != ''">
+            #{configRepayDay},
+        </if>
+        <if test="dictConfigStatus != null and dictConfigStatus != ''">
+            #{dictConfigStatus},
+        </if>
+        <if test="dictConfigZdr != null and dictConfigZdr != ''">
+            #{dictConfigZdr},
+        </if>
+        <if test="createBy != null and createBy != ''">
+            #{createBy},
+        </if>
+        <if test="createTime != null and createTime != ''">
+            #{createTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="modifyBy != null and modifyBy != ''">
+            #{modifyBy},
+        </if>
+        <if test="modifyTime != null and modifyTime != ''">
+            #{modifyTime,jdbcType=TIMESTAMP},
+        </if>
+    </trim>
+</insert>
+<select id="checkRepeat" resultType="com.creditharmony.fortune.creditor.matching.entity.CreditorConfig">
+    select 
+	    cc.id as "id",
+	    cc.config_credit_day as "configCreditDay",
+	    cc.config_repay_day as "configRepayDay",
+	    cc.dictconfig_status as "dictConfigStatus",
+	    cc.dict_config_zdr as "dictConfigZdr"  
+	from  t_tz_creditor_config cc
+	<where>
+	    dict_config_zdr != '-1'
+	    <if test="configCreditDay != null and configCreditDay != ''">
+	        and cc.config_credit_day = #{configCreditDay}
+	    </if>
+	    <if test="configRepayDay != null and configRepayDay != ''">
+	        and cc.config_repay_day = #{configRepayDay}
+	    </if>
+	    <if test="dictConfigStatus !=  null and dictConfigStatus != ''">
+	        and cc.dictconfig_status = #{dictConfigStatus}
+	    </if>
+	</where>
+</select>
+<!-- 批量启动停用 -->
+<update id="updateBatchStatusByIds" parameterType="java.lang.String" >
+  update t_tz_creditor_config
+  set dict_config_zdr = #{dictConfigZdr,jdbcType=VARCHAR}
+  where id 
+  in (
+   <foreach item="id" index="index" collection="updateIds"  
+         separator=","> #{id,jdbcType=VARCHAR} 
+   </foreach>
+  )
+</update>
+</mapper>

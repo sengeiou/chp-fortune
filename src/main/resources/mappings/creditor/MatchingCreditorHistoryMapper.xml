@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.MatchingCreditorHistoryDao">
+<select id="findList" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx">
+    select 
+        mc.matching_id as matchingId,
+	    mc.lend_code as "lendCode",
+        cust.customer_name as "customerName",
+	    o.name as "org",
+        p.product_name as "productName",
+        mc.product_code as "productCode",
+        la.apply_pay as "applyPay",
+	    la.apply_lend_day as "startApplyLendDay",
+	    la.apply_lend_money as "startApplyLendMoney",
+        mc.matching_interest_start as "applyLendDay",
+        mc.matching_borrow_quota as "matchingBorrowQuota",
+        mc.matching_firstday_flag as "matchingFirstdayFlag",
+        la.apply_expire_day as "applyExpireDay",
+        mc.matching_bill_day as "matchingBillDay",
+        mc.matching_status as "matchingStatus",
+        mc.matching_order_status as "matchingOrderStatus",
+        mc.matching_interest_start as "matchingInterestStart",
+        DECODE(mc.befor_matching_status, '103', 'CX', '-') as "beforMatchingStatus"
+    from tz.t_tz_matching_creditor mc
+    inner join tz.t_tz_loan_apply la on mc.lend_code = la.lend_code
+    left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+    left join tz.t_gl_org o on la.store_org_id = o.id
+    left join tz.t_gl_tz_product p on mc.product_code = p.product_code
+	 <where>
+	     <if test="matchingStatus != null and matchingStatus != ''">
+	         and  mc.matching_status = #{matchingStatus}
+	     </if>
+	     <if test="cxStatus != null and cxStatus != ''">
+	     	and  mc.befor_matching_status = #{cxStatus} 
+	     </if>
+	     <if test="ncxStatus != null and ncxStatus != ''">
+	     	and ( mc.befor_matching_status != #{ncxStatus}  or mc.befor_matching_status is null )
+	     </if>
+	     
+	     <if test="customerName != null and customerName != ''">
+	         and cust.customer_name LIKE '%' || #{customerName} || '%'
+	     </if>
+	     <if test="littleMoney != null ">
+	         and la.apply_lend_money &gt;= #{littleMoney}  
+	     </if>
+	      <if test="bigMoney != null ">
+             and la.apply_lend_money &lt;= #{bigMoney}
+	     </if>
+	     <if test="startApplyLendDayStart != null and startApplyLendDayStart !=''">
+	         and la.apply_lend_day  <![CDATA[>=]]>  to_date(#{startApplyLendDayStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	      <if test="startApplyLendDayEnd != null and startApplyLendDayEnd !=''">
+	         and la.apply_lend_day <![CDATA[<=]]> to_date(#{startApplyLendDayEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if test="matchingBillDay != null and matchingBillDay != '' ">
+	         and mc.matching_bill_day = #{matchingBillDay}
+	     </if>
+	     <if test="matchingFirstdayFlag != null and matchingFirstdayFlag != '' ">
+	         and mc.matching_firstday_flag = #{matchingFirstdayFlag}
+	     </if>
+	    <if test="productCode != null and productCode != ''">
+	         and mc.product_code in 
+	         <foreach collection="productCode" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+             </foreach>
+	     </if>
+	      <if test="matchingBillDays != null and matchingBillDays != ''">
+	         and mc.matching_bill_day in 
+	         <foreach collection="matchingBillDays" item="item"  open="(" separator="," close=")">  
+                 ${item}   
+             </foreach>
+	     </if>
+	     <if test="orgCode != null and orgCode != ''">
+	         and o.id in
+	         <foreach collection="orgCode" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+             </foreach>
+	     </if>
+	     <if test="lendCode != null and lendCode != '' ">
+	         and  mc.lend_code = #{lendCode}
+	     </if>
+	     <if test="applyPay != null and applyPay != '' ">
+	         and la.apply_pay = #{applyPay}
+	     </if>
+	     <if  test="matchingInterestStartStart != null and matchingInterestStartStart !=''">
+	      and mc.matching_interest_start <![CDATA[>=]]> to_date(#{matchingInterestStartStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if  test="matchingInterestStartEnd != null and matchingInterestStartEnd !=''">
+	      and mc.matching_interest_start <![CDATA[<=]]> to_date(#{matchingInterestStartEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if test="lendStatusLst!=null and lendStatusLst.size()>0">
+	     	   and la.lend_status not in
+	         <foreach collection="lendStatusLst" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+             </foreach>
+	     </if>
+	 </where>
+		order by   mc.matching_interest_start  desc
+</select>
+</mapper>

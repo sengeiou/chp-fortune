@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.config.auto.matching.dao.AutoMatchingDao" >
+  <sql id="Base_Column_List" >
+    auto.id, auto.bill_day, auto.bill_type, auto.province_city, auto.product_code,auto.status, auto.create_by, 
+	auto.create_time, auto.modify_by, auto.modify_time, auto.business_department, auto.in_totalnum,auto.to_matching_num,
+	auto.not_matching_num,auto.progress
+  </sql>
+  <sql id="where" >
+  	where 1=1
+      	<if test="provinceCity != null" ><!-- 省市 -->
+      		AND auto.province_city SIMILAR TO #{provinceCity,jdbcType=VARCHAR}||'%'
+      	</if>
+      	<if test="businessDepartment != null" ><!-- 营业部 -->
+        	AND ','||auto.business_department||',' like  ','||#{businessDepartment,jdbcType=VARCHAR}||'%'
+      	</if>
+      	<if test="productCode != null" ><!-- 产品 -->
+      		AND auto.product_code in 
+      		<foreach collection="productCode" item="item" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+      	</if>
+   	 	<if test="billType != null and billType != ''" ><!-- 账单类型 -->
+        	AND auto.bill_type = #{billType,jdbcType=VARCHAR}
+      	</if>
+      	<if test="billDay != null" ><!-- 账单日 -->
+        	AND auto.bill_day = #{billDay,jdbcType=INTEGER}
+      	</if>
+      	<if test="status != null and status != ''" ><!-- 状态（启用，停用） -->
+        	AND auto.status = #{status,jdbcType=VARCHAR}
+      	</if>
+  </sql>
+  <sql id="where2" >
+  	where 1=1
+      	<if test="provinceCity != null" ><!-- 省市 -->
+      		AND auto.province_city SIMILAR TO #{provinceCity,jdbcType=VARCHAR}||'%'
+      	</if>
+      	<if test="businessDepartment != null" ><!-- 营业部 -->
+        	AND ','||auto.business_department||',' like  '%,'||#{businessDepartment,jdbcType=VARCHAR}||'%'
+      	</if>
+      	<if test="productCode != null" ><!-- 产品 -->
+      		AND auto.product_code in 
+      		<foreach collection="productCode" item="item" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+      	</if>
+      	
+      	<if test="billType != null" ><!-- 账单类型 -->
+      		AND auto.bill_type in 
+      		<foreach collection="billType" item="item" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+      	</if>      	
+       	<if test="billDayEx != null" ><!-- 账单日 -->
+      		AND auto.bill_day in 
+      		<foreach collection="billDayEx" item="item" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+      	</if>      	
+      	<if test="status != null" ><!-- 状态（启用，停用） -->
+      		AND auto.status in 
+      		<foreach collection="status" item="item" open="(" separator="," close=")">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
+      	</if>
+  </sql>
+  <select id="get" parameterType="java.lang.String" resultType="com.creditharmony.fortune.creditor.config.auto.matching.entity.CreditorperAutoConfig" >
+    select 
+        <include refid="Base_Column_List" />
+    from t_tz_creditorper_auto_config auto
+    where auto.id=#{id,jdbcType=VARCHAR}
+  </select>
+  <select id="findPages" parameterType="java.util.Map" resultType="com.creditharmony.fortune.creditor.config.auto.matching.entity.CreditorperAutoConfig" >
+    select 
+        <include refid="Base_Column_List" />
+    from t_tz_creditorper_auto_config auto
+    <include refid="where2" />
+      order by id
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.creditharmony.fortune.creditor.config.auto.matching.entity.CreditorperAutoConfig" >
+    delete from t_tz_creditorper_auto_config
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.creditor.config.auto.matching.entity.CreditorperAutoConfig" >
+    insert into t_tz_creditorper_auto_config
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="billDay != null" >
+        bill_day,
+      </if>
+      <if test="billType != null" >
+        bill_type,
+      </if>
+      <if test="provinceCity != null" >
+        province_city,
+      </if>
+      <if test="productCode != null" >
+        product_code,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+      <if test="businessDepartment != null" >
+        business_department,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="billDay != null" >
+        #{billDay,jdbcType=INTEGER},
+      </if>
+      <if test="billType != null" >
+        #{billType,jdbcType=VARCHAR},
+      </if>
+      <if test="provinceCity != null" >
+        #{provinceCity,jdbcType=VARCHAR},
+      </if>
+      <if test="productCode != null" >
+        #{productCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="businessDepartment != null" >
+        #{businessDepartment,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateStatusByIds" parameterType="java.lang.String" >
+    update t_tz_creditorper_auto_config
+    set status = 1- cast(status as INTEGER)
+    where id 
+    in (
+     <foreach item="id" index="index" collection="array"  
+           separator=","> #{id,jdbcType=VARCHAR} 
+     </foreach>
+    )
+  </update>
+  <update id="update" parameterType="com.creditharmony.fortune.creditor.config.auto.matching.entity.CreditorperAutoConfig" >
+    update t_tz_creditorper_auto_config
+    set     	
+		bill_day = #{billDay,jdbcType=INTEGER},
+		bill_type = #{billType,jdbcType=VARCHAR},
+		province_city = #{provinceCity,jdbcType=VARCHAR},
+		product_code = #{productCode,jdbcType=VARCHAR},
+		status = #{status,jdbcType=VARCHAR},
+		modify_by = #{modifyBy,jdbcType=VARCHAR},
+		modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+		business_department = #{businessDepartment,jdbcType=TIMESTAMP},
+		in_totalnum =#{inTotalNum,jdbcType=INTEGER}
+		where id=#{id}
+  </update>
+    <update id="updateByParam" parameterType="java.util.Map" >
+    update t_tz_creditorper_auto_config
+    set     	
+	  in_totalnum=0,
+	  to_matching_num=0,
+	  not_matching_num =0,
+	  progress = null
+		where 1=1
+			<if test="status != null and status != ''" ><!-- 状态（启用，停用） -->
+        	AND status = #{status,jdbcType=VARCHAR}
+      	</if>
+  </update>
+  <delete id="deleteByIds" parameterType="java.lang.String" >
+      delete from t_tz_creditorper_auto_config where id 
+      in (
+	      <foreach item="id" index="index" collection="array"  
+	            separator=","> #{id,jdbcType=VARCHAR} 
+	      </foreach>
+      )
+  </delete>
+  
+  <select id="findAll" parameterType="java.util.Map" resultType="com.creditharmony.fortune.creditor.config.auto.matching.entity.CreditorperAutoConfig" >
+    select 
+        <include refid="Base_Column_List" />
+    from t_tz_creditorper_auto_config auto
+    <include refid="where" />
+      order by id
+  </select>
+  <select id="updateAutoMatching">
+  REFRESH MATERIALIZED VIEW tz.mview_auto_matching
+  </select>
+  <update id="updateBatchStatusByIds" parameterType="java.lang.String" >
+    update t_tz_creditorper_auto_config
+    set status = #{status,jdbcType=VARCHAR}
+    where id 
+    in (
+     <foreach item="id" index="index" collection="updateIds"  
+           separator=","> #{id,jdbcType=VARCHAR}
+     </foreach>
+    )
+  </update>
+</mapper>

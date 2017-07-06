@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.CreditorStatisticsDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.creditor.matching.entity.CreditorStatistics" >
+    <id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="statistics_date" property="statisticsDate" jdbcType="DATE" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="credit_task_cnt" property="creditTaskCnt" jdbcType="INTEGER" />
+    <result column="credit_sq_distributed_cnt" property="creditSqDistributedCnt" jdbcType="INTEGER" />
+    <result column="credit_fsq_distributed_cnt" property="creditFsqDistributedCnt" jdbcType="INTEGER" />
+    <result column="credit_sq_done_cnt" property="creditSqDoneCnt" jdbcType="INTEGER" />
+    <result column="credit_fsq_done_cnt" property="creditFsqDoneCnt" jdbcType="INTEGER" />
+    <result column="credit_drop_cnt" property="creditDropCnt" jdbcType="INTEGER" />
+    <result column="credit_change_cnt" property="creditChangeCnt" jdbcType="INTEGER" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, statistics_date, user_id, credit_task_cnt, credit_sq_distributed_cnt,
+    credit_fsq_distributed_cnt, credit_sq_done_cnt, credit_fsq_done_cnt, credit_drop_cnt, credit_change_cnt, 
+    create_by, create_time, modify_by, modify_time
+  </sql>
+  <!--  根据用户id，统计日期获取统计量 -->
+  <select id="selectBySelective" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_creditor_statistics
+    where 1=1 
+    	<if test="userId != null" >
+      		and user_id = #{userId,jdbcType=VARCHAR}
+      	</if>
+      	<if test="statisticsDate != null" >
+	      and statistics_date = #{statisticsDate,jdbcType=DATE}
+	    </if>
+  </select>
+  <insert id="insert" parameterType="com.creditharmony.fortune.creditor.matching.entity.CreditorStatistics" >
+    insert into t_tz_creditor_statistics
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="statisticsDate != null" >
+        statistics_date,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="creditTaskCnt != null" >
+        credit_task_cnt,
+      </if>      
+      <if test="creditSqDistributedCnt != null" >
+        credit_sq_distributed_cnt,
+      </if>
+      <if test="creditFsqDistributedCnt != null" >
+        credit_fsq_distributed_cnt,
+      </if>
+      <if test="creditSqDoneCnt != null" >
+        credit_sq_done_cnt,
+      </if>
+      <if test="creditFsqDoneCnt != null" >
+        credit_fsq_done_cnt,
+      </if>
+      <if test="creditDropCnt != null" >
+        credit_drop_cnt,
+      </if>
+      <if test="creditChangeCnt != null" >
+        credit_change_cnt,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="modifyBy != null" >
+        modify_by,
+      </if>
+      <if test="modifyTime != null" >
+        modify_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="statisticsDate != null" >
+        #{statisticsDate,jdbcType=DATE},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="creditTaskCnt != null" >
+        #{creditTaskCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditSqDistributedCnt != null" >
+        #{creditSqDistributedCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditFsqDistributedCnt != null" >
+        #{creditFsqDistributedCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditSqDoneCnt != null" >
+        #{creditSqDoneCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditFsqDoneCnt != null" >
+        #{creditFsqDoneCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditDropCnt != null" >
+        #{creditDropCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditChangeCnt != null" >
+        #{creditChangeCnt,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="update" parameterType="com.creditharmony.fortune.creditor.matching.entity.CreditorStatistics" >
+    update t_tz_creditor_statistics
+    <set >
+      <if test="statisticsDate != null" >
+        statistics_date = #{statisticsDate,jdbcType=DATE},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="creditTaskCnt != null" >
+        credit_task_cnt = #{creditTaskCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditSqDistributedCnt != null" >
+        credit_sq_distributed_cnt = #{creditSqDistributedCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditFsqDistributedCnt != null" >
+        credit_fsq_distributed_cnt = #{creditFsqDistributedCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditSqDoneCnt != null" >
+        credit_sq_done_cnt = #{creditSqDoneCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditFsqDoneCnt != null" >
+        credit_fsq_done_cnt = #{creditFsqDoneCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditDropCnt != null" >
+        credit_drop_cnt = #{creditDropCnt,jdbcType=INTEGER},
+      </if>
+      <if test="creditChangeCnt != null" >
+        credit_change_cnt = #{creditChangeCnt,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <!-- 最后审批首期出借编号 -->
+      <if test="lastestSqLendCode != null" >
+        lastest_sq_lend_code = #{lastestSqLendCode,jdbcType=VARCHAR},
+      </if>
+      <!-- 最后审批首期出借时间 -->
+      <if test="lastestSqTime != null" >
+        lastest_sq_time = #{lastestSqTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

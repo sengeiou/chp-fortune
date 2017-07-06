@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.contract.dao.ContractDao">
+
+  <!--  根据合同编号查询合同信息  --> 
+  <select id="checkContractNumRange" resultType="java.lang.Integer"  parameterType="java.util.Map">
+  	SELECT
+  	  count(*) from t_tz_contract t 
+  	 where t.cont_code in 
+     <foreach collection="cont_code" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+  
+<!-- 添加合同基本信息 -->
+<insert id="insertContract" parameterType="com.creditharmony.fortune.contract.entity.Contract" >
+   INSERT INTO t_tz_contract
+   <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="contCode != null" >
+          cont_code,
+      </if>
+       <if test="contStoresId != null" >
+          cont_stores_id,
+      </if>
+       <if test="contVersion != null" >
+          cont_version,
+      </if>
+       <if test="contIncomeDay != null" >
+          cont_income_day,
+      </if>
+      <if test="contSignStatus != null" >
+          cont_sign_status,
+      </if>
+      <if test="dictContSource != null" >
+          dict_cont_source,
+      </if>
+      <if test="dictContBelong != null" >
+          dict_cont_belong,
+      </if>
+      <if test="contBelongEmpid != null" >
+          cont_belong_empid,
+      </if>
+        <if test="applyContractId != null" >
+          apply_contract_id,
+      </if>
+        <if test="disContractId != null" >
+          dis_contract_id,
+      </if>
+      <if test="dictContFileStatus != null" >
+          dict_cont_file_status,
+      </if>
+      <if test="createBy != null" >
+          create_by,
+      </if>
+      <if test="createTime != null" >
+          create_time,
+      </if>
+      <if test="applyDay != null" >
+          apply_day,
+      </if>
+      <if test="modifyBy != null" >
+          modify_by,
+      </if>
+      <if test="modifyTime != null" >
+          modify_time,
+      </if>
+       <if test="dictContStatus != null" >
+          dict_cont_status,
+      </if>
+      <if test="contractType != null" >
+          contract_type
+      </if>
+   </trim>
+   <trim prefix=" values (" suffix=")" suffixOverrides="," >
+      <if test="contCode != null" >
+        #{contCode,jdbcType=VARCHAR},
+      </if>
+       <if test="contStoresId != null" >
+        #{contStoresId,jdbcType=VARCHAR},
+      </if>
+       <if test="contVersion != null" >
+        #{contVersion,jdbcType=VARCHAR},
+      </if>
+       <if test="contIncomeDay != null" >
+        #{contIncomeDay,jdbcType=DATE},
+      </if>
+      <if test="contSignStatus != null" >
+       #{contSignStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="dictContSource != null" >
+       #{dictContSource,jdbcType=VARCHAR},
+      </if>
+      <if test="dictContBelong != null" >
+       #{dictContBelong,jdbcType=VARCHAR},
+      </if>
+      <if test="contBelongEmpid != null" >
+       #{contBelongEmpid,jdbcType=VARCHAR},
+      </if>
+       <if test="applyContractId != null" >
+         #{applyContractId,jdbcType=VARCHAR},
+      </if>
+        <if test="disContractId != null" >
+           #{disContractId,jdbcType=VARCHAR},
+      </if>
+      <if test="dictContFileStatus != null" >
+           #{dictContFileStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+          #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+          #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="applyDay != null">
+          #{applyDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+          #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+          #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="dictContStatus != null" >
+          #{dictContStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="contractType != null" >
+          #{contractType,jdbcType=VARCHAR}
+      </if>
+   </trim>
+</insert>
+
+  <!-- 合同签收-->
+  <update id="signContracts" parameterType="java.util.Map" >
+   update t_tz_contract  set  cont_sign_status = #{c.contSignStatus,jdbcType=VARCHAR},dict_cont_status = #{c.dictContStatus,jdbcType=VARCHAR},dict_cont_belong = #{c.dictContBelong,jdbcType=VARCHAR},cont_income_day =#{c.contIncomeDay,jdbcType=DATE}, modify_by = #{c.modifyBy,jdbcType=VARCHAR},modify_time = #{c.modifyTime,jdbcType=TIMESTAMP}	 
+   where cont_code in 
+     <foreach collection="cont_code" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+  </update>
+  
+<!-- 合同列表页面 -->
+<select id="listContract" parameterType="java.util.Map" resultType="com.creditharmony.fortune.contract.view.ContractView">
+  	SELECT
+  	    m.*,
+  		c.name,
+  		c.id as nameId,
+  		d.dist_date,
+  		e.name as user_name,
+  		f.change_apply,
+  		f.dict_change_type
+  	FROM (
+  	  select *
+  	  from t_tz_contract m
+  	  <where>
+  		 <if test="contract.contSignStatus != null and contract.contSignStatus != ''">
+  			and m.cont_sign_status=#{contract.contSignStatus,jdbcType=VARCHAR}
+  		</if>
+  		<if test="contract.contVersion != null and contract.contVersion != ''">
+  			and m.cont_version=#{contract.contVersion}
+  		</if>
+  		<if test="contract.contCode != null and contract.contCode != ''">
+  			and m.cont_code=#{contract.contCode}
+  		</if>
+  		<if test="contract.dictContStatus != null and contract.dictContStatus != ''">
+  			and m.dict_cont_status=#{contract.dictContStatus}
+  		</if>
+  		
+  		<!--使用日期  -->
+  		<if test="contract.contUseDay != null and contract.contUseDay != ''">
+  			<![CDATA[ and m.cont_use_day >= to_date(#{contract.contUseDay},'YYYY-MM-DD') ]]>
+  		</if>
+  		<if test="contract.contUseDayEnd != null and contract.contUseDayEnd != ''">
+  			<![CDATA[ and m.cont_use_day <= to_date(#{contract.contUseDayEnd},'YYYY-MM-DD') ]]>
+  		</if>
+  		
+  		<!-- 生成日期 -->
+  		<if test="contract.contApplyDayStart != null and contract.contApplyDayStart != ''">
+  			<![CDATA[ and m.apply_day >= to_date(#{contract.contApplyDayStart},'YYYY-MM-DD') ]]>
+  		</if>
+  		<if test="contract.contApplyDayEnd != null and contract.contApplyDayEnd != ''">
+  			<![CDATA[ and m.apply_day <= to_date(#{contract.contApplyDayEnd},'YYYY-MM-DD') ]]>
+  		</if>
+  		
+  		<if test="contract.dictContBelong != null and contract.dictContBelong != ''">
+  			and m.dict_cont_belong=#{contract.dictContBelong}
+  		</if>
+  		<if test="contract.dictContFileStatus != null and contract.dictContFileStatus != ''">
+  			and m.dict_cont_file_status=#{contract.dictContFileStatus}
+  		</if>
+  		<!-- <if test="storeId != null and storeId != ''">
+  			and m.cont_stores_id  = #{storeId}
+  		</if> -->
+  		<if test="contract.contractType != null and contract.contractType != ''">
+  			and m.contract_type=#{contract.contractType}
+  		</if>
+  		
+  	</where>
+  	) m LEFT JOIN t_gl_org c ON c.id = m.cont_stores_id
+  	LEFT JOIN t_tz_contract_distribute d ON m.dis_contract_id = d.id 
+  	LEFT JOIN t_gl_user e ON m.cont_belong_empid = e.id
+  	LEFT JOIN t_tz_contract_changest f on f.cont_code = m.cont_code and f.dict_change_status=#{contract.dictChangeStatus}
+  	<where>
+  		<if test="nameIds != null and nameIds.length != 0 ">
+  			and  m.cont_stores_id in
+  			<foreach collection="nameIds" item="item" index="index" open="(" separator="," close=")">
+				#{item, jdbcType=VARCHAR}
+			</foreach>
+  		</if>
+  	</where>
+  </select>
+  
+  
+  <!-- 导出Excel合同列表页面 -->
+<select id="listContractChange" parameterType="com.creditharmony.fortune.contract.view.ContractParamView" resultType="com.creditharmony.fortune.contract.view.ContractExcelView">
+  	SELECT
+  		m.cont_code,
+  		dcv.label as cont_version,
+  		m.apply_day,
+  		m.cont_income_day,
+  		m.cont_use_day as use_day,
+  		m.cont_bestorage_day,
+  		m.dict_cont_belong,
+        m.cont_belong_empid, 
+        u.name as cont_belong,
+  		c.name,
+  		case when m.dict_cont_status is null then '-' else m.dict_cont_status end,
+  		m.dis_contract_id,
+  		m.apply_contract_id,
+  		d.dist_date
+  	FROM t_tz_contract m
+  	LEFT JOIN t_gl_org c ON c.id = m.cont_stores_id
+  	LEFT JOIN t_tz_contract_apply b ON b.contract_id = m.apply_contract_id
+  	LEFT JOIN t_tz_contract_distribute d ON m.dis_contract_id = d.id
+    LEFT JOIN t_gl_user u on m.cont_belong_empid = u.id
+    left join tz.t_gl_dict dcv on dcv.type = 'tz_contract_vesion'  and  m.cont_version = dcv.value
+  	<where>
+  		<if test="contSignStatus != null and contSignStatus != ''">
+  			and m.cont_sign_status=#{contSignStatus}
+  		</if>
+  		<if test="contStoresId != null and contStoresId != ''">
+  			and m.cont_stores_id=#{contStoresId}
+  		</if>
+  		<if test="name != null and name != ''">
+  			and c.name=#{name}
+  		</if>
+  		<if test="contVersion != null and contVersion != ''">
+  			and m.cont_version=#{contVersion}
+  		</if>
+  		<if test="contCode != null and contCode != ''">
+  			and m.cont_code=#{contCode}
+  		</if>
+  		<if test="dictContStatus != null and dictContStatus != ''">
+  			and m.dict_cont_status=#{dictContStatus}
+  		</if>
+  		<if test="contUseDay != null and contUseDay != ''">
+  			and m.cont_use_day=#{contUseDay}
+  		</if>
+  		<if test="dictContBelong != null and dictContBelong != ''">
+  			and m.dict_cont_belong=#{dictContBelong}
+  		</if>
+  		<if test="dictContFileStatus != null and dictContFileStatus != ''">
+  			and m.dict_cont_file_status=#{dictContFileStatus}
+  		</if>
+  	</where>
+  </select>
+  
+    <!-- 导出特定数据 -->
+  <select id="listContractChangeCheckout" parameterType="java.util.Map" resultType="com.creditharmony.fortune.contract.view.ContractExcelView">
+  SELECT
+  		m.cont_code,
+  		dcv.label as cont_version,
+  		m.apply_day,
+  		m.cont_income_day,
+  		m.cont_use_day,
+  		m.cont_bestorage_day,
+  		m.dict_cont_belong,
+        m.cont_belong_empid, 
+        u.name as cont_belong,
+  		c.name,
+  		case when m.dict_cont_status is null then '-' else m.dict_cont_status end,
+  		m.dis_contract_id,
+  		m.apply_contract_id,
+  		d.dist_date
+  	FROM t_tz_contract m
+	  	LEFT JOIN t_gl_org c ON c.id = m.cont_stores_id
+	  	LEFT JOIN t_tz_contract_apply b ON b.contract_id = m.apply_contract_id
+	  	LEFT JOIN t_tz_contract_distribute d ON m.dis_contract_id = d.id
+	    LEFT JOIN t_gl_user u on m.cont_belong_empid = u.id
+	    left join tz.t_gl_dict dcv on dcv.type = 'tz_contract_vesion'  and  m.cont_version = dcv.value    
+  	 where m.cont_code in 
+     <foreach collection="cont_code" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+  
+  
+  <!--  获取门店理财经理 --> 
+  <select id="listFinacialManager" resultType="java.util.Map"  parameterType="java.util.Map">
+    SELECT a.user_id, a.org_id,b.name 
+		FROM t_gl_user_role_org  a  
+		left join t_gl_user b on a.user_id = b.id
+		where a.org_id = #{departmentId,jdbcType=VARCHAR} and a.role_id=#{roleId,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 派发合同归属/合同调回 -->
+<update id="updateContractBelong" parameterType="java.util.Map" >
+   update t_tz_contract 
+   set cont_belong_empid = #{c.contBelongEmpid,jdbcType=VARCHAR},dict_cont_belong=#{c.dictContBelong,jdbcType=VARCHAR},cont_bestorage_day = #{c.contBestorageDay,jdbcType=DATE},dict_cont_status =#{c.dictContStatus,jdbcType=VARCHAR}, modify_by  = #{c.modifyBy,jdbcType=VARCHAR},modify_time = #{c.modifyTime,jdbcType=TIMESTAMP}
+   where cont_code in 
+   <foreach collection="cont_code" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+   </foreach>
+</update>
+
+  <!-- 获取合同信息 -->
+  <select id="getContract" resultType="com.creditharmony.fortune.contract.entity.Contract"  parameterType="java.lang.String">
+   SELECT cont_code, cont_stores_id, cont_version, cont_use_day, cont_bestorage_day, 
+       cont_tranfer_day, cont_income_day, cont_sign_status, dict_cont_status, 
+       dict_cont_file_status, cont_file_time, dict_cont_source, dict_cont_belong, 
+       cont_belong_empid, cont_filepath, create_by, create_time, modify_by, 
+       modify_time, apply_contract_id, dis_contract_id
+  FROM t_tz_contract where cont_code=#{contCode,jdbcType=VARCHAR} 
+   
+  </select>
+  
+  <!-- 合同调拨 -->
+  <update id="transferToFinacialManager" parameterType="com.creditharmony.fortune.contract.entity.Contract" >
+   update t_tz_contract 
+   set cont_belong_empid = #{contBelongEmpid,jdbcType=VARCHAR},cont_tranfer_day = #{contTranferDay,jdbcType=DATE}, modify_by  = #{modifyBy,jdbcType=VARCHAR},modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+   where cont_code = #{contCode,jdbcType=VARCHAR} and dict_cont_status =#{dictContStatus,jdbcType=VARCHAR}  and dict_cont_belong=#{dictContBelong,jdbcType=VARCHAR}
+  </update>
+
+<!-- 更新合同信息 -->
+<update id="updateContract" parameterType="com.creditharmony.fortune.contract.entity.Contract" >
+   update t_tz_contract 
+   <set>
+      <if test="contStoresId != null" >
+      cont_stores_id = #{contStoresId,jdbcType=VARCHAR},
+      </if>
+       <if test="dictContSource != null" >
+      dict_cont_source = #{dictContSource,jdbcType=VARCHAR},
+      </if>
+       <if test="dictContBelong != null" >
+      dict_cont_belong = #{dictContBelong,jdbcType=VARCHAR},
+      </if>
+       <if test="contBelongEmpid != null" >
+      cont_belong_empid = #{contBelongEmpid,jdbcType=VARCHAR},
+      </if>
+       <if test="dictContStatus != null" >
+      dict_cont_status = #{dictContStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="contTranferDay != null" >
+      cont_tranfer_day = #{contTranferDay,jdbcType=DATE},
+      </if>
+      <if test="contUseDay != null" >
+      	cont_use_day = #{contUseDay,jdbcType=DATE},
+      </if>
+       <if test="invalidDay != null" >
+      	invalid_day = #{invalidDay,jdbcType=DATE},
+      </if>
+      <if test="transferDay != null" >
+      	transfer_day = #{transferDay,jdbcType=DATE},
+      </if>
+      <if test="modifyBy != null" >
+         modify_by  = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+         modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </set>
+   where cont_code = #{contCode ,jdbcType=VARCHAR} 
+</update>
+
+<!-- 更新合同信息使用日期 -->
+<update id="updateContractUseDay" parameterType="com.creditharmony.fortune.contract.entity.Contract" >
+   update t_tz_contract 
+   <set>
+      cont_use_day = #{contUseDay,jdbcType=DATE},
+      <if test="modifyBy != null" >
+         modify_by  = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+         modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </set>
+   where cont_code = #{contCode ,jdbcType=VARCHAR} 
+</update>
+
+<!-- 更新合同状态-->
+<update id="updateContractState" parameterType="com.creditharmony.fortune.contract.entity.Contract" >
+   update t_tz_contract 
+   <set>
+      dict_cont_status = #{dictContStatus},
+      <if test="modifyBy != null" >
+         modify_by  = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+         modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      </if>
+   </set>
+   where cont_code = #{contCode ,jdbcType=VARCHAR} 
+</update>
+
+
+
+<!-- 修改合同归档状态 -->
+<update id="updateContractFileStatus" parameterType="com.creditharmony.fortune.contract.entity.Contract">
+   update t_tz_contract 
+     set dict_cont_file_status = #{dictContFileStatus,jdbcType=VARCHAR},
+          cont_file_time = #{contFileTime,jdbcType=TIMESTAMP},
+          onfile_day = #{onfileDay,jdbcType=DATE}, 
+          modify_by = #{modifyBy,jdbcType=VARCHAR},
+          modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+   where cont_code = #{contCode ,jdbcType=VARCHAR} 
+        <if test="contStoresId != null and contStoresId != ''">   <!-- 与登录人同部门条件  -->
+        	and cont_stores_id = #{contStoresId}
+        </if>
+</update>
+
+	<select id="queryContract" parameterType="java.util.Map" resultType="com.creditharmony.fortune.contract.entity.Contract">
+		select 
+			cont_code contCode,
+			cont_stores_id contStoresId,
+			cont_version contVersion,
+			cont_use_day contUseDay,
+			dict_cont_status dictContStatus,
+			dict_cont_belong dictContBelong,
+			cont_belong_empid contBelongEmpid
+		from t_tz_contract
+		<where>
+			<if test="contCode != null and contCode != ''">
+				cont_code = #{contCode}
+			</if>
+			<if test="contBelongEmpid != null and contBelongEmpid != ''">
+				and cont_belong_empid = #{contBelongEmpid}
+			</if>
+		</where>
+	</select>
+
+  <!--  查询合同是否已经存在 --> 
+  <select id="isExistContract" resultType="java.lang.Integer" parameterType="java.util.Map">
+  	select count(*) from t_tz_contract  t
+  	 where t.cont_code in 
+     <foreach collection="cont_code" item="id" index="index" open="(" separator="," close=")">
+		#{id,jdbcType=VARCHAR}
+    </foreach>
+  </select>
+  
+  <!-- 修改文件索引 -->
+  <update id="updateContFilepath" parameterType="com.creditharmony.fortune.contract.entity.Contract">
+   update t_tz_contract 
+   set cont_filepath = #{contFilepath,jdbcType=VARCHAR}, modify_by = #{modifyBy,jdbcType=VARCHAR},modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+   where cont_code = #{contCode ,jdbcType=VARCHAR} 
+</update>
+
+<select id="getlistContractChange" parameterType="java.util.Map" resultType="com.creditharmony.fortune.contract.entity.Contract">
+	SELECT 
+	c.name as name,
+	m.cont_code as contCode,
+	(case when m.contract_type='1' then dcv.label else '协议-'||dcv.label end ) as contVersion,
+	m.apply_day::timestamp::date as applyDay,
+	m.cont_use_day as useDay,
+	dict2.label as contBelong ,
+	case when m.dict_cont_status is null then '-' else dict1.label end as dictContStatus
+	
+	FROM t_tz_contract m
+	LEFT JOIN t_gl_org c ON c.id = m.cont_stores_id
+	LEFT JOIN t_tz_contract_apply b ON b.contract_id = m.apply_contract_id
+	LEFT JOIN t_tz_contract_distribute d ON m.dis_contract_id = d.id
+	LEFT JOIN t_gl_user u on m.cont_belong_empid = u.id
+	left join tz.t_gl_dict dcv on dcv.type = 'tz_contract_vesion' and
+	m.cont_version = dcv.value
+	left join tz.t_gl_dict dict1 on dict1.type = 'tz_contract_state' and
+	m.dict_cont_status= dict1.value
+	left join tz.t_gl_dict dict2 on dict2.type = 'tz_contract_owner' and
+	m.dict_cont_belong= dict2.value
+	LEFT JOIN t_tz_contract_changest f on f.cont_code = m.cont_code and f.dict_change_status=#{contract.dictChangeStatus}
+  	<where>
+  		<if test="contract.contSignStatus != null and contract.contSignStatus != ''">
+  			and m.cont_sign_status=#{contract.contSignStatus,jdbcType=VARCHAR}
+  		</if>
+  	
+		<if test="contCodeids != null and contCodeids != ''">
+			and m.cont_code in 
+			<foreach collection="contCodeids" item="id" index="index" open="(" separator="," close=")">
+				#{id,jdbcType=VARCHAR}
+			</foreach>
+		</if>
+  		<if test="nameIds != null and nameId !=''  ">
+  			and  m.cont_stores_id in
+  			<foreach collection="nameIds" item="id" index="index" open="(" separator="," close=")">
+				#{id,jdbcType=VARCHAR}
+			</foreach>
+  		</if>
+  		<if test="contract.contVersion != null and contract.contVersion != ''">
+  			and m.cont_version=#{contract.contVersion}
+  		</if>
+  		<if test="contract.contCode != null and contract.contCode != ''">
+  			and m.cont_code=#{contract.contCode}
+  		</if>
+  		<if test="contract.dictContStatus != null and contract.dictContStatus != ''">
+  			and m.dict_cont_status=#{contract.dictContStatus}
+  		</if>
+  		
+  		<if test="contract.contUseDay != null and contract.contUseDay != ''">
+  			<![CDATA[ and m.cont_use_day >= to_date(#{contract.contUseDay},'YYYY-MM-DD') ]]>
+  		</if>
+  		<if test="contract.contUseDayEnd != null and contract.contUseDayEnd != ''">
+  			<![CDATA[ and m.cont_use_day <= to_date(#{contract.contUseDayEnd},'YYYY-MM-DD') ]]>
+  		</if>
+  		
+  		<!-- 生成日期 -->
+  		<if test="contract.contApplyDayStart != null and contract.contApplyDayStart != ''">
+  			<![CDATA[ and m.apply_day >= to_date(#{contract.contApplyDayStart},'YYYY-MM-DD') ]]>
+  		</if>
+  		<if test="contract.contApplyDayEnd != null and contract.contApplyDayEnd != ''">
+  			<![CDATA[ and m.apply_day <= to_date(#{contract.contApplyDayEnd},'YYYY-MM-DD') ]]>
+  		</if>
+  		
+  		<if test="contract.dictContBelong != null and contract.dictContBelong != ''">
+  			and m.dict_cont_belong=#{contract.dictContBelong}
+  		</if>
+  		<if test="contract.dictContFileStatus != null and contract.dictContFileStatus != ''">
+  			and m.dict_cont_file_status=#{contract.dictContFileStatus}
+  		</if>
+  		<if test="contract.contCode != null and contract.contCode != ''">
+  			and m.cont_code=#{contract.contCode}
+  		</if>
+  		<if test="contract.contractType != null and contract.contractType != ''">
+  			and m.contract_type=#{contract.contractType}
+  		</if>
+  	</where>
+  </select>
+
+  <update id="updateContractCode">
+  	  update t_tz_contract set cont_code=#{newCode} where cont_code=#{oldCode}
+  </update>
+
+</mapper>

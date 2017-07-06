@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.exituserorg.dao.UserOrgInfoDao">
+
+	 <resultMap id="UserOrgInfoMap" type="UserOrgInfo">
+		<id column="id" property="id" jdbcType="VARCHAR" />
+		<result column="org_id" property="orgId" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<select id="findList" resultMap="UserOrgInfoMap">
+		SELECT *
+		FROM tz.int_exit_user_org
+	</select>
+
+	<insert id="insert">
+		INSERT INTO tz.int_exit_user_org(
+			id,
+			org_id
+		) VALUES (
+			#{id}, 
+			#{orgId}
+		)
+	</insert>
+
+	<delete id="delete">
+		delete from tz.int_exit_user_org where id=#{id}
+	</delete>
+</mapper>

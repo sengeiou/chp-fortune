@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.back.priority.common.dao.PriorityBackMoneyDao" >
+
+	<update id="updateBackMoney" parameterType="com.creditharmony.fortune.back.money.common.view.ItemView">
+		 UPDATE tz.t_tz_back_money_pool
+		    <set >
+		      <if test="priorityBack != null and priorityBack != '' " >
+		        priority_back = #{priorityBack},
+		      </if>
+		      <if test="backActualbackMoneyBig != null and backActualbackMoneyBig != '' " >
+		        back_actualback_money = #{backActualbackMoneyBig},
+		      </if>
+		      <if test="backActualbackMoney != null and backActualbackMoney != '' " >
+		        back_actualback_money = #{backActualbackMoney},
+		      </if>	
+		    </set>
+		    WHERE 
+				lend_code = #{lendCode}	;	
+	</update>
+	
+	
+	<select id="searchBackMoney" resultType="com.creditharmony.fortune.back.money.common.view.ListItemView">
+		select 
+			pool.back_actualback_money	AS  backActualbackMoney,
+			pool.back_money	AS  backMoney,
+			pool.dict_back_status AS dictBackStatus,
+			appl.apply_expire_day AS finalLinitDate,
+			appl.apply_billday AS applyBillday,
+			appl.apply_lend_day AS applyLendDay,
+			appl.apply_lend_money AS applyLendMoney,
+			appl.product_code AS productCode,
+			appl.lend_code AS lendCode,
+			pro.product_periods AS productPeriods
+		from 
+		tz.t_tz_back_money_pool pool
+		left join tz.t_tz_loan_apply appl on pool.lend_code = appl.lend_code
+		left join tz.t_gl_tz_product pro on pro.product_code = appl.product_code
+		left join tz.t_tz_priority_back_pool prio on appl.lend_code = prio.lend_code
+		where  prio.priority_id=#{priorityId};
+	</select>
+</mapper>

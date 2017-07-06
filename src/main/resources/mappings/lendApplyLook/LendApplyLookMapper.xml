@@ -1,0 +1,815 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.look.apply.dao.LendApplyLookDao" >
+	
+	<sql id="applyLend">
+		FROM 
+			<choose>  
+			   <when test="lso.dataRights != null and lso.dataRights != ''">
+			      (select * from t_tz_loan_apply a where 1=1
+			   		 ${lso.dataRights}
+			   		) a
+			   </when>
+			   <otherwise>
+			   	t_tz_loan_apply a
+			   </otherwise>
+		   </choose>
+			LEFT JOIN t_tz_customer t ON  a.customer_code = t.customer_code
+			LEFT JOIN t_gl_tz_product y ON  y.product_code = a.product_code
+			LEFT JOIN t_gl_tz_product_type d ON  d.product_type_code = y.product_type_code
+			LEFT JOIN t_gl_org o ON  a.store_org_id = o.id
+			LEFT JOIN t_gl_province_city p on p.id = o.province_id 
+			LEFT JOIN t_gl_province_city q on q.id = o.city_id
+			LEFT JOIN t_gl_user m on m.id = a.manager_code
+			LEFT JOIN t_gl_org u on u.id = a.team_org_id
+			LEFT JOIN t_gl_user e  ON  e.id = a.team_manager_code
+  			left join (select * from tz.t_tz_customer_account where is_del = '0') ca on ca.id = a.repay_id
+			left join tz.t_tz_deduct_pool dp on dp.lend_code = a.lend_code
+			left join t_tz_back_money_pool bmp on a.lend_code = bmp.lend_code
+			left join tz.t_tz_loan_workflow w on w.lend_code=a.lend_code  
+			left join tz.t_tz_priority_back_pool pbm on a.lend_code = pbm.lend_code
+			LEFT JOIN (
+				select al.lend_code,al.check_time 
+				from tz.t_tz_apply_log al
+				left join tz.t_tz_loan_apply la on al.lend_code = la.lend_code 
+				where la.apply_pay = '7' and la.lend_status != '5' and al.dict_apply_status = '3'
+			) atime on atime.lend_code = a.lend_code
+	<where>
+	       1 = 1   and  (w.apply_type=#{lso.defaultOrderSql}  or w.apply_type is null)
+	      <if test="lso.dictApplyDeductPay != null and lso.dictApplyDeductPay != ''">
+	            and	a.lend_status=#{lso.dictApplyDeductPay}
+	      </if> 
+		  <if test="lso.tuoguanStatus != null and lso.tuoguanStatus != ''">
+	        	t.apply_hosted_status = #{tuoguanStatus,jdbcType=VARCHAR}
+	      </if>
+		  <if test="lso.customerCode != null  and lso.customerCode != ''">
+				and	t.customer_code like '%${lso.customerCode}%'
+	      </if>
+	      <if test="lso.customerName != null and lso.customerName != ''">
+	            and	t.customer_name like '%${lso.customerName}%'
+	      </if>
+	      <if test="lso.managerCode != null and lso.managerCode != ''">
+	        	and m.name = #{lso.managerCode, jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.lendCode != null and lso.lendCode != ''">
+	        	and a.lend_code = #{lso.lendCode, jdbcType=VARCHAR}
+	      </if>
+	      <!-- ===== -->
+	      <if test="lso.orgCode != null and lso.orgCode != ''">  <!-- 多选营业部 -->
+	      		and a.store_org_id in
+	      		<foreach collection="orgCode" item="co" index="index" open="(" separator="," close=")">
+	        		 #{co}
+	      		</foreach>
+	      </if>
+	      <if test="lso.customerTel != null and lso.customerTel != ''">   
+	        	and t.customer_mobilephone = #{lso.customerTel, jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.cityId != null and lso.cityId != ''">     <!-- 单选 城市  -->
+	           and o.province_id||'_'||o.city_id SIMILAR TO  #{lso.cityId}
+	      </if>
+	      
+	      <!--=============-->
+	      <!-- 出借申请日期 -->
+	      <if test="lso.applyLendDayFrom != null ">
+	        	and a.apply_lend_day &gt;= #{lso.applyLendDayFrom,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyLendDayTo != null ">
+	        	and a.apply_lend_day &lt;= #{lso.applyLendDayTo,jdbcType=DATE}
+	      </if>
+	     <!--  出借到期日期 -->
+	      <if test="lso.applyExpireDayFrom != null ">
+	        	and a.apply_expire_day &gt;= #{lso.applyExpireDayFrom,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyExpireDayTo != null ">
+	        	and a.apply_expire_day &lt;= #{lso.applyExpireDayTo,jdbcType=DATE}
+	      </if>
+	      <!-- 计划划扣日期 -->
+	      <if test="lso.applyDeductDayFrom != null ">
+	        	and a.apply_deduct_day &gt;= #{lso.applyDeductDayFrom,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyDeductDayTo != null ">
+	        	and a.apply_deduct_day &lt;= #{lso.applyDeductDayTo,jdbcType=DATE}
+	      </if>
+	      <!-- 金额 -->
+	      <if test="lso.applyLendMoneyFrom != null and lso.applyLendMoneyFrom &gt;= 0">
+	        	and a.apply_lend_money &gt;= #{lso.applyLendMoneyFrom, jdbcType=NUMERIC}
+	      </if>
+	      <if test="lso.applyLendMoneyTo != null and lso.applyLendMoneyTo &gt;= 0">
+	        	and a.apply_lend_money &lt;= #{lso.applyLendMoneyTo, jdbcType=NUMERIC}
+	      </if>
+<!-- 	      ======= -->
+	      <if test="lso.status != null and lso.status != ''">
+	           and a.status =#{lso.status}
+	      </if>
+	      <if test="lso.dictApplyEndState != null and lso.dictApplyEndState != ''">
+	      	 and a.dict_apply_end_state  = #{lso.dictApplyEndState, jdbcType=VARCHAR}
+	      </if>
+	      <if test="lendStatus != null and lendStatus != ''">
+	      		and a.lend_status in
+	      	<foreach collection="lendStatus" item="ls" index="index" open="(" separator=","  close=")">
+	        	 #{ls, jdbcType=VARCHAR}
+	        </foreach>
+	      </if>
+	      <if test="lso.applyBillday != null and lso.applyBillday != ''">
+	      		and a.apply_billday in
+	      	<foreach collection="applyBillday" item="ab" index="index" open="(" separator=","  close=")">
+	        	 to_number(#{ab, jdbcType=VARCHAR})
+	        </foreach>
+	      </if>
+	      
+	      <if test="lso.applyPay != null and lso.applyPay != ''">
+	      		and a.apply_pay in 
+		      	<foreach collection="applyPay" item="ap" index="index" open="(" separator=","  close=")">
+		        	#{ap,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+	      <if test="lso.productCode != null and lso.productCode != ''">
+	      		and a.product_code in 
+		      	<foreach collection="productCode" item="pi" index="index" open="(" separator=","  close=")">
+		        	#{pi,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+	      	<if test="dictApplyDeductType !=null and dictApplyDeductType!= '' ">
+			 	AND a.dict_apply_deduct_type in 
+			 	<foreach collection="dictApplyDeductType" index="index" item="item" open="(" separator="," close=")">  
+		           #{item}   
+		   		</foreach> 
+		 	</if>
+		 	<if test="switchApproveStatus != null and switchApproveStatus != ''">
+				and a.switch_approve_status in
+				<foreach collection="switchApproveStatus" index="index" item="item" open="(" separator="," close=")">  
+					#{item}
+				</foreach> 
+			</if>
+		 	<if test="dictFortunechannelflag !=null and dictFortunechannelflag != '' ">
+			 	AND bmp.dict_fortunechannelflag in 
+			 	<foreach collection="dictFortunechannelflag" index="index" item="item" open="(" separator="," close=")">  
+		           #{item}   
+		   		</foreach> 
+		 	</if>
+		 	<if test="accountBank !=null and accountBank!= '' ">
+		 		AND ca.account_bank in 
+			 	<foreach collection="accountBank" index="index" item="item" open="(" separator="," close=")">  
+		           #{item}   
+		   		</foreach> 
+		 	</if>
+		 	<!-- 回款日期 -->
+		 	<if test="lso.backMoneyDayBegin != null ">
+		 		and bmp.back_money_day &gt;= #{lso.backMoneyDayBegin, jdbcType=DATE}
+		 	</if>
+		 	<if test="lso.backMoneyDayEnd != null ">
+		 		and bmp.back_money_day &lt;=  #{lso.backMoneyDayEnd, jdbcType=DATE}
+		 	</if>
+		 	
+		 	
+		 	<if test="workingState !=null">
+				AND  bmp.working_state  IN
+		    	<foreach collection="workingState" item="item" index="index" open="(" separator="," close=")">
+		    			'${item}'
+		    	</foreach>
+			</if>
+		 	<if test="lso.priorityBack != null and lso.priorityBack != ''">
+	        	AND  bmp.priority_back = #{lso.priorityBack, jdbcType=VARCHAR}
+		    </if>
+		 	<if test="lso.teamManagerName != null and lso.teamManagerName != '' ">
+		 		and   e.name = #{lso.teamManagerName, jdbcType=VARCHAR}
+		 	</if>
+		 	
+		 	<if test="customerLendingStatus != null and customerLendingStatus != '' ">  <!--投资状态  -->
+		 		and   t.customer_lending in 
+		 		<foreach collection="customerLendingStatus" index="index" item="item" open="(" separator="," close=")">  
+			 		 #{item, jdbcType=VARCHAR}
+		 		</foreach>
+		 	</if>
+		 	
+		 	<if test="customerTerminal != null ">  <!--客户数据来源  -->
+		 		and   t.customer_terminal  in
+		 		<foreach collection="customerTerminal" index="index" item="item" open="(" separator="," close=")">  
+	           		#{item}   
+	   			</foreach> 
+		 	</if>
+		 	<if test="lso.zzApproveDateStart !=null and lso.zzApproveDateStart !=''">
+				AND TO_CHAR(atime.check_time,'YYYY-MM-DD') &gt;= #{zzApproveDateStart}
+			</if>
+			<if test="lso.zzApproveDateEnd !=null and lso.zzApproveDateEnd !=''">
+	            AND TO_CHAR(atime.check_time,'YYYY-MM-DD') &lt;= #{zzApproveDateEnd}
+			</if>
+		</where> 
+	</sql>
+  <!-- 出借申请查看列表检索 -->
+  <select id="loadLendApplyLookList" parameterType="java.util.Map" resultType="com.creditharmony.fortune.look.apply.view.LendApplyLookListView">
+	SELECT 
+		t.customer_name, 
+		t.customer_code, 
+		t.apply_hosted_status, 
+		a.lend_code, 
+		a.apply_lend_day,
+		a.apply_billday,
+		a.apply_expire_day,
+		a.apply_lend_money,
+		a.lend_status,
+		a.status as status,
+		a.dict_apply_end_state,
+		a.create_time,
+		a.switch_approve_status,
+		d.product_type_name,
+		e.name as team_name,
+		m.name as manager_name,
+		o.name as org_name,
+		p.area_name as province_name,
+		q.area_name as city_name,
+		u.name as develop_team,
+		y.product_name,
+		a.apply_pay,
+		a.dict_apply_deduct_type,
+		ca.account_bank,
+  		dp.actual_deduct_money,
+  		dp.fail_money,
+  		dp.fail_reason, 
+		case t.trusteeship_ret_code when '0000' then t.trusteeship_ret_msg else '' end as trusteeship_ret_msg,
+		m.id,
+		a.xinhebao_type,
+		bmp.dict_back_status,
+		bmp.dict_fortunechannelflag,
+		bmp.back_money_day,
+		bmp.back_money_type,
+		bmp.working_state,
+		bmp.priority_back,
+		pbm.priority_back_state,
+		pbm.priority_id,
+		atime.check_time as zz_approve_date
+		<include refid="applyLend"></include>
+		order by a.apply_lend_day desc
+  </select>
+
+  <!-- 统计出借金额 -->
+  <select id="sumLendAmount" parameterType="java.util.Map" resultType="java.lang.String">
+		SELECT 
+			
+			sum(a.apply_lend_money)
+			
+			<include refid="applyLend"></include>
+  </select>
+ 
+  <!-- 查询客户信息 -->
+  <select id="findCustomerMesg" parameterType="java.lang.String" resultType="com.creditharmony.fortune.customer.entity.Customer">
+  	SELECT 
+  		customer_code as custCode,
+  		customer_name as custName,
+  		customer_cert_num as custCertNum,
+  		apply_hosted_status
+  	FROM t_tz_customer 
+  		
+  	 	
+  	<where>
+  		customer_code = #{code}
+  	</where>
+  </select>
+  
+  <!-- 初始化出借信息页出借信息 -->
+  <select id="findLendMesg" parameterType="java.lang.String" resultType="com.creditharmony.fortune.customer.entity.LoanApply">
+  	SELECT
+  		a.customer_code as custCode,
+  		a.apply_day as applyDate,
+  		a.apply_deduct_day as deductDate,
+  		a.apply_lend_day as lendDate,
+  		p.product_name as productCode,
+  		a.apply_pay as pay_type,
+  		a.dict_apply_deduct_type as deductTypeId,
+  		a.apply_lend_money as lendMoney,
+  		a.apply_deduct_money as deductMoney,
+  		a.apply_transfer_money as transferMoney,
+  		a.apply_agreement_edition as protocoEdition,
+  		a.apply_contract_no as contractNumber,
+  		a.apply_sales_discount salesDiscount ,
+  		a.apply_remarks as remark,
+  		a.receiving_id as receiveBankId,
+  		a.repay_id as paymentBankId,
+  		a.lend_code as applyCode,
+  		a.id as id,
+  		a.options,
+  		a.lend_code AS lendCode,
+  		a.manager_code AS managerCode
+  	FROM
+  		t_tz_loan_apply a
+  		LEFT JOIN t_gl_tz_product p ON a.product_code = p.product_code
+  		
+  	<where>
+  		a.lend_code = #{code}
+  	
+  	</where>
+  </select>
+  
+ 	<!-- 查询客户银行信息 -->
+  <select id="findBankMesg" parameterType="java.util.Map" resultType="com.creditharmony.fortune.customer.entity.CustomerAccount"> 
+  	SELECT 
+  		b.account_bank as accountBankId,
+  		b.account_branch,
+  		s.account_addrprovince,
+  		t.account_addrcity,
+  		<if test="payType != null and payType != '' and payType != 4">
+  			e.account_addrdistrict,
+  		</if>
+  		b.account_card_or_booklet,
+  		b.account_no,
+  		b.account_name
+  	FROM  (select * from t_tz_customer_account where is_del = '0') b
+  	<if test="payType != null and payType != ''">
+  		<if test="payType == 4">
+  			LEFT JOIN (SELECT area_code, area_name as account_addrprovince FROM t_tz_fy_area_code) s ON s.area_code = b.account_addrprovince
+  			LEFT JOIN (SELECT area_code, area_name as account_addrcity FROM t_tz_fy_area_code) t ON t.area_code = b.account_addrcity
+  		</if>
+  		<if test="payType != 4">
+  			LEFT JOIN (SELECT id, area_name as account_addrprovince FROM t_gl_province_city) s ON s.id = b.account_addrprovince
+  			LEFT JOIN (SELECT id, area_name as account_addrcity FROM t_gl_province_city) t ON t.id = b.account_addrcity
+  			LEFT JOIN (SELECT id, area_name as account_addrdistrict FROM t_gl_province_city) e ON e.id = b.account_addrdistrict
+  		</if>
+  	</if>
+  	
+  	<where>
+  		b.id in
+  		<foreach collection="id" item="item" index="index" open="(" separator="," close=")">
+  			 #{item}
+  		</foreach>
+  		order by instr(#{id_order},b.id)
+  	</where>
+  </select>
+	
+	<!-- 查找提前赎回的信息 -->
+  	<select id="findRedeemLendMesg" parameterType="java.util.Map" resultType="com.creditharmony.fortune.look.apply.view.LendLookListView">
+  		SELECT 
+  			a.lend_code,
+  			p.product_name,
+  			a.apply_lend_money,
+  			a.apply_lend_day,
+  			a.apply_expire_day,
+  			a.apply_pay,
+  			a.lend_status,
+  			m.dict_back_status as dictBackStatus,
+  			a.apply_agreement_edition,
+  			a.apply_billday
+  		FROM
+  			t_tz_loan_apply a
+  		LEFT JOIN t_gl_tz_product p ON p.product_code = a.product_code
+  		LEFT JOIN t_tz_back_money_pool m ON m.lend_code = a.lend_code
+  		
+  		<where>
+  			a.lend_code LIKE '${str}%'  AND a.lend_code != #{code,jdbcType=VARCHAR}
+  		</where>
+  	</select>
+  	
+  	<!-- 查询数据，用于导出出借excel  -->
+  	<select id="getExportLendExcelList"  parameterType="java.util.Map"  resultType="com.creditharmony.fortune.look.apply.entity.LendSearchObj">
+  			select  distinct 
+  			app.apply_remarks  as remark,
+			cityOrg1.name as fortunCenter,
+			cust.customer_name as custName,
+			cust.customer_code as custCode,
+			l.check_time as shenPi,
+			app.lend_code as lendCode,
+			app.apply_deduct_day as huakou,	  	
+			round(app.apply_lend_money,2) as firstAmount,			
+			app.apply_lend_day as applyLendDay,	  		
+			round(app.apply_lend_money,2)  as applyLendMoney,	
+			app.apply_deduct_money  as applyDeductMoney,		 
+			pro.product_name as productName,
+			usr.name as   managerCode,			
+			cityOrg2.name as storeName,			 
+			dict2.label as  payType,
+			null as  feedBack,			 
+			dict1.label as dictApplyDeductType,
+			app.apply_expire_day as applyExpireDay,
+			dict4.label as applyAgreementEdition,
+			app.apply_billday as applyBillday,
+			<!-- 出借导出 第一账单日 -->
+			<if test="firstBill != null and firstBill != ''">mc.flag  as  firstBill,</if>
+			dict3.label as  openBank,
+			accnt.account_branch as  branch,
+			accnt.account_no as  cardNo,
+			dict3_r.label  as  backOpenBank,
+			accnt_r.account_branch as  backBranch,
+			accntBk.account_no as  backCardNo,
+			dict9.label as accountCardOrBooklet,
+			pvc.area_name as accountAddrcity ,
+			pool.back_money_day as  back,
+			pool.back_actualback_money as  backMoney,
+			pool.working_state  as  workingState,
+			dict6.label as status,
+			dict5.label as dictApplyEndState,
+			app.apply_contract_no as applyContractNo,
+			round(pro.new_year_profit,2)||'%' as   yearRate,
+			 dict8.label as  loanBillRecv,
+			dict7.label as  xinhebaoType,
+			 dict10.label as backMoeyType,
+			 atime.check_time as zzApproveDate
+			
+		FROM 	t_tz_loan_apply app
+			LEFT JOIN t_tz_customer cust ON  app.customer_code = cust.customer_code
+			LEFT JOIN t_gl_tz_product pro ON  pro.product_code = app.product_code			
+			LEFT JOIN t_gl_org cityOrg2 ON  app.store_org_id = cityOrg2.id
+			LEFT JOIN t_gl_user usr on usr.id = app.manager_code
+  			left join (select * from tz.t_tz_customer_account where is_del = '0') accnt on accnt.id = app.repay_id
+  			left join (select * from tz.t_tz_customer_account where is_del = '0') accnt_r on accnt_r.id = app.receiving_id
+			left join t_tz_back_money_pool pool on app.lend_code = pool.lend_code	
+			LEFT JOIN t_gl_tz_product_type d ON  d.product_type_code = pro.product_type_code			
+			LEFT JOIN t_gl_org u on u.id = app.team_org_id
+			LEFT JOIN t_gl_user e  ON  e.id = app.team_manager_code
+			left join tz.t_tz_deduct_pool dp on dp.lend_code = app.lend_code
+			LEFT JOIN t_gl_province_city p on p.id = cityOrg2.province_id 
+			LEFT JOIN t_gl_province_city q on q.id = cityOrg2.city_id
+			left join tz.t_tz_loan_info inf on inf.customer_code = app.customer_code
+			left join (select * from tz.t_tz_customer_account where is_del = '0') accntBk on accntBk.id = app.receiving_id
+			left join tz.t_gl_province_city pvc on pvc.id = u.city_id
+			left join 
+				(select t1.lend_code,max(t1.check_time) check_time
+				 from tz.t_tz_apply_log t1
+				 group by t1.lend_code
+				) l on app.lend_code=l.lend_code
+			left join (select label,type,value from tz.t_gl_dict) dict1 on dict1.value=app.dict_apply_deduct_type and dict1.type='tz_deduct_plat'                
+			left join (select label,type,value from tz.t_gl_dict) dict2 on dict2.value=app.apply_pay and dict2.type='tz_pay_type'
+			left join (select label,type,value from tz.t_gl_dict) dict4 on dict4.value=app.apply_agreement_edition and dict4.type='tz_contract_vesion' 
+			left join (select label,type,value, del_flag from tz.t_gl_dict) dict5 on dict5.value=app.dict_apply_end_state and dict5.type='tz_finish_state' and dict5.del_flag = '0'
+			left join (select label,type,value, del_flag from tz.t_gl_dict) dict6 on dict6.value= app.status and dict6.type='tz_for_apply_status' and dict6.del_flag = '0'
+			left join (select label,type,value, del_flag from tz.t_gl_dict) dict7 on dict7.value=app.xinhebao_type and dict7.type='tz_xinhebao_type' and dict7.del_flag = '0'
+			left join (select label,type,value, del_flag from tz.t_gl_dict) dict3 on dict3.value=accnt.account_bank and dict3.type='tz_open_bank' and dict3.del_flag = '0'  
+			
+			left join (select label,type,value from tz.t_gl_dict) dict3_r on dict3_r.value = accnt_r.account_bank and dict3_r.type='tz_open_bank'
+			
+			left join (select label,type,value from tz.t_gl_dict) dict8 on dict8.value=inf.loan_bill_recv and dict8.type='tz_billtaken_mode'
+			left join (select label,type,value from tz.t_gl_dict) dict9 on dict9.value=accntBk.account_card_or_booklet and dict9.type='com_card_type'
+			left join (select label,type,value from tz.t_gl_dict) dict10 on dict10.value=pool.dict_back_status  and  dict10.type='tz_back_state'	
+			left join tz.t_gl_org   cityOrg1 on ','||cityOrg2.parent_ids  like  '%'||','||cityOrg1.id ||'%'   and  cityOrg1.type=#{orgType}
+			 <if test="firstBill != null and firstBill != ''">
+			 	left join 
+					(select mc.lend_code,min(mc.matching_firstbill_day) as flag
+					 from  t_tz_matching_creditor mc  
+					where   mc.matching_firstday_flag=#{firstBill} group by mc.lend_code) mc on mc.lend_code=app.lend_code  
+			 </if>
+			 left join tz.t_tz_loan_workflow w on w.lend_code=app.lend_code
+			 LEFT JOIN (
+				select al.lend_code,al.check_time 
+				from tz.t_tz_apply_log al
+				left join tz.t_tz_loan_apply la on al.lend_code = la.lend_code 
+				where la.apply_pay = '7' and la.lend_status != '5' and al.dict_apply_status = '3'
+			) atime on atime.lend_code = app.lend_code  	
+		<where>
+		1=1  and  (w.apply_type=#{defaultOrderSql}  or w.apply_type is null)
+		and  cust.customer_code is not null
+	<if test="lso.lendCodeList != null and  lso.lendCodeList.size() > 0 ">
+		and app.lend_code in
+		<foreach collection="lso.lendCodeList" item="item" index="index"
+			open="(" separator="," close=")">
+			#{item}
+		    	</foreach>
+      	</if>
+ 			<if test="lso.tuoguanStatus != null and lso.tuoguanStatus != ''">
+	        	cust.apply_hosted_status = #{tuoguanStatus,jdbcType=VARCHAR}
+    		</if>
+	    	<if test="lso.lendStatus != null and lso.lendStatus != ''">
+			and app.lend_status in
+			<foreach collection="lendStatus" item="item" index="index"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	      <if test="lso.dictApplyDeductPay != null and lso.dictApplyDeductPay != ''">
+	            and	app.lend_status=#{dictApplyDeductPay}
+	      </if> 
+	      
+		  <if test="lso.customerCode != null  and lso.customerCode != ''">
+				and	cust.customer_code like '%${lso.customerCode}%'
+	      </if>
+	      <if test="lso.customerName != null and lso.customerName != ''">
+	            and	cust.customer_name like '%${lso.customerName}%'
+	      </if>
+	      <if test="lso.managerCode != null and lso.managerCode != ''">
+	        	and  usr.name = #{lso.managerCode, jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.lendCode != null and lso.lendCode != ''">
+	        	and app.lend_code = #{lso.lendCode, jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.orgCode != null and lso.orgCode != ''">
+	      		and app.store_org_id = #{lso.orgCode, jdbcType=VARCHAR}
+<!-- 	      		<foreach collection="lso.orgCode" item="co" index="index" open="(" separator="," close=")"> -->
+<!-- 	        		 #{co, jdbcType=VARCHAR} -->
+<!-- 	      		</foreach> -->
+	      </if>
+	      <if test="lso.customerTel != null and lso.customerTel != ''">
+	        	and cust.customer_mobilephone = #{lso.customerTel, jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.cityId != null and lso.cityId != ''">
+	           and q.id in
+	      	<foreach collection="cityId" item="ci" index="index" open="(" separator="," close=")">
+	        	 #{ci, jdbcType=VARCHAR}
+	      	</foreach>
+	      </if>
+	      <!--=============-->
+	      <!-- <if test="lso.applyLendDayFrom != null and lso.applyLendDayFrom != '' and lso.applyLendDayTo != null and lso.applyLendDayTo != ''">
+	        	and app.apply_lend_day &gt;= #{lso.applyLendDayFrom,jdbcType=DATE}
+	        	and app.apply_lend_day &lt;= #{lso.applyLendDayTo,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyExpireDayFrom != null and lso.applyExpireDayFrom != '' and lso.applyExpireDayTo != null and lso.applyExpireDayTo != ''">
+	        	and app.apply_expire_day &gt;= #{lso.applyExpireDayFrom,jdbcType=DATE}
+	        	and app.apply_expire_day &lt;= #{lso.applyExpireDayTo,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyDeductDayFrom != null and lso.applyDeductDayFrom != '' and lso.applyDeductDayTo != null and lso.applyDeductDayTo != ''">
+	        	and app.apply_deduct_day &gt;= #{lso.applyDeductDayFrom,jdbcType=DATE}
+	        	and app.apply_deduct_day &lt;= #{lso.applyDeductDayTo,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyLendMoneyFrom != null and lso.applyLendMoneyFrom != '' and lso.applyLendMoneyTo != null and lso.applyLendMoneyTo != ''">
+	        	and app.apply_lend_money &gt;= #{lso.applyLendMoneyFrom,jdbcType=NUMERIC}
+	        	and app.apply_lend_money &lt;= #{lso.applyLendMoneyTo,jdbcType=NUMERIC}
+	      </if> -->
+	      <!-- ======= -->
+	      <!-- ======= -->
+	      <!-- 出借申请日期 -->
+	      <if test="lso.applyLendDayFrom != null ">
+	        	and app.apply_lend_day &gt;= #{lso.applyLendDayFrom,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyLendDayTo != null ">
+	        	and app.apply_lend_day &lt;= #{lso.applyLendDayTo,jdbcType=DATE}
+	      </if>
+	     <!--  出借到期日期 -->
+	      <if test="lso.applyExpireDayFrom != null ">
+	        	and app.apply_expire_day &gt;= #{lso.applyExpireDayFrom,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyExpireDayTo != null ">
+	        	and app.apply_expire_day &lt;= #{lso.applyExpireDayTo,jdbcType=DATE}
+	      </if>
+	      <!-- 计划划扣日期 -->
+	      <if test="lso.applyDeductDayFrom != null ">
+	        	and app.apply_deduct_day &gt;= #{lso.applyDeductDayFrom,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyDeductDayTo != null ">
+	        	and app.apply_deduct_day &lt;= #{lso.applyDeductDayTo,jdbcType=DATE}
+	      </if>
+	      <!-- 金额 -->
+	      <if test="lso.applyLendMoneyFrom != null and lso.applyLendMoneyFrom &gt;= 0">
+	        	and app.apply_lend_money &gt;= #{lso.applyLendMoneyFrom, jdbcType=NUMERIC}
+	      </if>
+	      <if test="lso.applyLendMoneyTo != null and lso.applyLendMoneyTo &gt;= 0">
+	        	and app.apply_lend_money &lt;= #{lso.applyLendMoneyTo, jdbcType=NUMERIC}
+	      </if>
+		<!-- 回款日期 -->
+	 	<if test="lso.backMoneyDayBegin != null ">
+	 		and pool.back_money_day &gt;= #{lso.backMoneyDayBegin, jdbcType=DATE}
+	 	</if>
+	 	<if test="lso.backMoneyDayEnd != null ">
+	 		and pool.back_money_day &lt;=  #{lso.backMoneyDayEnd, jdbcType=DATE}
+	 	</if>
+	 	
+	 	<if test="lso.workingState != null and lso.workingState != ''">
+			AND pool.working_state IN
+			<foreach collection="workingState" item="ab" index="index" open="(" separator=","  close=")">
+	        	  #{ab}
+	        </foreach>	 	
+	 	</if>
+	 	
+	 	<if test="lso.priorityBack != null and lso.priorityBack != ''">
+        	AND  pool.priority_back = #{lso.priorityBack, jdbcType=VARCHAR}
+	    </if>
+	      <if test="lso.status != null and lso.status != ''">
+	      		and app.status = #{status, jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.dictApplyEndState != null and lso.dictApplyEndState != ''">
+		        	and app.dict_apply_end_state  = #{dictApplyEndState,jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.applyBillday != null and lso.applyBillday != ''">
+	      		and app.apply_billday in
+		      	<foreach collection="applyBillday" item="ab" index="index" open="(" separator=","  close=")">
+		        	 #{ab,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+		      
+	      <if test="lso.applyPay != null and lso.applyPay != ''">
+	      		and app.apply_pay in 
+		      	<foreach collection="applyPay" item="ap" index="index" open="(" separator=","  close=")">
+		        	#{ap,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+	      <if test="lso.productCode != null and lso.productCode != ''">
+	      		and app.product_code in 
+		      	<foreach collection="productCode" item="pi" index="index" open="(" separator=","  close=")">
+		        	#{pi,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+	       <if test="lso.dictApplyDeductType !=null and lso.dictApplyDeductType!= '' ">
+			 	AND app.dict_apply_deduct_type in 
+			 		<foreach collection="dictApplyDeductType" index="index" item="item" open="(" separator="," close=")">  
+		           		#{item}   
+		   			</foreach> 
+		 	</if>
+		 	<if test="lso.accountBank !=null and lso.accountBank!= '' ">
+			 		AND app.repay_id in 
+				 	<foreach collection="accountBank" index="index" item="item" open="(" separator="," close=")">  
+			           #{item}   
+			   		</foreach> 
+		 	</if>
+		 	<if test="lso.dictFortunechannelflag !=null and lso.dictFortunechannelflag != '' "> 
+				AND pool.dict_fortunechannelflag in 
+			<foreach collection="dictFortunechannelflag" index="index" item="item" open="(" separator="," close=")"> 
+			#{item} 
+			</foreach> 
+			</if>
+		 	<if test="sqlMap != null and sqlMap != ''">
+    			${sqlMap.dataRights}
+    		</if>
+		</where>  
+  	</select>
+  	
+  	<!--查询数量  -->
+  	<select id="getTotalCntOfExportLendExcelList"  parameterType="java.util.Map" resultType="Integer">
+  		select count(1)
+		from tz.t_tz_loan_apply app
+		     left join tz.t_tz_customer cust on app.customer_code = cust.customer_code
+		     left join tz.t_tz_loan_info inf on inf.customer_code = app.customer_code
+		     left join (select * from tz.t_tz_customer_account where is_del = '0') accnt on accnt.id = app.repay_id
+		     left join (select * from tz.t_tz_customer_account where is_del = '0') accntBk on accntBk.id = app.receiving_id
+		     left join tz.t_gl_org cityOrg on app.city_org_id = cityorg.id
+		     left join tz.t_gl_tz_product pro on pro.product_code = app.product_code
+		     left join tz.t_gl_user usr on usr.id = app.manager_code
+		     left join T_TZ_BACK_MONEY_POOL pool on pool.lend_code = app.lend_code
+<!-- 		     left join  -->
+<!-- (select t1.*  -->
+<!-- from tz.t_tz_apply_log t1  -->
+<!-- where exists (select max(modify_time) as max_modify_time from tz.t_tz_apply_log	group by lend_code)) l on a.lend_code=l.lend_code -->
+		<where>  
+ 			<if test="lso.tuoguanStatus != null and lso.tuoguanStatus != ''">
+	        	cust.apply_hosted_status = #{tuoguanStatus,jdbcType=VARCHAR}
+    		</if>
+	    	<if test="lso.lendStatus != null and lso.lendStatus != ''">
+	        	and app.lend_status = #{lendStatus,jdbcType=VARCHAR}
+	      </if>
+		  <if test="lso.customerCode != null  and lso.customerCode != ''">
+				and	cust.customer_code like '%${lso.customerCode}%'
+	      </if>
+	      <if test="lso.customerName != null and lso.customerName != ''">
+	            and	cust.customer_name like '%${lso.customerName}%'
+	      </if>
+	      <if test="lso.managerCode != null and lso.managerCode != ''">
+	        	and usr.user_code = #{lso.managerCode, jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.lendCode != null and lso.lendCode != ''">
+	        	and app.lend_code = #{lso.lendCode, jdbcType=VARCHAR}
+	      </if>
+	      <!-- ===== -->
+	      <if test="lso.orgCode != null and lso.orgCode != ''">
+	      		and app.store_org_id in
+	      		<foreach collection="orgCode" item="co" index="index" open="(" separator="," close=")">
+	        		 #{co, jdbcType=VARCHAR}
+	      		</foreach>
+	      </if>
+	      <if test="lso.customerTel != null and lso.customerTel != ''">
+	        	and cust.customer_mobilephone = #{lso.customerTel, jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.cityId != null and lso.cityId != ''">
+	           and q.id in
+	      	<foreach collection="cityId" item="ci" index="index" open="(" separator="," close=")">
+	        	 #{ci, jdbcType=VARCHAR}
+	      	</foreach>
+	      </if>
+	      
+	      <!--=============-->
+	      <if test="lso.applyLendDayFrom != null and lso.applyLendDayFrom != '' and lso.applyLendDayTo != null and lso.applyLendDayTo != ''">
+	        	and app.apply_lend_day &gt;= #{lso.applyLendDayFrom,jdbcType=DATE}
+	        	and app.apply_lend_day &lt;= #{lso.applyLendDayTo,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyExpireDayFrom != null and lso.applyExpireDayFrom != '' and lso.applyExpireDayTo != null and lso.applyExpireDayTo != ''">
+	        	and app.apply_expire_day &gt;= #{lso.applyExpireDayFrom,jdbcType=DATE}
+	        	and app.apply_expire_day &lt;= #{lso.applyExpireDayTo,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyDeductDayFrom != null and lso.applyDeductDayFrom != '' and lso.applyDeductDayTo != null and lso.applyDeductDayTo != ''">
+	        	and app.apply_deduct_day &gt;= #{lso.applyDeductDayFrom,jdbcType=DATE}
+	        	and app.apply_deduct_day &lt;= #{lso.applyDeductDayTo,jdbcType=DATE}
+	      </if>
+	      <if test="lso.applyLendMoneyFrom != null and lso.applyLendMoneyFrom != '' and lso.applyLendMoneyTo != null and lso.applyLendMoneyTo != ''">
+	        	and app.apply_lend_money &gt;= #{lso.applyLendMoneyFrom,jdbcType=NUMERIC}
+	        	and app.apply_lend_money &lt;= #{lso.applyLendMoneyTo,jdbcType=NUMERIC}
+	      </if>
+	      <!-- ======= -->
+	      <if test="lso.status != null and lso.status != ''">
+	      		and app.status in
+		      	<foreach collection="status" item="st" index="index" open="(" separator=","  close=")">
+		        	 #{st,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+	      <if test="lso.dictApplyEndState != null and lso.dictApplyEndState != ''">
+		        	and app.dict_apply_end_state  = #{da,jdbcType=VARCHAR}
+	      </if>
+	      <if test="lso.lendStatus != null and lso.lendStatus != ''">
+	      		and app.lend_status in
+		      	<foreach collection="lendStatus" item="ls" index="index" open="(" separator=","  close=")">
+		        	 #{ls,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+	      <if test="lso.applyBillday != null and lso.applyBillday != ''">
+	      		and app.apply_billday in
+		      	<foreach collection="applyBillday" item="ab" index="index" open="(" separator=","  close=")">
+		        	 #{ab,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+		      
+	      <if test="lso.applyPay != null and lso.applyPay != ''">
+	      		and app.apply_pay in 
+		      	<foreach collection="applyPay" item="ap" index="index" open="(" separator=","  close=")">
+		        	#{ap,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+	      <if test="lso.productCode != null and lso.productCode != ''">
+	      		and app.product_code in 
+		      	<foreach collection="productCode" item="pi" index="index" open="(" separator=","  close=")">
+		        	#{pi,jdbcType=VARCHAR}
+		        </foreach>
+	      </if>
+	       <if test="dictApplyDeductType !=null and dictApplyDeductType!= '' ">
+			 	AND app.dict_apply_deduct_type in 
+			 		<foreach collection="dictApplyDeductType" index="index" item="item" open="(" separator="," close=")">  
+		           		#{item}   
+		   			</foreach> 
+		 	</if>
+		 	<if test="accountBank !=null and accountBank!= '' ">
+			 		AND app.repay_id in 
+				 	<foreach collection="accountBank" index="index" item="item" open="(" separator="," close=")">  
+			           #{item}   
+			   		</foreach> 
+		 	</if>
+		 	<if test="sqlMap != null and sqlMap != ''">
+    			${sqlMap.dataRights}
+    		</if>
+		</where>  
+  	</select>
+  	
+  	<!-- 获取统计信息 -->
+  	<select id="getApplyStatistics" resultType="java.util.Map" parameterType="java.util.Map">
+  	select t.*, cast(waitApprove as int)+cast(passApprove as int)+cast(failApprove as int)+cast(failDocument as int) totalApprove
+  	from (
+  		select 
+  			 nvl(sum(
+  			 		 case  
+  			 			when  app.lend_status in 
+  			 				<foreach collection="DCJSP" index="index" item="t1" open="(" separator="," close=")">  
+			          			#{t1}   
+			   				</foreach>  then 1 
+  			 			else 0
+  			 		 end
+  			 		), 0) as waitApprove, 
+		     nvl(sum(
+		     		 case  
+		     		 	when  app.lend_status in 
+		     		 		<foreach collection="SPTG" index="index" item="t2" open="(" separator="," close=")">  
+			          			#{t2}   
+			   				</foreach> then 1 
+		     		 	else 0 
+		     		 end
+		     		), 0) as passApprove, 
+		     nvl(sum(
+		     		 case  
+		     		 	when  app.lend_status in 
+		     		 		<foreach collection="SPBTG" index="index" item="t3" open="(" separator="," close=")">  
+			          			#{t3}   
+			   				</foreach> then 1 
+		     		 	else 0 
+		     		 end
+		     		), 0) as failApprove,
+		     nvl(sum(
+		     		 case  
+		     			when  app.lend_status = #{WJHCSB} then 1 
+		     			else 0 
+		     		 end
+		     		), 0) as failDocument
+		from tz.t_tz_loan_apply app
+		where app.apply_deduct_day = to_date(#{dateTime}, 'yyyy-mm-dd')
+		 and 
+		 (
+		 	 app.lend_status in 
+			 <foreach collection="DCJSP" index="index" item="t4" open="(" separator="," close=")">  
+	     			#{t4}   
+			 </foreach>
+			 or app.lend_status in 
+			 <foreach collection="SPTG" index="index" item="t5" open="(" separator="," close=")">  
+	     			#{t5}   
+			 </foreach>
+			 or app.lend_status in 
+			 <foreach collection="SPBTG" index="index" item="t6" open="(" separator="," close=")">  
+	     			#{t6}   
+			 </foreach>
+			 or app.lend_status = #{WJHCSB}
+		 )
+		) t
+  	</select>
+  	
+  	
+  	<select id="searchLendState"  parameterType="java.lang.String" resultType="com.creditharmony.fortune.look.apply.view.LendApplyLookListView">
+  		SELECT 
+			pool.back_money_type AS backMoneyType,
+			pool.dict_back_status AS dictBackStatus,	
+			apply.lend_status AS lendStatus,
+			apply.dict_apply_end_state	AS dictApplyEndState,	
+			apply.apply_expire_day AS applyExpireDay,
+			apply.switch_approve_status  AS switchApproveStatus
+		FROM  tz.t_tz_back_money_pool  pool
+		LEFT JOIN tz.t_tz_loan_apply  apply	ON pool.lend_code=apply.lend_code
+		WHERE  apply.lend_code = #{code};
+  	</select>
+  	
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.redemption.common.dao.LoanWorkflowDao" >
+	
+	<insert id="insertWorkflow" parameterType="com.creditharmony.fortune.redemption.common.entity.LoanWorkflow">
+		INSERT INTO t_tz_loan_workflow(
+            apply_id, apply_type, customer_code, lend_code, manager_code, 
+            team_manager_code, city_manager_code, store_manager_code, store_code, 
+            branch_manager, fortune_manager, org_id, dict_status, create_by, 
+            create_time, modify_by, modify_time)
+	    VALUES (#{applyId}, #{applyType}, #{customerCode}, #{lendCode}, #{managerCode}, 
+	            #{teamManagerCode}, #{cityManagerCode}, #{storeManagerCode}, #{storeCode}, 
+	            #{branchManager}, #{fortuneManager}, #{orgId}, #{dictStatus}, #{createBy}, 
+	            #{createTime}, #{modifyBy}, #{modifyTime})
+	</insert>
+	<update id="update">
+		UPDATE
+			t_tz_loan_workflow
+		<set>
+			<if test="dictStatus != null and dictStatus !=''">
+				dict_status=#{dictStatus},
+			</if>
+			<if test="modifyBy != null and modifyBy !=''">
+				modify_by=#{modifyBy},
+			</if>
+			<if test="modifyTime != null and modifyTime !=''">
+				modify_time=#{modifyTime},
+			</if>
+		</set>
+		WHERE
+			apply_id=#{applyId}
+	</update>
+	
+
+</mapper>

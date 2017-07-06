@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.platform.dao.PlatformProvinceLimitDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.platform.entity.PlatformProvinceLimit" >
+  	<id column="id" property="id" jdbcType="VARCHAR" />
+    <result column="platform_limit" property="platformLimit" jdbcType="VARCHAR" />
+    <result column="province" property="province" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <!-- 查询单个实例 -->
+  <select id="findPlatformProvinceLimit" parameterType="com.creditharmony.fortune.platform.entity.PlatformProvinceLimit" resultType="com.creditharmony.fortune.platform.entity.PlatformProvinceLimit">
+  	select * from tz.t_tz_platform_province_limit
+  	where status=#{status} and province like '%${province}%'
+  </select>
+</mapper>

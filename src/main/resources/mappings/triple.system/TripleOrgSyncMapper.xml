@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.triple.system.dao.TripleOrgSyncDao">
+    <!-- 插入组织机构信息发送信息表 -->
+	<insert id="insertIntOrg" parameterType="com.creditharmony.fortune.triple.system.entity.IntOrgBean">
+	    insert into tz.int_org
+	    <trim prefix="(" suffix=")" suffixOverrides="," >
+	        <if test="id != null and id != ''">id,</if>
+	        <if test="parentId != null and parentId != ''">parentid,</if>
+	        <if test="orgId != null and orgId != ''">org_id,</if>
+	        <if test="orgName != null and orgName != ''">org_name,</if>
+	        <if test="status != null and status != ''">status,</if>
+	        <if test="provinceId != null and provinceId != ''">provinceid,</if>
+	        <if test="provinceName != null and provinceName != ''">province_name,</if>
+	        <if test="cityId != null and cityId != ''">cityid,</if>
+	        <if test="cityName != null and cityName != ''">city_name,</if>
+	        <if test="description != null and description != ''">description,</if>
+	        <if test="orgType != null and orgType != ''">org_type,</if>
+	        <if test="orgCode != null and orgCode != ''">org_code,</if>
+	        <if test="orgAddr != null and orgAddr != ''">org_addr,</if>
+	        <if test="contracts != null and contracts != ''">contracts,</if>
+	        <if test="contractNum != null and contractNum != ''">contract_num,</if>
+	        <if test="lastModifyTime != null and lastModifyTime != ''">last_modify_time,</if>
+	        <if test="sendType != null and sendType != ''">send_type,</if>
+	        <if test="sendStatus != null and sendStatus != ''">send_status,</if>
+	        <if test="sendTime != null and sendTime != ''">send_time,</if>
+	        <if test="operation != null and operation != ''">operation,</if>
+	        <if test="uniqueNum != null and uniqueNum != ''">unique_num,</if>
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides="," >
+	        <if test="id != null and id != ''"> #{id,jdbcType=VARCHAR},</if>
+	        <if test="parentId != null and parentId != ''"> #{parentId,jdbcType=VARCHAR},</if>
+	        <if test="orgId != null and orgId != ''"> #{orgId,jdbcType=VARCHAR},</if>
+	        <if test="orgName != null and orgName != ''"> #{orgName,jdbcType=VARCHAR},</if>
+	        <if test="status != null and status != ''"> #{status,jdbcType=VARCHAR},</if>
+	        <if test="provinceId != null and provinceId != ''"> #{provinceId,jdbcType=VARCHAR},</if>
+	        <if test="provinceName != null and provinceName != ''"> #{provinceName,jdbcType=VARCHAR},</if>
+	        <if test="cityId != null and cityId != ''"> #{cityId,jdbcType=VARCHAR},</if>
+	        <if test="cityName != null and cityName != ''"> #{cityName,jdbcType=VARCHAR},</if>
+	        <if test="description != null and description != ''"> #{description,jdbcType=VARCHAR},</if>
+	        <if test="orgType != null and orgType != ''"> #{orgType,jdbcType=VARCHAR},</if>
+	        <if test="orgCode != null and orgCode != ''"> #{orgCode,jdbcType=VARCHAR},</if>
+	        <if test="orgAddr != null and orgAddr != ''"> #{orgAddr,jdbcType=VARCHAR},</if>
+	        <if test="contracts != null and contracts != ''"> #{contracts,jdbcType=VARCHAR},</if>
+	        <if test="contractNum != null and contractNum != ''"> #{contractNum,jdbcType=VARCHAR},</if>
+	        <if test="lastModifyTime != null and lastModifyTime != ''"> #{lastModifyTime,jdbcType=TIMESTAMP},</if>
+	        <if test="sendType != null and sendType != ''"> #{sendType,jdbcType=VARCHAR},</if>
+	        <if test="sendStatus != null and sendStatus != ''"> #{sendStatus,jdbcType=VARCHAR},</if>
+	        <if test="sendTime != null and sendTime != ''"> #{sendTime,jdbcType=TIMESTAMP},</if>
+	        <if test="operation != null and operation != ''"> #{operation,jdbcType=VARCHAR},</if>
+	        <if test="uniqueNum != null and uniqueNum != ''">#{uniqueNum,jdbcType=VARCHAR},</if>
+	    </trim>
+	</insert>
+	<!-- 根据三网消息反馈结果修改发送状态 -->
+    <update id="updateSendStatus" parameterType="com.creditharmony.fortune.triple.system.entity.IntOrgBean">
+	    update tz.int_org
+	    <trim prefix="SET" suffixOverrides=",">
+	         <if test="sendStatus != null and sendStatus != ''">send_status = #{sendStatus,jdbcType=VARCHAR},</if>
+	    </trim>
+	    <where>
+			<if test="uniqueNum != null and uniqueNum != ''">
+			      unique_num = #{uniqueNum,jdbcType=VARCHAR}
+			</if>
+	    </where>
+    </update>
+</mapper>

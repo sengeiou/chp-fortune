@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.borrow.dao.CreditorHisDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.borrow.entity.CreditorHis" >
+    <result column="id" property="id" jdbcType="VARCHAR" />
+    <result column="dict_check_node" property="dictCheckNode" jdbcType="VARCHAR" />
+    <result column="node_id" property="nodeId" jdbcType="VARCHAR" />
+    <result column="matching_id" property="matchingId" jdbcType="VARCHAR" />
+    <result column="operator" property="operator" jdbcType="VARCHAR" />
+    <result column="operate_type" property="operateType" jdbcType="VARCHAR" />
+    <result column="befor_money" property="beforMoney" jdbcType="NUMERIC" />
+    <result column="operate_money" property="operateMoney" jdbcType="NUMERIC" />
+    <result column="after_money" property="afterMoney" jdbcType="NUMERIC" />
+    <result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+    <result column="mac" property="mac" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modify_time" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <insert id="insert" parameterType="com.creditharmony.fortune.borrow.entity.CreditorHis" >
+    insert into tz.t_tz_creditor_his (id, dict_check_node, node_id, 
+      matching_id,operator, operate_type, befor_money, 
+      operate_money, after_money, operate_time, 
+      mac, ip, create_by, 
+      create_time, modify_by, modify_time
+      )
+    values (#{id,jdbcType=VARCHAR}, #{dictCheckNode,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, 
+      #{matchingId,jdbcType=VARCHAR},#{operator,jdbcType=VARCHAR}, #{operateType,jdbcType=VARCHAR}, #{beforMoney,jdbcType=NUMERIC}, 
+      #{operateMoney,jdbcType=NUMERIC}, #{afterMoney,jdbcType=NUMERIC}, #{operateTime,jdbcType=TIMESTAMP}, 
+      #{mac,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <!--查询匹配记录  -->
+  <select id="findBorrowAllotLog" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	SELECT 
+  	   id, 
+       befor_money, 
+       operate_money, 
+       operate_time,  
+       operator
+    FROM tz.t_tz_creditor_his
+  	WHERE 
+  	dict_check_node =#{dictCheckNode}
+  	AND node_id=#{nodeId}
+  	AND operate_type = #{operateType}  
+  </select>
+  <!--查询拆分记录  -->
+  <select id="findBorrowMonthSplitLog" parameterType="com.creditharmony.fortune.borrow.entity.CreditorHis" resultType="com.creditharmony.fortune.borrow.entity.ex.BorrowMonthSplitHisEx">
+  	SELECT 
+  	  b.id AS id,
+	  a.loan_name AS borrowerName,    
+	  a.loan_month_rate AS borrowMonthRate,
+	  b.befor_money AS beforMoney,
+	  b.operate_money AS operateMoney,
+	  b.after_money AS afterMoney,
+	  b.operate_time AS operateTime,
+	  b.operator AS operator
+	FROM tz.t_tz_creditor_his b
+	       
+	inner join tz.t_tz_borrow_month a on a.credit_mon_id  = b.node_id
+	where
+	b.dict_check_node = #{dictCheckNode} 
+  	AND b.node_id= #{nodeId} 
+  	AND b.operate_type = #{operateType}
+  </select>
+</mapper>

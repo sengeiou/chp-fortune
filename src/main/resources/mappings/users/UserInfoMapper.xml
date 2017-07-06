@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.users.dao.UserInfoDao">
+	
+    <resultMap id="UserInfoMap" type="UserInfo">
+	  <id column="ID" property="id" jdbcType="VARCHAR" />
+	  <result column="COMPANY_ID" property="companyId" jdbcType="VARCHAR" />
+	  <result column="DEPARTMENT_ID" property="departmentId" jdbcType="VARCHAR" />
+	  <result column="LOGIN_NAME" property="loginName" jdbcType="VARCHAR" />
+	  <result column="PASSWORD" property="password" jdbcType="VARCHAR" />
+	  <result column="USER_CODE" property="userCode" jdbcType="VARCHAR" />
+	  <result column="NAME" property="name" jdbcType="VARCHAR" />
+	  <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+	  <result column="PHONE" property="phone" jdbcType="VARCHAR" />
+	  <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+	  <result column="USER_TYPE" property="userType" jdbcType="DECIMAL" />
+	  <result column="LOGIN_IP" property="loginIp" jdbcType="VARCHAR" />
+	  <result column="LOGIN_DATE" property="loginDate" jdbcType="TIMESTAMP" />
+	  <result column="REMARKS" property="remarks" jdbcType="VARCHAR" />
+	  <result column="STATUS" property="status" jdbcType="VARCHAR" />
+	  <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+	  <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+	  <result column="MODIFY_BY" property="modifyBy" jdbcType="VARCHAR" />
+	  <result column="MODIFY_TIME" property="modifyTime" jdbcType="TIMESTAMP" />
+	  <result column="DEL_FLAG" property="delFlag" jdbcType="VARCHAR" />
+	  <result column="ENTRY_TIME" property="entryTime" jdbcType="TIMESTAMP" />
+	  <result column="LEVEL" property="level" jdbcType="DECIMAL" />
+	  <result column="HAS_LOGIN" property="hasLogin" jdbcType="VARCHAR" />
+	  <result column="SEX" property="sex" jdbcType="VARCHAR" />
+	  <result column="POSPWD" property="posPwd" jdbcType="VARCHAR" />
+	  <result column="CALL_EMP_CODE" property="callEmpCode" jdbcType="VARCHAR" />
+	  <result column="LEADER_ID" property="leaderId" jdbcType="VARCHAR" />
+	  <result column="SYSTEM_FLAG" property="systemFlag" jdbcType="DECIMAL" />
+    </resultMap>
+    
+    <sql id="Base_Column_List" >
+      ID, COMPANY_ID, DEPARTMENT_ID, LOGIN_NAME, PASSWORD, USER_CODE, NAME, 
+      EMAIL, PHONE, MOBILE, USER_TYPE, LOGIN_IP, LOGIN_DATE, REMARKS, STATUS, CREATE_BY, CREATE_TIME, MODIFY_BY,
+      MODIFY_TIME, DEL_FLAG,ENTRY_TIME,LEVEL,HAS_LOGIN,SEX,POSPWD,CALL_EMP_CODE,LEADER_ID,SYSTEM_FLAG
+    </sql>
+	
+	<select id="get" resultMap="UserInfoMap" parameterType="java.lang.String">
+		SELECT
+			<include refid="Base_Column_List" />
+		FROM tz.t_gl_user 
+		WHERE  ID = #{id,jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 查询用户信息 -->
+	<select id="findList" resultMap="UserInfoMap" parameterType="map">
+		SELECT
+			<include refid="Base_Column_List"/>
+		FROM tz.t_gl_user a
+		WHERE 1=1
+		ORDER BY a.name
+	</select>
+	
+	<!-- 条件查询用户信息 -->
+	<select id="findByParams" resultMap="UserInfoMap" parameterType="map">
+		SELECT a.* 
+		FROM tz.t_gl_user a
+		WHERE 1=1
+		<if test="userId!=null and userId!=''">
+			AND a.user_id = #{userId}
+		</if>
+		<if test="syncStatus!=null">
+			AND a.sync_status = #{syncStatus}
+		</if>
+		<if test="syncModuleName!=null and syncModuleName!=''">
+			AND a.sync_module_name = #{syncModuleName}
+		</if>
+		<if test="batchNo!=null and batchNo!=''">
+			AND a.batch_no = #{batchNo}
+		</if>
+		ORDER BY a.batch_no
+	</select>
+	
+	<!-- 插入同步用户 -->
+	<insert id="insert">
+		INSERT INTO tz.t_gl_user(
+			ID, 
+			COMPANY_ID, 
+			DEPARTMENT_ID, 
+			LOGIN_NAME, 
+			PASSWORD, 
+			USER_CODE, 
+			NAME, 
+			EMAIL, 
+			PHONE, 
+			MOBILE, 
+			USER_TYPE, 
+			CREATE_BY, 
+			CREATE_TIME, 
+			modify_by, 
+			modify_time, 
+			REMARKS, 
+			STATUS, 
+			DEL_FLAG,
+			ENTRY_TIME,
+			LEVEL,
+			HAS_LOGIN,
+			SEX,
+			POSPWD,
+			CALL_EMP_CODE,
+			LEADER_ID,
+			SYSTEM_FLAG
+		) VALUES (
+			#{id}, 
+			#{companyId}, 
+			#{departmentId}, 
+			#{loginName}, 
+			#{password}, 
+			#{userCode}, 
+			#{name}, 
+			#{email}, 
+			#{phone}, 
+			#{mobile}, 
+			#{userType}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{modifyBy}, 
+			#{modifyTime}, 
+			#{remarks}, 
+			#{status}, 
+			#{delFlag},
+			#{entryTime},
+			#{level},
+			#{hasLogin},
+			#{sex},
+			#{posPwd},
+			#{callEmpCode},
+			#{leaderId},
+			#{systemFlag}
+		)
+	</insert>
+	
+	<!-- 插入用户和组织机构关联表数据 -->
+	<insert id="insertUserOrg">
+		INSERT INTO tz.t_gl_user_org(user_id, org_id)
+		<foreach collection="orgList" item="org" separator=" union all ">
+			SELECT #{id}, #{org.id}
+		</foreach>
+	</insert>
+	
+	<!-- 删除用户和机构组的关联表数据 -->
+	<delete id="deleteUserOrg">
+		DELETE FROM tz.t_gl_user_org WHERE user_id = #{userId}
+	</delete>
+	
+	<!-- 插入用户和角色关联表数据 -->
+	<insert id="insertUserRole">
+		INSERT INTO tz.t_gl_user_role(user_id, role_id)
+		<foreach collection="roleList" item="role" separator=" union all ">
+			SELECT #{id}, #{role.id}
+		</foreach>
+	</insert>
+	
+	<!-- 插入用户角色组织关系 -->
+	<insert id="insertUserRoleOrg">
+		INSERT INTO tz.t_gl_user_role_org (user_id,  org_id,  role_id,create_by,create_time,modify_by,modify_time)
+		VALUES (#{userId},#{orgId},#{roleId},#{createBy},#{createTime},#{modifyBy},#{modifyTime})
+	</insert>
+	
+	<!-- 删除用户和角色的关联表数据 -->
+	<delete id="deleteUserRole">
+		DELETE FROM tz.t_gl_user_role WHERE user_id = #{userId}
+	</delete>
+	
+	<!-- 删除用户角色组织的关系 -->
+	<delete id="deleteUserRoleOrg">
+		DELETE FROM tz.t_gl_user_role_org WHERE user_id = #{userId}
+	</delete>
+	
+	
+	<!-- 更新用户 -->
+	<update id="update">
+		UPDATE tz.t_gl_user 
+		SET company_id = #{companyId}, 
+			department_id = #{departmentId}, 
+			login_name = #{loginName}, 
+			password = #{password}, 
+			user_code = #{userCode}, 
+			name = #{name}, 
+			email = #{email}, 
+			phone = #{phone}, 
+			mobile = #{mobile}, 
+			user_type = #{userType}, 
+			modify_by = #{modifyBy}, 
+			modify_time = #{modifyTime}, 
+			remarks = #{remarks},
+			status = #{status},
+			sex = #{sex},
+			level = #{level},
+			has_login = #{hasLogin},
+			entry_time = #{entryTime},
+			pospwd = #{posPwd},
+			<if test="posPwd != null and posPwd != ''">
+			  pospwd = #{posPwd},
+		    </if>
+			del_flag = #{delFlag},
+			call_emp_code = #{callEmpCode},
+			leader_id = #{leaderId},
+			system_flag = #{systemFlag}
+		WHERE id = #{id}
+	</update>
+	
+	<!-- 删除同步用户 -->
+	<update id="delete">
+		UPDATE tz.t_gl_user SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!-- 根据用户编码查询同一个用户编码下用户 在职状态 只要有一个在职就是在职 -->
+	<select id="getStatusByCode" resultMap="UserInfoMap" >
+		select max(status) status from tz.t_gl_user u where u.user_code=#{userCode}
+	</select>
+	
+
+	
+	<select id="getAuditor" resultType="java.util.Map" parameterType="java.util.Map">
+		select gu.id,gu.name
+		from tz.t_gl_user gu 
+		left join tz.t_gl_user_role_org uro on uro.user_id = gu.id 
+		left join tz.t_gl_role gr on uro.role_id = gr.id 
+		where gu.del_flag = '0'
+		and gr.enname in
+		('HMCJ_CONTRACT_AUDIT_MASTER',--合同审核主管
+		'HMCJ_CONTRACT_AUDIT_DEPUTY_LEADER',--合同审核业务副组长
+		'HMCJ_LENDER_CONTRACT_APPROVER'--合同审核专员
+		--HMCJ_CONTRACT_AUDIT_LEADER --合同审核业务组长
+		)
+		group by gu.id,gu.name
+	</select>
+
+</mapper>

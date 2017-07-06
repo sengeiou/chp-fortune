@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.creditor.matching.dao.CreditorSendDao">
+<select id="findList" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx" parameterType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx">
+     select 
+         mc.matching_id as matchingId,
+ 	     mc.lend_code as "lendCode",
+         cust.customer_name as "customerName",
+         la.matching_flag as "matchingFlag",
+	     la.customer_code as "customerCode",
+         pc.area_name as "addrCity",
+	     o.name as "org",
+	     o.id,
+	     o.city_id as cityId,
+         mc.matching_interest_start as "applyLendDay",
+	     la.apply_lend_day as "startApplyLendDay",
+	     la.apply_lend_money as "startApplyLendMoney",
+         p.product_name as "productName",
+         la.apply_pay as "applyPay",
+         la.dict_apply_end_state as "applyEndStatus",
+         mc.matching_pay_status as "matchingPayStatus",
+         mc.matching_status as "matchingStatus",
+         cast(mc.matching_match_money as decimal(15,2)) as "matchingMatchMoney",
+         mc.dict_matching_filesend_status as "matchingFilesendStatus",
+         mc.dict_matching_file_status as "matchingFileStatus",
+         li.loan_bill_recv as "loanBillRecv",
+         cust.customer_email as "customerEmail",
+         mc.matching_bill_day as "matchingBillDay",
+         la.apply_deduct_day  as "applyDeductDay",
+         mc.matching_firstday_flag as "matchingFirstdayFlag"
+     from (select * from tz.t_tz_matching_creditor where matching_status = #{matchingStatus})  mc
+     left join tz.t_tz_loan_apply la on mc.lend_code = la.lend_code
+     left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+     left join tz.t_tz_addr ad on cust.add_id = ad.id
+     left join tz.t_gl_province_city pc on pc.id = ad.addr_city 
+     left join tz.t_gl_org o on la.store_org_id = o.id
+     left join tz.t_gl_tz_product p on mc.product_code = p.product_code
+     left join tz.t_tz_loan_info li on cust.customer_code = li.customer_code
+	 <where>
+	    <if test="listMatchingId != null and listMatchingId != ''">
+	         and mc.matching_id in
+	     <foreach collection="listMatchingId" item="item"  open="(" separator="," close=")">  
+             '${item}'   
+         </foreach>
+	    </if>
+	     <if test="customerName != null and customerName != ''">
+	         and cust.customer_name like '%' || #{customerName} || '%' 
+	     </if>
+	     <if test="matchingBillDay != null and matchingBillDay != ''">
+	         and mc.matching_bill_day = #{matchingBillDay}
+	     </if>
+	     <if test="lendCode != null and lendCode != ''">
+	         and mc.lend_code = #{lendCode}
+	     </if>
+	     <if test="applyEndStatus != null and applyEndStatus != ''">
+	         and la.dict_apply_end_state = #{applyEndStatus}
+	     </if>
+	     <if test="matchingFileStatus != null and matchingFileStatus != ''">
+	         and mc.dict_matching_file_status = #{matchingFileStatus}
+	     </if>
+	     <if test="applyPay != null and applyPay != ''">
+	         and la.apply_pay = #{applyPay}
+	     </if>
+<!-- 	     <if test="applyLendDay != null and applyLendDay != ''"> -->
+<!-- 	         and mc.matching_interest_start = #{applyLendDay} -->
+<!-- 	     </if> -->
+	     <if test="applyLendDay != null and applyLendDay != ''">
+	         and la.apply_lend_day = #{applyLendDay}
+	     </if>
+	     <if test="applyDeductDay != null and applyDeductDay != ''">
+	         and la.apply_deduct_day = #{applyDeductDay}
+	     </if>
+         <if test="city !=null and city != ''">
+			AND o.province_id||'_'||o.city_id SIMILAR TO #{city}
+			</if>
+	     <if test="matchingPayStatus != null and matchingPayStatus != ''">
+	         and mc.matching_pay_status = #{matchingPayStatus}
+	     </if>
+	     <if test="loanBillRecv != null and loanBillRecv != ''">
+	         and li.loan_bill_recv = #{loanBillRecv}
+	     </if>
+	     <if test="matchingFirstdayFlag != null and matchingFirstdayFlag != ''">
+	         and mc.matching_firstday_flag = #{matchingFirstdayFlag}
+	     </if>
+	     <if test="productCode != null and productCode != ''">
+	         and mc.product_code in 
+	         <foreach collection="productCode" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+             </foreach>
+	     </if>
+	     <if test="orgCode != null and orgCode != ''">
+	         and o.id in
+	         <foreach collection="orgCode" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+             </foreach>
+	     </if>
+	     <if test="customerEmail != null and customerEmail != ''">
+	         and cust.customer_email = #{customerEmail}
+	     </if>
+	     <if test="matchingFileSendStatus != null and matchingFileSendStatus != ''">
+	         and mc.dict_matching_filesend_status = #{matchingFileSendStatus}
+	     </if>
+	     <!-- 匹配标识 -->
+		 	<if test="dictMatchingFlagTypes !=null and dictMatchingFlagTypes.size()>0 ">
+		 	AND la.matching_flag in
+		 	 <foreach collection="dictMatchingFlagTypes" index="index" item="item" open="(" separator="," close=")">  
+	           #{item}   
+	   	</foreach> 
+		 	</if>
+	     <if  test="matchingInterestStartStart != null and matchingInterestStartStart !=''">
+	      and mc.matching_interest_start <![CDATA[>=]]> to_date(#{matchingInterestStartStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if  test="matchingInterestStartEnd != null and matchingInterestStartEnd !=''">
+	      and mc.matching_interest_start <![CDATA[<=]]> to_date(#{matchingInterestStartEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	 </where>  
+	 order by  mc.matching_interest_start desc
+</select>
+<select id="countMoney" resultType="com.creditharmony.fortune.creditor.matching.entity.ext.CreditorTradeEx">
+    select 
+         cast(sum(mc.matching_match_money) as decimal(15,2)) as "totalMoney"
+    from (select * from t_tz_matching_creditor where matching_status = #{matchingStatus}) mc
+    left join tz.t_tz_loan_apply la on mc.lend_code = la.lend_code
+    left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+    left join tz.t_tz_addr ad on cust.add_id = ad.id
+    left join tz.t_gl_org o on la.store_org_id = o.id
+    left join tz.t_gl_tz_product p on mc.product_code = p.product_code
+    left join tz.t_tz_loan_info li on cust.customer_code = li.customer_code
+    <where>
+	     <if test="customerName != null and customerName != ''">
+	         and cust.customer_name like '%'|| #{customerName} ||'%' 
+	     </if>
+	     <if test="matchingBillDay != null and matchingBillDay != ''">
+	         and mc.matching_bill_day = #{matchingBillDay}
+	     </if>
+	     <if test="lendCode != null and lendCode != ''">
+	         and mc.lend_code  = #{lendCode}
+	     </if>
+	     <if test="applyEndStatus != null and applyEndStatus != ''">
+	         and la.dict_apply_end_state = #{applyEndStatus}
+	     </if>
+	     <if test="matchingFileStatus != null and matchingFileStatus != ''">
+	         and mc.dict_matching_file_status = #{matchingFileStatus}
+	     </if>
+	     <if test="applyPay != null and applyPay != ''">
+	         and la.apply_pay = #{applyPay}
+	     </if>
+	     <if test="applyLendDay != null and applyLendDay != ''">
+	         and mc.matching_interest_start = #{applyLendDay}
+	     </if>	     
+<!-- 	     <if test="applyLendDay != null and applyLendDay != ''"> -->
+<!-- 	     ;    and la.apply_lend_day = #{applyLendDay} -->
+<!-- 	     </if> -->
+	     <if test="applyDeductDay != null and applyDeductDay != ''">
+	         and la.apply_lend_day = #{applyDeductDay}
+	     </if>
+          <if test="city !=null and city != ''">
+			AND o.province_id||'_'||o.city_id SIMILAR TO #{city}
+			</if>
+	     <if test="matchingPayStatus != null and matchingPayStatus != ''">
+	         and mc.matching_pay_status = #{matchingPayStatus}
+	     </if>
+	     <if test="loanBillRecv != null and loanBillRecv != ''">
+	         and li.loan_bill_recv = #{loanBillRecv}
+	     </if>
+	     <if test="matchingFirstdayFlag != null and matchingFirstdayFlag != ''">
+	         and mc.matching_firstday_flag = #{matchingFirstdayFlag}
+	     </if>
+	     <if test="productCode != null and productCode != ''">
+	         and mc.product_code in 
+	         <foreach collection="productCode" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+             </foreach>
+	     </if>
+	     <if test="orgCode != null and orgCode != ''">
+	         and o.id in
+	         <foreach collection="orgCode" item="item"  open="(" separator="," close=")">  
+                 '${item}'   
+             </foreach>
+	     </if>
+	     <if test="customerEmail != null and customerEmail != ''">
+	         and cust.customer_email = #{customerEmail}
+	     </if>
+	     <if test="matchingFileSendStatus != null and matchingFileSendStatus != ''">
+	         and mc.dict_matching_filesend_status = #{matchingFileSendStatus}
+	     </if>
+	     <if  test="matchingInterestStartStart != null and matchingInterestStartStart !=''">
+	      and mc.matching_interest_start <![CDATA[>=]]> to_date(#{matchingInterestStartStart,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+	     <if  test="matchingInterestStartEnd != null and matchingInterestStartEnd !=''">
+	      and mc.matching_interest_start <![CDATA[<=]]> to_date(#{matchingInterestStartEnd,jdbcType=VARCHAR},'yyyy-MM-dd') 
+	     </if>
+    </where>
+</select>
+<select id="getCollectionMethod" parameterType="java.lang.String" resultType="java.util.Map">
+	select loan_bill_recv from tz.t_tz_loan_apply la,tz.t_tz_loan_info li
+	where la.customer_code=li.customer_code and la.lend_code=#{lendCode}
+</select>
+<select  id="getAttachmentExInfo"  parameterType="java.util.Map" resultType="com.creditharmony.fortune.deduct.entity.ext.AttachmentEx">
+    select 
+		a.atta_id as "attaId",
+		a.atta_file_owner as attaFileOwner,
+		a.atta_table_id as "attaTableId",
+		mc.lend_code as "loanCode",
+		a.atta_filename as "attaFilename",
+		a.atta_newfilename as "attaNewfilename",
+		a.atta_filepath as "attaFilepath",
+		a.dict_atta_flag as "attaFlag",
+		cust.customer_code as "custCode",
+		cust.customer_name as "custName",
+		cust.customer_email as "custEmail",
+		et.template_name as "templateName",
+		mc.matching_firstday_flag as "templateType",
+		et.template_content as "templateContent",
+		et.id as "id"
+	from tz.t_tz_matching_creditor mc
+	left join tz.t_tz_loan_apply la on mc.lend_code = la.lend_code
+	left join tz.t_tz_customer cust on la.customer_code = cust.customer_code
+	left join tz.t_tz_attachment a on mc.matching_id = a.atta_table_id
+	left join tz.t_gl_email_template et on et.id=#{emailId}
+	where 
+	    mc.matching_id = #{matchingId}
+	    <if test="attafiletype != null and attafiletype != ''">
+	     and a.atta_file_type = #{attafiletype}
+	    </if>
+</select>
+  <select id="findCreditorTradeInfo" resultType="com.creditharmony.fortune.borrow.entity.CreditorTrade" parameterType="com.creditharmony.fortune.borrow.entity.CreditorTrade">
+        select 
+            trade_id as "tradeId",
+            credit_node  as "creditNode",
+            credit_code as "creditCode",
+            trade_mate_money as "tradeMateMoney"
+        from tz.t_tz_creditor_trade
+        <where>
+            <if test="matchingId != null and matchingId != '' ">
+                and matching_id = #{matchingId}
+            </if>
+            <if test="dictTradeCreditStatus != null and dictTradeCreditStatus != '' ">
+            	and dict_trade_credit_status !=#{dictTradeCreditStatus}
+            </if>
+        </where>
+    </select>
+   <update id="updateTradeCreditStatus" parameterType="com.creditharmony.fortune.borrow.entity.CreditorTrade">
+       update tz.t_tz_creditor_trade
+       <trim prefix="SET" suffixOverrides=",">
+           <if test="dictTradeCreditStatus != null and dictTradeCreditStatus != ''">
+               dict_trade_credit_status = #{dictTradeCreditStatus,jdbcType=VARCHAR},
+           </if>
+           <if test="modifyBy != null and modifyBy != ''">
+               modify_by = #{modifyBy,jdbcType=VARCHAR},
+           </if>
+           <if test="modifyTime != null and modifyTime != ''">
+               modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+           </if>
+       </trim> 
+       <where>
+           <if test="matchingId != null and matchingId != ''">
+              and matching_id = #{matchingId}
+           </if>
+       </where>
+   </update>
+   <update id="updatePhaseDiscardStatus" parameterType="com.creditharmony.fortune.borrow.entity.Loanphase">
+       update tz.t_tz_loanphase
+       <trim prefix="SET" suffixOverrides=",">
+           <if test="phaseDiscardStatus != null and phaseDiscardStatus != ''">
+               phase_discard_status = #{phaseDiscardStatus,jdbcType=VARCHAR},
+           </if>
+           <if test="modifyBy != null and modifyBy != ''">
+               modify_by = #{modifyBy,jdbcType=VARCHAR},
+           </if>
+           <if test="modifyTime != null and modifyTime != ''">
+               modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+           </if>
+       </trim> 
+       <where>
+           <if test="matchingId != null and matchingId != ''">
+               and matching_id = #{matchingId}
+           </if>
+       </where>
+   </update>
+   <update id="updateMatchingCreditor" parameterType="com.creditharmony.fortune.creditor.matching.entity.MatchingCreditor">
+       update tz.t_tz_matching_creditor
+       <trim prefix="SET" suffixOverrides=",">
+           <if test="matchingMatchMoney != null and matchingMatchMoney != ''">
+               matching_match_money = #{matchingMatchMoney},
+           </if>
+           <if test="matchingStatus != null and matchingStatus != ''">
+               matching_status = #{matchingStatus},
+           </if>
+           <if test="modifyBy != null and modifyBy != ''">
+               modify_by = #{modifyBy,jdbcType=VARCHAR},
+           </if>
+           <if test="modifyTime != null and modifyTime != ''">
+               modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+           </if>
+       </trim>
+       <where>
+           <if test="matchingId != null and matchingId != ''">
+               and matching_id = #{matchingId}
+           </if>
+       </where>
+   </update>
+   <update id="updateBorrow" parameterType="com.creditharmony.fortune.borrow.entity.Borrow">
+       update t_tz_borrow
+       <trim prefix="SET" suffixOverrides=",">
+           <if test="loanCreditValue != null and loanCreditValue != ''">
+               loan_credit_value = #{loanCreditValue},
+           </if>
+           <if test="modifyBy != null and modifyBy != ''">
+               modify_by = #{modifyBy},
+           </if>
+           <if test="modifyTime != null and modifyTime != ''">
+               modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+           </if>
+       </trim>
+       <where>
+           <if test="creditValueId != null and creditValueId != ''">
+               and credit_value_id = #{creditValueId}
+           </if>
+       </where>
+   </update>
+   <update id="updateBorrowMonthable" parameterType="com.creditharmony.fortune.borrow.entity.BorrowMonthable"> 
+       update t_tz_borrow_monthable
+       <trim prefix="SET" suffixOverrides=",">
+           <if test="loanAvailabeValue != null and loanAvailabeValue != ''">
+               loan_availabe_value = #{loanAvailabeValue},
+           </if>
+           <if test="modifyBy != null and modifyBy != ''">
+               modify_by = #{modifyBy,jdbcType=VARCHAR},
+           </if>
+           <if test="modifyTime != null and modifyTime != ''">
+               modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+           </if>
+       </trim>
+       <where>
+           <if test="creditMonableId != null and creditMonableId != ''">
+               and credit_monable_id = #{creditMonableId}
+           </if>
+       </where>
+   </update>
+   <select id="findCreditValue" resultType="com.creditharmony.fortune.borrow.entity.Borrow">
+       select 
+           loan_credit_value as "loanCreditValue"
+       from t_tz_borrow
+       where 
+          credit_value_id = #{creditValueId}  for update
+   </select>
+   <select id="findAvailabevValue" resultType="com.creditharmony.fortune.borrow.entity.BorrowMonthable">
+       select 
+           loan_availabe_value as "loanAvailabeValue"
+       from t_tz_borrow_monthable
+       where 
+           credit_monable_id = #{creditMonableId} for update
+   </select>
+   <!-- 获取附件文件列表 -->
+	<select id="getAttachment" parameterType="java.util.Map" resultType="com.creditharmony.fortune.common.entity.Attachment">
+	    SELECT 
+	        atta_id, 
+	        atta_file_owner, 
+	        atta_table_id, 
+	        loan_code,
+	        atta_filename, 
+		    atta_newfilename, 
+		    atta_filepath, 
+		    dict_atta_flag, 
+		    atta_file_type,
+		    create_by, 
+		    create_time, 
+		    modify_by, 
+		    modify_time
+  		FROM t_tz_attachment
+	    <where>
+		    <if test="attaTableIds != nul and attaTableIds != ''">
+		        and atta_table_id in
+		        <foreach collection="attaTableIds" item="item" open="(" separator="," close=")">
+		        '${item}'
+		        </foreach>
+		    </if>
+		    <if test="matchingId != null and matchingId != ''">
+		        and atta_table_id = #{matchingId}
+		    </if>
+		    <!-- 文件种类 -->
+		    <if test="attaFlag != null and attaFlag != ''">
+		    	and dict_atta_flag = #{attaFlag,jdbcType=VARCHAR}
+		    </if>
+		    <!-- 模板类型 -->
+		    <if test="attaFileType != null and attaFileType != ''">
+		        and atta_file_type = #{attaFileType,jdbcType=VARCHAR}
+		    </if>
+		     <if test="isDiscard != null and isDiscard != ''">
+		        and is_discard = #{isDiscard}
+		    </if>
+		      <if test="attaTableId != nul and attaTableId != ''">
+		        and atta_table_id = #{attaTableId}
+		       
+		    </if>
+	    </where>
+	  </select>
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.deduct.dao.DeductResultDao" >
+  <sql id="Base_Column_List" >
+    id, request_id, lend_code, theday_id, deduct_succeed_money, deduct_fail_money, deduct_time, 
+    confirm_opinion, deduct_result_code, deduct_sys_id_type, plateform_id, undeduct_money, 
+    times, fail_flag, remark, remark1, remark2, remark3, create_by, create_time, modify_by, 
+    modify_time
+  </sql>
+  <select id="findList" resultType="com.creditharmony.fortune.deduct.entity.DeductResult" 
+  	parameterType="com.creditharmony.fortune.deduct.entity.DeductResult" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_fortune_deduct_result
+    <where> 
+      <if test="id !=null and id !='' ">
+      	and id = #{id,jdbcType=VARCHAR}
+      </if>
+      <if test="requestId != null and requestId != ''">
+      	and request_id = #{requestId,jdbcType=VARCHAR}
+      </if>
+      <if test="failFlag != null and failFlag !='' ">
+      	and fail_flag = #{failFlag,jdbcType=VARCHAR}
+      	and coalesce(times,0) <![CDATA[ < ]]> 3
+      </if>
+     </where>
+  </select>
+  <select id="get" resultType="com.creditharmony.fortune.deduct.entity.DeductResult" 
+  	parameterType="com.creditharmony.fortune.deduct.entity.DeductResult" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_tz_fortune_deduct_result
+    <where> 
+      <if test="id !=null and id !='' ">
+      	and id = #{id,jdbcType=VARCHAR}
+      </if>
+      <if test="requestId != null and requestId != ''">
+      	and request_id = #{requestId,jdbcType=VARCHAR}
+      </if>
+      <if test="failFlag != null and failFlag !='' ">
+      	and fail_flag = #{failFlag,jdbcType=VARCHAR}
+      </if>
+     </where>
+  </select>
+  <delete id="delete" parameterType="com.creditharmony.fortune.deduct.entity.DeductResult" >
+    delete from t_tz_fortune_deduct_result
+    where request_id = #{requestId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.creditharmony.fortune.deduct.entity.DeductResult" >
+    insert into t_tz_fortune_deduct_result (id, request_id, lend_code, 
+      theday_id, deduct_succeed_money, deduct_fail_money, 
+      deduct_time, confirm_opinion, deduct_result_code, 
+      deduct_sys_id_type, plateform_id, undeduct_money, 
+      times, fail_flag, remark, 
+      remark1, remark2, remark3, 
+      create_by, create_time, modify_by, 
+      modify_time)
+    values (#{id,jdbcType=VARCHAR}, #{requestId,jdbcType=VARCHAR}, #{lendCode,jdbcType=VARCHAR}, 
+      #{thedayId,jdbcType=VARCHAR}, cast(#{deductSucceedMoney} as decimal(18,2)),cast(#{deductFailMoney} as decimal(18,2)), 
+      to_timestamp(#{deductTime},'YYYY-MM-DD HH24:mi:ss'), #{confirmOpinion,jdbcType=VARCHAR}, #{deductResultCode,jdbcType=VARCHAR}, 
+      #{deductSysIdType,jdbcType=VARCHAR}, #{plateformId,jdbcType=VARCHAR}, cast(#{undeductMoney} as decimal(18,2)), 
+      #{times,jdbcType=INTEGER}, #{failFlag,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{remark1,jdbcType=VARCHAR}, #{remark2,jdbcType=VARCHAR}, #{remark3,jdbcType=VARCHAR}, 
+      #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyBy,jdbcType=VARCHAR}, 
+      #{modifyTime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="update" parameterType="com.creditharmony.fortune.deduct.entity.DeductResult" >
+    update t_tz_fortune_deduct_result
+    <set >
+      <if test="lendCode != null" >
+        lend_code = #{lendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="thedayId != null" >
+        theday_id = #{thedayId,jdbcType=VARCHAR},
+      </if>
+      <if test="deductSucceedMoney != null" >
+        deduct_succeed_money = #{deductSucceedMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="deductFailMoney != null" >
+        deduct_fail_money = #{deductFailMoney,jdbcType=NUMERIC},
+      </if>
+      <if test="deductTime != null" >
+        deduct_time = #{deductTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="confirmOpinion != null" >
+        confirm_opinion = #{confirmOpinion,jdbcType=VARCHAR},
+      </if>
+      <if test="deductResultCode != null" >
+        deduct_result_code = #{deductResultCode,jdbcType=VARCHAR},
+      </if>
+      <if test="deductSysIdType != null" >
+        deduct_sys_id_type = #{deductSysIdType,jdbcType=VARCHAR},
+      </if>
+      <if test="plateformId != null" >
+        plateform_id = #{plateformId,jdbcType=VARCHAR},
+      </if>
+      <if test="undeductMoney != null" >
+        undeduct_money = #{undeductMoney,jdbcType=NUMERIC},
+      </if>
+<!--       <if test="times != null" > -->
+<!--         times = #{times,jdbcType=INTEGER}, -->
+<!--       </if> -->
+      <if test="failFlag != null" >
+        fail_flag = #{failFlag,jdbcType=VARCHAR},
+        times = coalesce(times,0)+1,
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="remark1 != null" >
+        remark1 = #{remark1,jdbcType=VARCHAR},
+      </if>
+      <if test="remark2 != null" >
+        remark2 = #{remark2,jdbcType=VARCHAR},
+      </if>
+      <if test="remark3 != null" >
+        remark3 = #{remark3,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where request_id = #{requestId,jdbcType=VARCHAR}
+  </update>
+</mapper>

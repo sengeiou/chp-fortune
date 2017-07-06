@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.creditharmony.fortune.cutoff.dao.CutOffDao">
+	<select id="findList" resultType="com.creditharmony.fortune.cutoff.entity.CutOff" parameterType="com.creditharmony.fortune.cutoff.entity.CutOff">
+  		SELECT 
+  			a.id, a.org_id, c.name AS "orgName",a.end_time as endTime, a.system_flag, a.deal_ip, a.create_by, a.create_time, a.modify_by,a.del_flag as delFlag,
+  			b.name AS "lastBy", a.modify_time
+  		FROM tz.t_tz_cutoff a Left join tz.t_gl_user b on a.modify_by=b.id 
+  		left join tz.t_gl_org c on a.org_id=c.id  
+  		 where 1=1
+		<if test="systemFlag !=null and systemFlag !='' ">
+			and system_flag=#{systemFlag}
+		</if>
+		<if test="orgName !=null and orgName !='' ">
+			and c.name like '%'||#{orgName}||'%' 
+		</if>
+		<if test="delFlag !=null and delFlag !='' ">
+			and a.del_flag = #{delFlag}
+		</if>
+		<if test="endTime !=null and endTime !='' ">
+			and a.end_time = #{endTime}
+		</if>
+ 	 </select>
+	<select id="findOrgIdList" resultType="String">
+  		SELECT distinct org_id FROM tz.t_tz_cutoff
+ 	 </select>
+ 	 <insert id="insert">
+		INSERT INTO tz.t_tz_cutoff(
+			id, org_id, end_time, system_flag, deal_ip, create_by, create_time, modify_by, modify_time, del_flag
+		) VALUES (
+			#{id}, 
+			#{orgId},
+			#{endTime},
+			#{systemFlag}, 
+			#{dealIp}, 
+			#{createBy}, 
+			#{createTime}, 
+			#{modifyBy}, 
+			#{modifyTime}, 
+			#{delFlag}
+		)
+	</insert>
+	<update id="update">
+		UPDATE tz.t_tz_cutoff
+		SET org_id = #{department.id}, 
+			end_time = #{loginName}, 
+			system_flag = #{password}, 
+			deal_ip = #{userCode}, 
+			modify_by = #{modifyBy}, 
+			modify_time = #{modifyTime}, 
+		WHERE id = #{id}
+	</update>
+	
+	<!--修改  -->
+	<update id="updateEdit" parameterType="com.creditharmony.fortune.cutoff.entity.CutOff">
+		update tz.t_tz_cutoff
+	<set>
+      <if test="endTime != null" >
+        end_time = #{endTime,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null" >
+        del_flag = #{delFlag,jdbcType=VARCHAR},
+      </if>
+    </set>
+    	<where>
+    		<if test="id!=null and id!=''">
+    			and	id = #{id,jdbcType=VARCHAR}
+    		</if>
+    		<if test="array!=null and array!=''">
+    			and id in <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+	           		 #{item}
+	       		 </foreach>
+    		</if>
+    	</where>
+	</update>
+	
+	<delete id="delete">
+		delete from tz.t_tz_cutoff WHERE id = #{id}
+	</delete>
+	<!--根据实体类查询数据  -->
+	<select id="get" parameterType="com.creditharmony.fortune.cutoff.entity.CutOff" resultType="com.creditharmony.fortune.cutoff.entity.CutOff">
+		SELECT 
+		a.id as id, 
+		a.org_id as orgId, 
+		c.name as orgName,
+		a.end_time as endTime, 
+		a.system_flag as systemFlag, 
+		a.deal_ip as dealIp, 
+		a.del_flag as delFlag
+  		FROM tz.t_tz_cutoff a 
+  		left join tz.t_gl_org c on a.org_id=c.id  
+		<where>
+			<if test="orgId!=null and orgId!=''">
+			a.org_id = #{orgId}
+			</if>
+			<if test="id!=null and id!='' ">
+			and a.id=#{id}
+			</if>
+			<if test="delFlag!=null and delFlag != '' ">
+			and	a.del_flag = #{delFlag} 
+			</if>
+		</where>
+		 
+	</select>
+</mapper>

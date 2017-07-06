@@ -1,0 +1,1597 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.creditharmony.fortune.borrow.dao.BorrowDao" >
+  <resultMap id="BaseResultMap" type="com.creditharmony.fortune.borrow.entity.Borrow" >
+  <id column="credit_value_id" property="creditValueId" jdbcType="VARCHAR" />
+    <result column="loan_code" property="loanCode" jdbcType="VARCHAR" />
+    <result column="loan_id" property="loanId" jdbcType="VARCHAR" />
+    <result column="loan_name" property="loanName" jdbcType="VARCHAR" />
+    <result column="loan_idcard" property="loanIdcard" jdbcType="VARCHAR" />
+    <result column="loan_job" property="loanJob" jdbcType="VARCHAR" />
+    <result column="dict_loan_type" property="dictLoanType" jdbcType="VARCHAR" />
+    <result column="loan_product" property="loanProduct" jdbcType="VARCHAR" />
+    <result column="loan_purpose" property="loanPurpose" jdbcType="VARCHAR" />
+    <result column="loan_outmoney_day" property="loanOutmoneyDay" jdbcType="DATE" />
+    <result column="loan_backmoney_firday" property="loanBackmoneyFirday" jdbcType="DATE" />
+    <result column="loan_backmoney_day" property="loanBackmoneyDay" jdbcType="INTEGER" />
+    <result column="loan_backmoney_lastday" property="loanBackmoneyLastday" jdbcType="DATE" />
+    <result column="loan_months" property="loanMonths" jdbcType="INTEGER" />
+    <result column="loan_months_surplus" property="loanMonthsSurplus" jdbcType="INTEGER" />
+    <result column="loan_quota" property="loanQuota" jdbcType="NUMERIC" />
+    <result column="loan_credit_value" property="loanCreditValue" jdbcType="NUMERIC" />
+    <result column="loan_month_rate" property="loanMonthRate" jdbcType="NUMERIC" />
+    <result column="loan_value_year" property="loanValueYear" jdbcType="NUMERIC" />
+    <result column="dict_loan_free_flag" property="dictLoanFreeFlag" jdbcType="VARCHAR" />
+    <result column="loan_modified_day" property="loanModifiedDay" jdbcType="TIMESTAMP" />
+    <result column="loan_pledge" property="loanPledge" jdbcType="VARCHAR" />
+    <result column="loan_day_surplus" property="loanDaySurplus" jdbcType="INTEGER" />
+    <result column="loan_middle_man" property="loanMiddleMan" jdbcType="VARCHAR" />
+    <result column="loan_freeze_day" property="loanFreezeDay" jdbcType="TIMESTAMP" />
+    <result column="loan_monthgain_flag" property="loanMonthgainFlag" jdbcType="VARCHAR" />
+    <result column="loan_trustee_flag" property="loanTrusteeFlag" jdbcType="VARCHAR" />
+    <result column="dic_loan_distinguish" property="dicLoanDistinguish" jdbcType="VARCHAR" />
+    <result column="create_by" property="createBy" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="modify_by" property="modifyBy" jdbcType="VARCHAR" />
+    <result column="modify_time" property="modifyTime" jdbcType="TIMESTAMP" />
+    <result column="push_plat_form" property="pushPlatForm" jdbcType="VARCHAR" />
+    <result column="status" property="pushStatus" jdbcType="VARCHAR" />
+    <result column="loan_contract_no" property="loanContractNo" jdbcType="VARCHAR" />
+    <result column="borrow_push_id" property="borrowPushId" jdbcType="VARCHAR" />
+    <result column="loan_credit_value_ys" property="loanCreditValueYS" jdbcType="NUMERIC" />
+    <result column="zq_state" property="zqState" jdbcType="NUMERIC" />
+  </resultMap>
+   <insert id="insert" parameterType="com.creditharmony.fortune.borrow.entity.Borrow" >
+	  insert into t_tz_borrow (credit_value_id, loan_code, loan_id, 
+      loan_name, loan_idcard, loan_job, 
+      dict_loan_type, loan_product, loan_purpose, 
+      loan_outmoney_day, loan_backmoney_firday, 
+      loan_backmoney_day, loan_backmoney_lastday, loan_months, 
+      loan_months_surplus, loan_quota, loan_credit_value, 
+      loan_month_rate, loan_value_year, dict_loan_free_flag, 
+      loan_modified_day, loan_pledge, loan_day_surplus, 
+      loan_middle_man, loan_freeze_day, loan_monthgain_flag, 
+      loan_trustee_flag, dic_loan_distinguish, create_by, create_time, 
+      modify_by, modify_time,loan_contract_no)
+    values (#{creditValueId,jdbcType=VARCHAR}, #{loanCode,jdbcType=VARCHAR}, #{loanId,jdbcType=VARCHAR}, 
+      #{loanName,jdbcType=VARCHAR}, #{loanIdcard,jdbcType=VARCHAR}, #{loanJob,jdbcType=VARCHAR}, 
+      #{dictLoanType,jdbcType=VARCHAR}, #{loanProduct,jdbcType=VARCHAR}, #{loanPurpose,jdbcType=VARCHAR}, 
+      #{loanOutmoneyDay,jdbcType=DATE}, #{loanBackmoneyFirday,jdbcType=DATE}, 
+      #{loanBackmoneyDay,jdbcType=INTEGER}, #{loanBackmoneyLastday,jdbcType=DATE}, #{loanMonths,jdbcType=INTEGER}, 
+      #{loanMonthsSurplus,jdbcType=INTEGER}, #{loanQuota,jdbcType=NUMERIC}, #{loanCreditValue,jdbcType=NUMERIC}, 
+      #{loanMonthRate,jdbcType=NUMERIC}, #{loanValueYear,jdbcType=NUMERIC}, #{dictLoanFreeFlag,jdbcType=VARCHAR}, 
+      #{loanModifiedDay,jdbcType=TIMESTAMP}, #{loanPledge,jdbcType=VARCHAR}, #{loanDaySurplus,jdbcType=INTEGER}, 
+      #{loanMiddleMan,jdbcType=VARCHAR}, #{loanFreezeDay,jdbcType=TIMESTAMP}, #{loanMonthgainFlag,jdbcType=VARCHAR}, 
+      #{loanTrusteeFlag,jdbcType=VARCHAR}, #{dicLoanDistinguish,jdbcType=VARCHAR}, #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{modifyBy,jdbcType=VARCHAR}, #{modifyTime,jdbcType=TIMESTAMP}, #{loanContractNo,jdbcType=VARCHAR})
+  </insert>
+  
+  <!--分页查询列表  -->
+  <select id="findBorrow" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	SELECT 
+  	 a.credit_value_id,
+ 	 a.loan_name,
+ 	 a.loan_id,
+ 	 a.loan_code,
+ 	 a.loan_idcard,
+ 	 a.dict_loan_type,
+ 	 a.loan_trustee_flag,
+ 	 a.loan_product,
+ 	 a.loan_purpose,
+ 	 a.loan_outmoney_day,
+ 	 a.loan_job,
+ 	 a.loan_backmoney_firday,
+ 	 a.loan_backmoney_day,
+ 	 a.loan_months,
+ 	 a.loan_months_surplus,
+ 	 a.loan_backmoney_lastday,
+ 	 a.loan_month_rate,
+ 	 a.loan_value_year,
+ 	 a.dict_loan_free_flag,
+ 	 a.loan_quota,
+ 	 a.loan_middle_man,
+ 	 a.dic_loan_distinguish,
+ 	 ROUND(a.loan_credit_value,2) loan_credit_value,
+ 	 a.loan_credit_value loan_credit_value_ys,
+ 	 extract(epoch from a.modify_time) as "verTime",
+ 	 b.credit_mon_id as creditMonId,
+ 	 extract(epoch from b.modify_time) as "borrowMonthVerTime",
+ 	 case when (a.loan_quota - (a.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money))) >= 0 
+	 then null
+	 else (a.loan_quota - (a.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money)))
+	 end as zq_state /** 债权情况 */
+    FROM tz.t_tz_borrow a
+    left join t_tz_borrow_month b on a.credit_value_id = b.credit_value_id 
+    left join (select credit_value_id,sum(release_credit_value) as borrow_release_credit_value from tz.t_tz_creditor_release where is_release = '0' and release_state in ('0') group by credit_value_id) bcr on bcr.credit_value_id = a.credit_value_id
+    left join (select credit_value_id,sum(release_money) release_money
+			from (
+					SELECT
+						lp.loan_code as credit_value_id,
+						case when c.matching_pay_status = '0'
+						then (lp.phase_principal_cur+lp.phase_principal_surplus)
+						else lp.phase_principal_surplus
+						end release_money
+					FROM  
+						tz.t_tz_loan_apply a 
+						join tz.t_tz_matching_creditor c on a.lend_code = c.lend_code
+						join tz.t_tz_loanphase lp on c.matching_id = lp.matching_id
+					where a.status 			  != '2' --提前赎回
+						and a.lend_status 		   = '11'  
+						and a.product_code 		  != '86'
+						and c.matching_status      = '160'
+						and c.matching_expire_day >= a.apply_expire_day
+						
+						and lp.phase_discard_status = '0' --未废弃
+						and lp.phase_release_status = '0' --没释放
+						
+						and a.apply_expire_day > sysdate
+			) group by credit_value_id	) rcr on rcr.credit_value_id = a.credit_value_id 
+    <where>
+ 	 	a.loan_months_surplus >0
+ 	    and a.dict_loan_free_flag = #{borrowFreeFlag}
+ 	    and a.loan_credit_value >=0
+ 	    <if test="creditValueIdList !=null and creditValueIdList != '' ">
+ 	    and a.credit_value_id in <foreach collection="creditValueIdList" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	    </if>
+ 	 	<if test="borrowerName != null and borrowerName != '' ">
+ 	 	AND a.loan_name like '%${borrowerName}%'
+ 	 	</if>
+ 	 	<if test="borrowerJob != null and borrowerJob != '' ">
+ 	 	 AND a.loan_job in <foreach collection="borrowerJob" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowType != null and borrowType != '' ">
+ 	 	 AND a.dict_loan_type in <foreach collection="borrowType" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowCreditValueFrom != null and borrowCreditValueFrom != '' ">
+ 	 	AND a.loan_credit_value <![CDATA[>=]]>${borrowCreditValueFrom}
+ 	 	</if>
+ 	 	<if test="borrowCreditValueTo != null and borrowCreditValueTo != '' ">
+ 	 	AND a.loan_credit_value <![CDATA[<=]]>${borrowCreditValueTo}
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusFrom != null">
+		AND a.loan_months_surplus <![CDATA[>=]]> ${borrowMonthsSurplusFrom} 	 	
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusTo != null">
+		AND a.loan_months_surplus <![CDATA[<=]]> ${borrowMonthsSurplusTo} 	 	
+ 	 	</if>
+ 	 	<if test="borrowBakcmoneyDay != null and borrowBakcmoneyDay != '' ">
+ 	 	AND a.loan_backmoney_day  in <foreach collection="borrowBakcmoneyDay" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowMonthRate != null and borrowMonthRate != '' ">
+ 	 	AND a.loan_month_rate <![CDATA[=]]> ${borrowMonthRate}
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayFrom !=null and borrowBackmoneyFirdayFrom != '' ">
+ 	 	    <!-- AND loan_backmoney_firday <![CDATA[>=]]>  #{borrowBackmoneyFirdayFrom} -->
+ 	 	    <![CDATA[ AND a.loan_backmoney_firday >=to_timestamp(#{borrowBackmoneyFirdayFrom},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayTo !=null and borrowBackmoneyFirdayTo != '' ">
+ 	 	    <!--  AND loan_backmoney_firday <![CDATA[<=]]>  #{borrowBackmoneyFirdayTo} -->
+ 	 	    <![CDATA[ AND a.loan_backmoney_firday <=to_timestamp(#{borrowBackmoneyFirdayTo},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="loanBackmoneyDay !=null and loanBackmoneyDay != '' ">
+ 	 	AND a.loan_backmoney_lastday = #{loanBackmoneyDay}
+ 	 	</if>
+ 	 	<if test="borrowTrusteeFlag !=null and borrowTrusteeFlag!= '' ">
+ 	 	AND a.loan_trustee_flag in <foreach collection="borrowTrusteeFlag" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<!--债权区分  -->
+ 	 	<if test="dicLoanDistinguish !=null and dicLoanDistinguish != '' ">
+ 	 	AND a.dic_loan_distinguish in <foreach collection="dicLoanDistinguish" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<!--最后还款日-->
+ 	 	<if test="loanBackmoneyLastdayFrom !=null and loanBackmoneyLastdayFrom != '' ">
+ 	 	    AND a.loan_backmoney_lastday <![CDATA[>=]]>#{loanBackmoneyLastdayFrom}
+ 	 	</if>
+ 	 	<if test="loanBackmoneyLastdayTo !=null and loanBackmoneyLastdayTo != '' ">
+ 	 	    AND a.loan_backmoney_lastday <![CDATA[  <=]]>#{loanBackmoneyLastdayTo}
+ 	 	</if>
+ 	 	<!-- 债权情况 -->
+ 	 	<if test="zqState !=null and zqState != '' ">
+ 	 		<if test="zqState == 0 ">
+ 	 			and (a.loan_quota - (a.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money))) <![CDATA[<]]> 0
+ 	 		</if>
+ 	 		<if test="zqState == 1 ">
+ 	 			and (a.loan_quota - (a.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money))) <![CDATA[>=]]> 0
+ 	 		</if>
+ 	 	</if>
+ 	 </where>
+  	order by a.loan_trustee_flag asc,a.dict_loan_type asc,a.loan_credit_value desc
+  </select>
+  <!--查询所有列表  -->
+   <select id="exportExcel" parameterType="java.util.Map" resultType="com.creditharmony.fortune.template.entity.BorrowOutExcel">
+  	SELECT 
+  	<include refid="query"></include>
+    FROM tz.t_tz_borrow
+  	<include refid="qurySql"></include>
+  </select>
+  <!--查询总金额数  -->
+  <select id="findAllMoney" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+  	SELECT ROUND(SUM(cast(loan_credit_value as numeric)),2) as loan_credit_value 
+  	FROM tz.t_tz_borrow a
+  	left join (select credit_value_id,sum(release_credit_value) as borrow_release_credit_value from tz.t_tz_creditor_release where is_release = '0' and release_state in ('0') group by credit_value_id) bcr on bcr.credit_value_id = a.credit_value_id
+  	left join (select credit_value_id,sum(release_money) release_money
+			from (
+					SELECT
+						lp.loan_code as credit_value_id,
+						case when c.matching_pay_status = '0'
+						then (lp.phase_principal_cur+lp.phase_principal_surplus)
+						else lp.phase_principal_surplus
+						end release_money
+					FROM  
+						tz.t_tz_loan_apply a 
+						join tz.t_tz_matching_creditor c on a.lend_code = c.lend_code
+						join tz.t_tz_loanphase lp on c.matching_id = lp.matching_id
+					where a.status 			  != '2' --提前赎回
+						and a.lend_status 		   = '11'  
+						and a.product_code 		  != '86'
+						and c.matching_status      = '160'
+						and c.matching_expire_day >= a.apply_expire_day
+						
+						and lp.phase_discard_status = '0' --未废弃
+						and lp.phase_release_status = '0' --没释放
+						
+						and a.apply_expire_day > sysdate
+			) group by credit_value_id	) rcr on rcr.credit_value_id = a.credit_value_id
+  	<include refid="qurySql"></include>
+  </select>
+  <!--根据债权价值id获得债权  -->
+  <select id="get" resultMap="BaseResultMap" parameterType="java.lang.String">
+  SELECT 
+  <include refid="query"></include>
+  FROM tz.t_tz_borrow  WHERE credit_value_id = #{id}
+  </select>
+  
+  <!--根据可用债权价值获取债权分配信息  -->
+  <select id="getBorrowAllot" resultType="com.creditharmony.fortune.borrow.view.BorrowAllotView" parameterType="java.lang.String">
+	SELECT
+	a.credit_value_id as creditValueId,
+	a.loan_credit_value as borrowCreditValue,
+	extract(epoch from a.modify_time) as "borrowVerTime",
+	b.credit_mon_id as creditMonId,
+	extract(epoch from b.modify_time) as "borrowMonthVerTime"
+	FROM
+	tz."t_tz_borrow" A LEFT JOIN tz."t_tz_borrow_month" b
+	ON a.credit_value_id = b.credit_value_id
+	where a.credit_value_id = #{creditValueId}
+  </select>
+  <!--修改可用债权的可用债权价值  -->
+  <update id="update" parameterType="com.creditharmony.fortune.borrow.entity.Borrow" >
+    update tz.t_tz_borrow
+    <set >
+      <if test="loanCode != null" >
+        loan_code = #{loanCode,jdbcType=VARCHAR},
+      </if>
+      <if test="loanId != null" >
+        loan_id = #{loanId,jdbcType=VARCHAR},
+      </if>
+      <if test="loanName != null" >
+        loan_name = #{loanName,jdbcType=VARCHAR},
+      </if>
+      <if test="loanIdcard != null" >
+        loan_idcard = #{loanIdcard,jdbcType=VARCHAR},
+      </if>
+      <if test="loanJob != null" >
+        loan_job = #{loanJob,jdbcType=VARCHAR},
+      </if>
+      <if test="dictLoanType != null" >
+        dict_loan_type = #{dictLoanType,jdbcType=VARCHAR},
+      </if>
+      <if test="loanProduct != null" >
+        loan_product = #{loanProduct,jdbcType=VARCHAR},
+      </if>
+      <if test="loanPurpose != null" >
+        loan_purpose = #{loanPurpose,jdbcType=VARCHAR},
+      </if>
+      <if test="loanOutmoneyDay != null" >
+        loan_outmoney_day = #{loanOutmoneyDay,jdbcType=DATE},
+      </if>
+      <if test="loanBackmoneyFirday != null" >
+        loan_backmoney_firday = #{loanBackmoneyFirday,jdbcType=DATE},
+      </if>
+      <if test="loanBackmoneyDay != null" >
+        loan_backmoney_day = #{loanBackmoneyDay,jdbcType=INTEGER},
+      </if>
+      <if test="loanBackmoneyLastday != null" >
+        loan_backmoney_lastday = #{loanBackmoneyLastday,jdbcType=DATE},
+      </if>
+      <if test="loanMonths != null" >
+        loan_months = #{loanMonths,jdbcType=INTEGER},
+      </if>
+      <if test="loanMonthsSurplus != null" >
+        loan_months_surplus = #{loanMonthsSurplus,jdbcType=INTEGER},
+      </if>
+      <if test="loanQuota != null" >
+        loan_quota = #{loanQuota,jdbcType=NUMERIC},
+      </if>
+      <if test="loanCreditValue != null" >
+        loan_credit_value = #{loanCreditValue,jdbcType=NUMERIC},
+      </if>
+      <if test="loanMonthRate != null" >
+        loan_month_rate = #{loanMonthRate,jdbcType=NUMERIC},
+      </if>
+      <if test="loanValueYear != null" >
+        loan_value_year = #{loanValueYear,jdbcType=NUMERIC},
+      </if>
+      <if test="dictLoanFreeFlag != null" >
+        dict_loan_free_flag = #{dictLoanFreeFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="loanModifiedDay != null" >
+        loan_modified_day = #{loanModifiedDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="loanPledge != null" >
+        loan_pledge = #{loanPledge,jdbcType=VARCHAR},
+      </if>
+      <if test="loanDaySurplus != null" >
+        loan_day_surplus = #{loanDaySurplus,jdbcType=INTEGER},
+      </if>
+      <if test="loanMiddleMan != null" >
+        loan_middle_man = #{loanMiddleMan,jdbcType=VARCHAR},
+      </if>
+      <if test="loanFreezeDay != null" >
+        loan_freeze_day = #{loanFreezeDay,jdbcType=TIMESTAMP},
+      </if>
+      <if test="loanMonthgainFlag != null" >
+        loan_monthgain_flag = #{loanMonthgainFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="loanTrusteeFlag != null" >
+        loan_trustee_flag = #{loanTrusteeFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="loanContractNo != null" >
+        loan_contract_no = #{loanContractNo,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <where>
+    	<if test="loanCode!=null and loanCode!= '' ">
+    		and loan_code = #{loanCode,jdbcType=VARCHAR}
+    	</if>
+    	<if test="creditValueId!=null and creditValueId!= '' ">
+    	  	and credit_value_id = #{creditValueId,jdbcType=VARCHAR}
+    	</if>
+    	<if test="loanIdcard != null" >
+        	and loan_idcard = #{loanIdcard,jdbcType=VARCHAR}
+      	</if>
+      	<if test="verTime != null and verTime != '' ">
+      		and extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+      	</if>
+    </where>
+  </update>
+  <!--可用债权查看  -->
+  <select id="borrowLook" parameterType="java.util.Map" resultType="com.creditharmony.fortune.borrow.entity.ex.BorrowLookEx">
+  	<!-- SELECT 
+  	<include refid="lookBorrowQueryField"/>
+  	FROM 
+  	<include refid="lookBorrowJoin"/>
+  	where a.credit_node= #{creditNode} and  a.credit_code= #{creditCode} and b.phase_number in 
+  	(select max(phase_number) from tz.t_tz_loanphase where phase_mate_id in 
+  	(select trade_id from tz.t_tz_creditor_trade where credit_node= #{creditNode} and credit_code= #{creditCode})) -->
+  	SELECT
+  	a.trade_id As id,
+  	a.lend_code AS lendCode,
+    e.loan_code AS loanCode,
+    e.loan_months_surplus AS surplusMonths,
+    a.trade_mate_money AS tradeMateMoney,
+    b.phase_principal_cur AS monthCapitalPayactual,
+    b.phase_interest_cur AS monthInterest,
+    b.phase_mate_number AS initMonths,
+    b.phase_number AS phaseNumber,
+    b.phase_back_principal AS phaseBackPrincipal,
+    c.apply_lend_day AS initLendDate,
+    c.customer_code AS customerTrue,
+    d.customer_name AS customerName,
+    b.phase_principal_surplus AS phasePrincipalSurplus,
+    g.matching_interest_start AS matchingInterestStart
+FROM
+    (
+        SELECT
+        	matching_id,
+            lend_code,
+            trade_mate_money,
+            trade_id,
+            credit_code
+        FROM
+            tz.t_tz_creditor_trade
+        WHERE
+            credit_node = #{creditNode}
+            AND credit_code = #{creditCode}
+            AND dict_trade_credit_status not in 
+		   	<foreach collection="dictTradeCreditStatus" index="index" item="item" open="(" separator="," close=")">
+		        #{item}
+		     </foreach>
+    ) A INNER JOIN tz.t_tz_borrow e ON a.credit_code = e.credit_value_id 
+    	INNER JOIN tz.t_tz_loan_apply C ON c.lend_code = a.lend_code 
+    	INNER JOIN tz.t_tz_customer d ON c.customer_code = d.customer_code 
+    	INNER JOIN(SELECT
+            phase_principal_cur,
+            phase_interest_cur,
+            phase_mate_number,
+            phase_back_principal,
+            phase_mate_id,
+            phase_number,
+            phase_principal_surplus
+        FROM
+            tz.t_tz_loanphase
+        WHERE
+            loan_code = #{creditCode}
+            and phase_discard_status = #{phaseDiscardStatus}
+    ) B ON b.phase_mate_id = a.trade_id 
+    INNER JOIN( SELECT
+            phase_mate_id,
+            MAX(phase_number) maxNum
+        FROM
+            tz.t_tz_loanphase
+        WHERE
+            phase_discard_status = #{phaseDiscardStatus}
+            AND loan_code = #{creditCode}
+        GROUP BY
+            phase_mate_id
+    ) f
+        ON b.phase_mate_id = f.phase_mate_id
+     and b.phase_number = f.maxNum
+     inner join (select matching_id,matching_interest_start from tz."t_tz_matching_creditor") g on a.matching_id=g.matching_id
+     order by g.matching_interest_start desc
+  </select>
+  <!-- 获取匹配符合条件的可用债权 -->
+  <select id="getsqppByMap" resultMap="BaseResultMap" parameterType="java.util.Map">
+  	SELECT 
+  	<include refid="query"></include>
+    FROM tz.t_tz_borrow
+  	where 1=1
+  	<if test="loanIds != null and loanIds != '' ">
+ 	 	 AND LOAN_ID not in ( #{loanIds} )
+ 	 </if>
+ 	 <if test="loanBackmoneyDay != null and loanBackmoneyDay != '' ">
+ 	 	 AND LOAN_BACKMONEY_DAY  in ( #{loanBackmoneyDay} )
+ 	 </if>
+ 	 
+ 	 <if test="loanName != null and loanName != '' ">
+ 	 	 AND loan_name  in ( #{loanName} )
+ 	 </if>
+ 	  <if test="loanIdcard != null and loanIdcard != '' ">
+ 	 	 AND loan_idcard  in ( #{loanIdcard} )
+ 	 </if>
+ 	  <if test="dictLoanType != null and dictLoanType != '' ">
+ 	 	 AND dict_loan_type  in ( #{dictLoanType} )
+ 	 </if>
+ 	  <if test="loanTrusteeFlag != null and loanTrusteeFlag != '' ">
+ 	 	 AND loan_trustee_flag  in ( #{loanTrusteeFlag} )
+ 	 </if>
+ 	  <if test="loanProduct != null and loanProduct != '' ">
+ 	 	 AND loan_product  in ( #{loanProduct} )
+ 	 </if>
+ 	 
+ 	 
+ 	 <if test="loanJob != null and loanJob != '' ">
+ 	 	 AND loan_job  in ( #{loanJob} )
+ 	 </if>
+ 	  <if test="loanBackmoneyFirday != null and loanBackmoneyFirday != '' ">
+ 	 	 AND loan_backmoney_firday  in ( #{loanBackmoneyFirday} )
+ 	 </if>
+ <!-- 	  <if test="loanBackmoneyDay != null and loanBackmoneyDay != '' ">
+ 	 	 AND LOAN_BACKMONEY_DAY  in ( #{loanBackmoneyDay} )
+ 	 </if> -->
+ 	  <if test="loanMonths != null and loanMonths != '' ">
+ 	 	 AND loan_months  in ( #{loanMonths} )
+ 	 </if>
+ 	  <if test="loanMonthsSurplus != null and loanMonthsSurplus != '' ">
+ 	 	 AND loan_months_surplus  in ( #{loanMonthsSurplus} )
+ 	 </if>
+ 	 
+ 	 
+ 	   <if test="loanBackmoneyLastday != null and loanBackmoneyLastday != '' ">
+ 	 	 AND loan_backmoney_lastday  in ( #{loanBackmoneyLastday} )
+ 	 </if>
+ 	  <!-- <if test="loanMonthRate != null and loanMonthRate != '' ">
+ 	 	 AND LOAN_BACKMONEY_DAY  in ( #{loanMonthRate} )
+ 	 </if> -->
+ 	  <if test="loanQuota != null and loanQuota != '' ">
+ 	 	 AND loan_quota  in ( #{loanQuota} )
+ 	 </if>
+ 	  <if test="loanCreditValue != null and loanCreditValue != '' ">
+ 	 	 AND loan_credit_value  in ( #{loanCreditValue} )
+ 	 </if>
+ 	  <if test="loanValueYear != null and loanValueYear != '' ">
+ 	 	 AND loan_value_year  in ( #{loanValueYear} )
+ 	 </if>
+ 	 
+ 	 <if test="dicLoanDistinguish != null and dicLoanDistinguish != '' ">
+ 	 	 AND dic_loan_distinguish  in ( #{dicLoanDistinguish} )
+ 	 </if>
+ 	 
+ 	 <if test="loanPurpose != null and loanPurpose != '' ">
+ 	 	 AND loan_purpose  in ( #{loanPurpose} )
+ 	 </if>
+ 	 
+ 	  <if test="loanMonthRate != 0.0  ">
+ 	 	 AND LOAN_MONTH_RATE = #{loanMonthRate} 
+ 	 </if>
+  </select>
+  <!-- 通过实体查询可用债权集合 （分页） -->
+  <select id="findBorrowByEx" resultMap="BaseResultMap" parameterType="java.util.Map">
+  <if test="ids != null and ids != '' ">
+ 	 	  SELECT 
+  		<include refid="query"></include>
+   			 FROM tz.t_tz_borrow
+   			 where credit_value_id in 
+   			<foreach collection="ids" item="id" open="(" separator="," close=")">
+	            #{id}
+	        </foreach>
+   			  union
+ 	</if>
+  	SELECT 
+  	<include refid="query"></include>
+    FROM tz.t_tz_borrow
+  	<where>
+			dict_loan_free_flag = #{dictLoanFreeFlag}
+			<if test="loanIds != null and loanIds.size()>0 ">
+ 	 			 AND LOAN_ID not in 
+	 	 	  <foreach collection="loanIds" index="index" item="item1" open="(" separator="," close=")">
+	            #{item1}
+	        </foreach>
+ 		 </if>
+ 		 <if test="loanIdCrards != null and loanIdCrards.size()>0 ">
+ 	 			 AND loan_idcard not in 
+	 	 	  <foreach collection="loanIdCrards" index="index" item="item1" open="(" separator="," close=")">
+	            #{item1}
+	        </foreach>
+ 		 </if>
+ 		 <if test="creditValueIds != null and creditValueIds.size()>0 ">
+ 	 			 AND credit_value_id not in 
+	 	 	  <foreach collection="creditValueIds" index="index" item="item1" open="(" separator="," close=")">
+	            #{item1}
+	        </foreach>
+ 		 </if>
+			<if test="loanName != null and loanName != '' ">
+				AND loan_name LIKE '%'||#{loanName}||'%'
+			</if>
+			<if test="loanJob != null and loanJob!='' ">
+				AND loan_job = #{loanJob}
+			</if>
+			<if test="loanCreditValue != null  ">
+				AND loan_credit_value
+				<![CDATA[>]]>${loanCreditValue}
+			</if>
+			<if test="loanCreditValueFrom != null  ">
+				AND loan_credit_value
+				<![CDATA[>=]]>${loanCreditValueFrom}
+			</if>
+			<if test="loanCreditValueTo != null  ">
+				AND loan_credit_value
+				<![CDATA[<=]]>${loanCreditValueTo}
+			</if>
+			<if
+				test="loanMonthsSurplus != null and loanMonthsSurplus !='' ">
+				AND loan_months_surplus
+				<![CDATA[>=]]>
+				${loanMonthsSurplus}
+			</if>
+			<if
+				test="loanMonthsSurplusFrom != null and loanMonthsSurplusFrom !='' ">
+				AND loan_months_surplus
+				<![CDATA[>=]]>
+				${loanMonthsSurplusFrom}
+			</if>
+			<if
+				test="loanMonthsSurplusTo != null and loanMonthsSurplusTo !='' ">
+				AND loan_months_surplus
+				<![CDATA[<=]]>
+				${loanMonthsSurplusTo}
+			</if>
+			<if
+				test="loanBackmoneyDay != null and loanBackmoneyDay != '' ">
+				AND loan_backmoney_day = #{loanBackmoneyDay}
+			</if>
+			<if test="loanMonthRate != null  ">
+				AND loan_month_rate = ${loanMonthRate}
+			</if>
+			<if
+				test="loanBackmoneyFirday !=null and loanBackmoneyFirday != '' ">
+				<![CDATA[ AND loan_backmoney_firday <=to_timestamp(#{loanBackmoneyFirday},'YYYY-MM-DD')]]>
+			</if>
+			<if
+				test="loanBackmoneyFirdayFrom !=null and loanBackmoneyFirdayFrom != '' ">
+				<![CDATA[ AND loan_backmoney_firday >=to_timestamp(#{loanBackmoneyFirdayFrom},'YYYY-MM-DD')]]>
+			</if>
+			<if
+				test="loanBackmoneyFirdayTo !=null and loanBackmoneyFirdayTo != '' ">
+				<![CDATA[ AND loan_backmoney_firday <=to_timestamp(#{loanBackmoneyFirdayTo},'YYYY-MM-DD')]]>
+			</if>
+			<if test="loanBackmoneyDays != null and loanBackmoneyDays.size()>0 ">
+				 AND loan_backmoney_day in 
+	 	 	  <foreach collection="loanBackmoneyDays" index="index" item="item1" open="(" separator="," close=")">
+	            #{item1}
+	        </foreach>
+			</if>
+			 <if test="loanTrusteeFlag!=null and loanTrusteeFlag != ''  ">
+	 	   and  loan_trustee_flag = #{loanTrusteeFlag}
+ 	   </if>
+ 	    <if test="dictLoanTypes!=null and dictLoanTypes.size>0">
+	 	   and  dict_loan_type in 
+	 	   <foreach collection="dictLoanTypes" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	       </foreach>
+ 	   </if>
+			 <if test="trusteeFlag == null and trusteeFlag == ''  ">
+	 	   and  loan_trustee_flag !='1'
+ 	   </if>
+ 	    <if test="filterLoanIdCrards != null and filterLoanIdCrards.size()>0">
+	 	  AND loan_idcard  not in
+	 	 <foreach collection="filterLoanIdCrards" index="index" item="item" open="(" separator="," close=")">
+	            #{item}
+	        </foreach>
+ 	 </if>
+ 	   <if test="ppxy != null  ">
+ 	  and  loan_credit_value  &lt;= (
+		case 
+ 	    <foreach collection="ppxy" index="key"  item="ent" separator="">
+ 		when dict_loan_type<![CDATA[||'-'||]]>loan_job =#{key} then to_number(#{ent})
+ 	 </foreach>
+ 		else to_number(999999999999999.00) end)
+ 	 </if>
+ 	 <!--债权区分  -->
+ 	 <if test="dicLoanDistinguish !=null and dicLoanDistinguish != '' ">
+ 	 	AND dic_loan_distinguish =#{dicLoanDistinguish}
+ 	 </if>
+ 	 <if test="loanBackmoneyLastday != null and loanBackmoneyLastday != '' ">
+ 	 	and <![CDATA[ AND loan_backmoney_lastday =to_timestamp(#{loanBackmoneyLastday},'YYYY-MM-DD')]]>
+ 	 </if>
+		</where>
+ 	 order by 
+<!--  	  <if test="trusteeFlagOrderby != null and trusteeFlagOrderby != ''  "> -->
+<!-- 	 	    loan_trustee_flag ${trusteeFlagOrderby}, -->
+<!--  	   </if> -->
+<!--  	 loan_credit_value desc -->
+<!--  	 loan_trustee_flag asc,dict_loan_type asc,loan_credit_value desc -->
+		dict_loan_type desc,loan_credit_value desc
+  </select>
+   <!-- 通过债权ID集合 获取符合条件的可用债权集合） -->
+  <select id="getBorrowByCreditValueIds" resultMap="BaseResultMap" parameterType="list">
+  	SELECT 
+  	<include refid="query"></include>
+    FROM tz.t_tz_borrow
+  	where  credit_value_id in 
+  	 <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+	#{item}
+	</foreach>
+  	
+  </select>
+  
+  <select id="countBackTool" parameterType="string" resultType="int">
+	SELECT
+	COUNT(a.credit_value_id)
+	FROM
+	tz."t_tz_borrow" A INNER JOIN tz."t_tz_borrow_month" B
+	ON a.credit_value_id = b.credit_value_id INNER JOIN
+	tz."t_tz_borrow_monthable" C
+	ON b.credit_mon_id = c.credit_mon_id
+	WHERE
+	a.credit_value_id=#{creditValueId}
+	AND a.dict_loan_free_flag = '1'
+	AND a.loan_credit_value >= 0
+    AND (b.loan_availabe_value > 0
+    or c.loan_availabe_value >0)
+</select>
+  <!--#############################################################################################  -->
+  
+  <!--sql的分装  -->
+  
+  <!--查看可用债权信息  -->
+  <sql id="lookBorrowQueryField">
+   <!--出借编号 -->
+   a.lend_code AS lendCode,
+   <!--借款code  -->
+   e.loan_code AS loanCode,
+   <!--匹配金额  -->
+   a.trade_mate_money AS tradeMateMoney,
+   <!--月还本金  -->
+   b.phase_principal_cur AS monthCapitalPayactual,
+   <!--月还利息  -->
+   b.phase_interest_cur AS monthInterest,
+   <!-- 总期数  -->
+   b.phase_mate_number AS initMonths,
+   <!--当前期数  -->
+   b.phase_number AS  phaseNumber,
+   <!--已还本金  -->
+   b.phase_back_principal AS phaseBackPrincipal,
+   <!--初始出借日期  -->
+   c.apply_lend_day AS initLendDate,
+   <!--出借人编号  --> 
+   c.customer_code AS customerTrue,
+  <!--出借人姓名  -->
+   d.customer_name AS customerName,
+   <!--本期还款结束后剩余未还本金  -->
+   b.phase_principal_surplus AS phasePrincipalSurplus
+  </sql>
+  
+  <sql id="lookBorrowJoin">
+  	 <!--债权交易表  -->
+     tz.t_tz_creditor_trade a
+     <!--分期收益表  --> 
+     left join tz.t_tz_loanphase b on b.phase_mate_id = a.trade_id
+     <!--出借申请表  -->
+     left join  tz.t_tz_loan_apply c on c.lend_code = a.lend_code
+     <!--客户信息表  -->
+     left join tz.t_tz_customer d on c.customer_code = d.customer_code
+     <!--可用债权列表  -->
+     left join tz.t_tz_borrow e on a.credit_code = e.credit_value_id
+    <!--查询最大期数的收益情况  -->
+     INNER JOIN(
+            SELECT
+                phase_mate_id,
+                MAX(phase_number) maxNum
+            FROM
+                tz.t_tz_loanphase
+             where
+             1=1
+             <if test="phaseDiscardStatus!=null and phaseDiscardStatus!=''">
+             	and phase_discard_status = #{phaseDiscardStatus}  
+             </if> 
+            GROUP BY
+                phase_mate_id
+        ) f
+            ON b.phase_mate_id = f.phase_mate_id
+	where 
+	1=1
+	<if test="creditNode!=null and creditNode!= '' ">
+    and a.credit_node=#{creditNode}
+	</if>
+	<if test="creditCode!=null and creditCode!= '' ">
+    and a.credit_code=#{creditCode}
+	</if>
+	<if test="array!=null and array!='' ">
+	    and a.dict_trade_credit_status not in 
+	   	<foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+	        #{item}
+	     </foreach>
+	</if>
+  </sql>
+  <!--可用债权  -->
+ 	<sql id="qurySql">
+ 	 <where>
+ 	 	loan_months_surplus >0
+ 	 	and loan_credit_value >=0
+ 	    and dict_loan_free_flag = #{borrowFreeFlag}
+ 	    <if test="borrowCreditValue != null">
+ 	    and loan_credit_value>${borrowCreditValue}
+ 	    </if>
+ 	    <if test="creditValueIdList !=null and creditValueIdList != '' ">
+ 	    and credit_value_id in <foreach collection="creditValueIdList" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	    </if>
+ 	 	<if test="borrowerName != null and borrowerName != '' ">
+ 	 	AND loan_name like '%${borrowerName}%'
+ 	 	</if>
+ 	 	<if test="borrowerJob != null and borrowerJob != '' ">
+ 	 	 AND loan_job in <foreach collection="borrowerJob" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowType != null and borrowType != '' ">
+ 	 	 AND dict_loan_type in <foreach collection="borrowType" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowCreditValueFrom != null and borrowCreditValueFrom != '' ">
+ 	 	AND loan_credit_value <![CDATA[>=]]>${borrowCreditValueFrom}
+ 	 	</if>
+ 	 	<if test="borrowCreditValueTo != null and borrowCreditValueTo != '' ">
+ 	 	AND loan_credit_value <![CDATA[<=]]>${borrowCreditValueTo}
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusFrom != null">
+		AND loan_months_surplus <![CDATA[>=]]> ${borrowMonthsSurplusFrom} 	 	
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusTo != null">
+		AND loan_months_surplus <![CDATA[<=]]> ${borrowMonthsSurplusTo} 	 	
+ 	 	</if>
+ 	 	<if test="borrowBakcmoneyDay != null and borrowBakcmoneyDay != '' ">
+ 	 	AND loan_backmoney_day  in <foreach collection="borrowBakcmoneyDay" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowMonthRate != null and borrowMonthRate != '' ">
+ 	 	AND loan_month_rate <![CDATA[=]]> ${borrowMonthRate}
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayFrom !=null and borrowBackmoneyFirdayFrom != '' ">
+ 	 	    <!-- AND loan_backmoney_firday <![CDATA[>=]]>  #{borrowBackmoneyFirdayFrom} -->
+ 	 	    <![CDATA[ AND loan_backmoney_firday >=to_timestamp(#{borrowBackmoneyFirdayFrom},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayTo !=null and borrowBackmoneyFirdayTo != '' ">
+ 	 	    <!--  AND loan_backmoney_firday <![CDATA[<=]]>  #{borrowBackmoneyFirdayTo} -->
+ 	 	    <![CDATA[ AND loan_backmoney_firday <=to_timestamp(#{borrowBackmoneyFirdayTo},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="loanBackmoneyDay !=null and loanBackmoneyDay != '' ">
+ 	 	AND loan_backmoney_lastday = #{loanBackmoneyDay}
+ 	 	</if>
+ 	 	<if test="borrowTrusteeFlag !=null and borrowTrusteeFlag!= '' ">
+ 	 	AND loan_trustee_flag in <foreach collection="borrowTrusteeFlag" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<!--债权区分  -->
+ 	 	<if test="dicLoanDistinguish !=null and dicLoanDistinguish != '' ">
+ 	 	AND dic_loan_distinguish in <foreach collection="dicLoanDistinguish" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<!--最后还款日-->
+ 	 	<if test="loanBackmoneyLastdayFrom !=null and loanBackmoneyLastdayFrom != '' ">
+ 	 	    AND loan_backmoney_lastday <![CDATA[>=]]>#{loanBackmoneyLastdayFrom}
+ 	 	</if>
+ 	 	<if test="loanBackmoneyLastdayTo !=null and loanBackmoneyLastdayTo != '' ">
+ 	 	    AND loan_backmoney_lastday <![CDATA[  <=]]>#{loanBackmoneyLastdayTo}
+ 	 	</if>
+ 	 	<!-- 债权情况 -->
+ 	 	<if test="zqState !=null and zqState != '' ">
+ 	 		<if test="zqState == 0 ">
+ 	 			and (a.loan_quota - (a.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money))) <![CDATA[<]]> 0
+ 	 		</if>
+ 	 		<if test="zqState == 1 ">
+ 	 			and (a.loan_quota - (a.loan_credit_value+decode(bcr.borrow_release_credit_value,null,0,bcr.borrow_release_credit_value)+decode(rcr.release_money,null,0,rcr.release_money))) <![CDATA[>=]]> 0
+ 	 		</if>
+ 	 	</if>
+ 	 </where>
+ 	</sql>
+ 	<sql id="query">
+ 	 credit_value_id,
+ 	 loan_name,
+ 	 loan_id,
+ 	 loan_code,
+ 	 loan_idcard,
+ 	 dict_loan_type,
+ 	 loan_trustee_flag,
+ 	 loan_product,
+ 	 loan_purpose,
+ 	 loan_outmoney_day,
+ 	 loan_job,
+ 	 loan_backmoney_firday,
+ 	 loan_backmoney_day,
+ 	 loan_months,
+ 	 loan_months_surplus,
+ 	 loan_backmoney_lastday,
+ 	 loan_month_rate,
+ 	 loan_value_year,
+ 	 dict_loan_free_flag,
+ 	 loan_quota,
+ 	 loan_middle_man,
+ 	 dic_loan_distinguish,
+ 	 ROUND(loan_credit_value, 2) loan_credit_value,
+ 	 loan_contract_no,
+ 	 extract(epoch from modify_time) as "verTime"
+ 	</sql>
+ 	<sql id="qurySqlByEx">
+ 	 <where>
+ 	    dict_loan_free_flag = #{dictLoanFreeFlag}
+ 	 	<if test="loanName != null and loanName != '' ">
+ 	 	
+ 	 	 AND loan_name = #{loanName}
+ 	 	</if>
+ 	 	<if test="loanJob != null and loanJob != '' ">
+ 	 	 AND loan_job = #{loanJob}
+ 	 	</if>
+ 	 	<if test="loanCreditValue != null  ">
+ 	 	AND loan_credit_value <![CDATA[>=]]>${loanCreditValue}
+ 	 	</if>
+ 	 	<if test="loanMonthsSurplus != null and loanMonthsSurplus !='' ">
+		AND loan_months_surplus <![CDATA[>=]]> ${loanMonthsSurplus} 	 	
+ 	 	</if>
+ 	 	<if test="loanBackmoneyDay != null and loanBackmoneyDay != '' ">
+ 	 	AND loan_backmoney_day = #{loanBackmoneyDay}
+ 	 	</if>
+ 	 	<if test="loanMonthRate != null and loanMonthRate != '' ">
+ 	 	AND loan_month_rate = ${loanMonthRate}
+ 	 	</if>
+ 	 	<if test="loanBackmoneyFirday !=null and loanBackmoneyFirday != '' ">
+ 	 	<![CDATA[ AND loan_backmoney_firday <=to_timestamp(#{loanBackmoneyFirday},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="loanIds != null and loanIds.size()>0 ">
+ 	 	 AND LOAN_ID not in 
+ 	 	  <foreach collection="loanIds" index="index" item="item1" open="(" separator="," close=")">
+            #{item1}
+        </foreach>
+ 	 </if>
+ 	 </where>
+ 	</sql>
+ 	<!--根据债权价值id获得债权  -->
+  <select id="getByEenity" resultMap="BaseResultMap" parameterType="com.creditharmony.fortune.borrow.entity.Borrow">
+  SELECT 
+  <include refid="query"></include>
+    FROM tz.t_tz_borrow
+  where 1=1 
+  <if test = "loanCode !=null ">
+  and    loan_code = #{loanCode}
+  </if>
+  <if test = "creditValueId !=null ">
+  	and    credit_value_id = #{creditValueId}
+  </if>
+  </select>
+  
+    <!--修改可用债权的可用债权价值  -->
+  <update id="updateBorrow" parameterType="com.creditharmony.fortune.borrow.entity.Borrow" >
+    update tz.t_tz_borrow
+    <set >
+      <if test="loanCreditValue != null" >
+        loan_credit_value = #{loanCreditValue,jdbcType=NUMERIC},
+      </if>
+      <if test="modifyBy != null" >
+        modify_by = #{modifyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="modifyTime != null" >
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <where>
+    	<if test="creditValueId!=null and creditValueId!= '' ">
+    	  	and credit_value_id = #{creditValueId,jdbcType=VARCHAR}
+    	</if>
+      	<if test="verTime != null and verTime != '' ">
+      		and extract(epoch from modify_time) = cast ( COALESCE(#{verTime},'0') as numeric)
+      	</if>
+    </where>
+  </update>
+  
+  
+  <select id="findPushBorrow" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	SELECT 
+  	 a.id borrow_push_id,
+  	 a.borrow_id credit_value_id,
+ 	 a.loan_name,
+ 	 a.loan_id,
+ 	 a.loan_code,
+ 	 a.dict_loan_type,
+ 	 a.loan_trustee_flag,
+ 	 a.loan_product,
+ 	 a.loan_job,
+ 	 a.loan_backmoney_firday,
+ 	 a.loan_backmoney_day,
+ 	 a.loan_backmoney_lastday,
+ 	 a.loan_month_rate,
+ 	 a.loan_months,
+ 	 a.loan_months_surplus,
+ 	 a.loan_value_year,
+ 	 a.loan_quota,
+ 	 a.dic_loan_distinguish,
+ 	 a.loan_credit_value,
+	 a.create_time,
+	 a.push_plat_form,
+	 a.create_by,
+	 a.status,
+	 b.loan_idcard
+    FROM tz.t_tz_borrow_push a
+    left join tz.t_tz_borrow b on a.borrow_id = b.credit_value_id
+    <where>
+   	<include refid="pushBorrow"/>
+   	</where>
+  	order by a.create_time desc
+  </select>
+  <sql id="pushBorrow">
+  		<if test="pushBorrowId !=null and pushBorrowId != '' ">
+ 	    and a.id = #{pushBorrowId}  
+    	</if>
+  		<if test="creditValueIdList !=null and creditValueIdList != '' ">
+ 	    and a.id in <foreach collection="creditValueIdList" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+    	</if>
+ 	 	<if test="borrowerName != null and borrowerName != '' ">
+ 	 	AND a.loan_name like '%${borrowerName}%'
+ 	 	</if>
+ 	 	<if test="borrowerJob != null and borrowerJob != '' ">
+ 	 	 AND a.loan_job in <foreach collection="borrowerJob" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowType != null and borrowType != '' ">
+ 	 	 AND a.dict_loan_type in <foreach collection="borrowType" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowCreditValueFrom != null and borrowCreditValueFrom != '' ">
+ 	 	AND a.loan_credit_value <![CDATA[>=]]>${borrowCreditValueFrom}
+ 	 	</if>
+ 	 	<if test="borrowCreditValueTo != null and borrowCreditValueTo != '' ">
+ 	 	AND a.loan_credit_value <![CDATA[<=]]>${borrowCreditValueTo}
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusFrom != null">
+		AND a.loan_months_surplus <![CDATA[>=]]> ${borrowMonthsSurplusFrom} 	 	
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusTo != null">
+		AND a.loan_months_surplus <![CDATA[<=]]> ${borrowMonthsSurplusTo} 	 	
+ 	 	</if>
+ 	 	<if test="borrowBakcmoneyDay != null and borrowBakcmoneyDay != '' ">
+ 	 	AND a.loan_backmoney_day  in <foreach collection="borrowBakcmoneyDay" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowMonthRate != null and borrowMonthRate != '' ">
+ 	 	AND a.loan_month_rate <![CDATA[=]]> ${borrowMonthRate}
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayFrom !=null and borrowBackmoneyFirdayFrom != '' ">
+ 	 	    <!-- AND loan_backmoney_firday <![CDATA[>=]]>  #{borrowBackmoneyFirdayFrom} -->
+ 	 	    <![CDATA[ AND a.loan_backmoney_firday >=to_timestamp(#{borrowBackmoneyFirdayFrom},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayTo !=null and borrowBackmoneyFirdayTo != '' ">
+ 	 	    <!--  AND loan_backmoney_firday <![CDATA[<=]]>  #{borrowBackmoneyFirdayTo} -->
+ 	 	    <![CDATA[ AND a.loan_backmoney_firday <=to_timestamp(#{borrowBackmoneyFirdayTo},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="loanBackmoneyDay !=null and loanBackmoneyDay != '' ">
+ 	 	AND a.loan_backmoney_lastday = #{loanBackmoneyDay}
+ 	 	</if>
+ 	 	<if test="borrowTrusteeFlag !=null and borrowTrusteeFlag!= '' ">
+ 	 	AND a.loan_trustee_flag in <foreach collection="borrowTrusteeFlag" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<!--债权区分  -->
+ 	 	<if test="dicLoanDistinguish !=null and dicLoanDistinguish != '' ">
+ 	 	AND a.dic_loan_distinguish in <foreach collection="dicLoanDistinguish" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<!--成功标识  推送状态 -->
+ 	 	<if test="pushStatus !=null and pushStatus != '' ">
+ 	 	AND a.status in <foreach collection="pushStatus" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<!--推送日期-->
+ 	 	<if test="pushBorrowTimeFrom !=null and pushBorrowTimeFrom != '' ">
+ 	 	    AND to_date(to_char(a.create_time,'YYYY-MM-DD'),'YYYY-MM-DD')  <![CDATA[>=]]>#{pushBorrowTimeFrom}
+ 	 	</if>
+ 	 	<if test="pushBorrowTimeTo !=null and pushBorrowTimeTo != '' ">
+ 	 	    AND to_date(to_char(a.create_time,'YYYY-MM-DD'),'YYYY-MM-DD')  <![CDATA[  <=]]>#{pushBorrowTimeTo}
+ 	 	</if>
+ 	 	<!--最后还款日-->
+ 	 	<if test="loanBackmoneyLastdayFrom !=null and loanBackmoneyLastdayFrom != '' ">
+ 	 	    AND a.loan_backmoney_lastday <![CDATA[>=]]>#{loanBackmoneyLastdayFrom}
+ 	 	</if>
+ 	 	<if test="loanBackmoneyLastdayTo !=null and loanBackmoneyLastdayTo != '' ">
+ 	 	    AND a.loan_backmoney_lastday <![CDATA[  <=]]>#{loanBackmoneyLastdayTo}
+ 	 	</if>
+  </sql>
+  
+    <select id="findAllMoneyByPushBorrow" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+  		SELECT SUM(cast(a.loan_credit_value as numeric)) as loan_credit_value FROM tz.t_tz_borrow_push a
+  		left join tz.t_tz_borrow b on a.borrow_id = b.credit_value_id
+  		<where>
+  		<include refid="pushBorrow"></include>
+  		</where>
+  	</select>
+  
+  
+   <insert id="insertBorrowPush" parameterType="java.util.Map" >
+	  insert into tz.t_tz_borrow_push (
+	  
+	  id,borrow_id, loan_code, loan_id, 
+      loan_name,dict_loan_type,loan_trustee_flag, loan_job, 
+      
+      loan_product, loan_backmoney_firday, loan_backmoney_day,loan_backmoney_lastday,
+      loan_month_rate,loan_months,loan_months_surplus, 
+      
+      loan_quota, loan_credit_value,loan_value_year,dic_loan_distinguish,
+      create_time, push_plat_form,create_by,batch_no,push_time,
+      
+      status,oneOrBeath,isUpdate
+      
+  	  )
+    values 
+    <foreach collection="borrowPushs" item="item" index="index" separator="," >  
+    (
+    
+      #{item.id,jdbcType=VARCHAR}, #{item.borrowId,jdbcType=VARCHAR}, #{item.loanCode,jdbcType=VARCHAR}, #{item.loanId,jdbcType=VARCHAR}, 
+      #{item.loanName,jdbcType=VARCHAR},#{item.dictLoanType,jdbcType=VARCHAR}, #{item.loanTrusteeFlag,jdbcType=VARCHAR}, #{item.loanJob,jdbcType=VARCHAR}, 
+      
+      #{item.loanProduct,jdbcType=VARCHAR},#{item.loanBackmoneyFirday,jdbcType=DATE}, #{item.loanBackmoneyDay,jdbcType=INTEGER},#{item.loanBackmoneyLastday,jdbcType=DATE}, 
+	  #{item.loanMonthRate,jdbcType=NUMERIC},#{item.loanMonths,jdbcType=INTEGER},#{item.loanMonthsSurplus,jdbcType=INTEGER},
+	  
+      
+      #{item.loanQuota,jdbcType=NUMERIC}, #{item.loanCreditValue,jdbcType=NUMERIC}, #{item.loanValueYear,jdbcType=NUMERIC},#{item.dicLoanDistinguish,jdbcType=VARCHAR},
+      #{item.createTime,jdbcType=TIMESTAMP},#{item.pushPlatForm,jdbcType=VARCHAR}, #{item.createBy,jdbcType=VARCHAR},#{item.batchNo,jdbcType=VARCHAR},#{item.pushTime,jdbcType=DATE},
+      
+      #{item.status,jdbcType=VARCHAR}, #{item.oneOrBeath,jdbcType=VARCHAR},#{item.isUpdate,jdbcType=VARCHAR}
+    )
+    </foreach>
+  </insert>
+  
+  <update id="updateBorrowByBorrowPush" parameterType="java.util.Map">
+  	update tz.t_tz_borrow a
+	set 
+	loan_credit_value = 
+	<if test="type !=null and type !='' and type =='subduction'">
+	(
+	select 
+		decode(ROUND(a.loan_credit_value, 2)-b.loan_credit_value,'0','0',a.loan_credit_value-b.loan_credit_value)
+	from tz.t_tz_borrow_push b where b.batch_no = #{batchNo} and a.credit_value_id = b.borrow_id and b.create_time = #{createTime,jdbcType=TIMESTAMP} 
+	and b.status = #{status} and isUpdate = #{isUpdate}
+	)
+	</if>
+	<if test="type !=null and type !='' and type =='addition'">
+	(
+	SELECT (a.loan_credit_value+cast(nvl(b.loan_credit_value,0) as numeric)) from 
+				(SELECT borrow_id,suM(loan_credit_value) loan_credit_value FROM tz.t_tz_borrow_push  c
+				where c.batch_no = #{batchNo} and b.create_time = #{createTime,jdbcType=TIMESTAMP} 
+				and b.status = #{status} and isUpdate = #{isUpdate}
+				  GROUP BY a.borrow_id ) b
+				WHERE  a.credit_value_id = b.borrow_id
+	)
+	</if>
+	,
+	modify_time = #{createTime,jdbcType=TIMESTAMP},
+	modify_by = #{modifyBy}
+	where exists 
+	<if test="type !=null and type !='' and type =='subduction'">
+	(select 1 from tz.t_tz_borrow_push b where batch_no = #{batchNo} and a.credit_value_id = b.borrow_id and b.create_time = #{createTime,jdbcType=TIMESTAMP} 
+		and b.status = #{status} and isUpdate = #{isUpdate})
+	</if>
+    <if test="type !=null and type !='' and type =='addition'">
+    (SELECT 1 from 
+				(SELECT borrow_id,suM(loan_credit_value) loan_credit_value FROM tz.t_tz_borrow_push  c
+				where c.batch_no = #{batchNo} and b.create_time = #{createTime,jdbcType=TIMESTAMP} 
+				and b.status = #{status} and isUpdate = #{isUpdate}
+				  GROUP BY a.borrow_id ) b
+				WHERE  a.credit_value_id = b.borrow_id
+	)
+    </if>
+  </update>
+  
+  <update id="updatePushBorrowStatus" parameterType="java.util.Map">
+  	update tz.t_tz_borrow_push a
+	set 
+		<if test="status !=null and status !='' ">
+		status = #{status},
+		create_time = #{createTime,jdbcType=TIMESTAMP},
+		push_time = #{createTime,jdbcType=DATE}
+		</if>
+		<if test="isUpdate !=null and isUpdate !=''">
+		isUpdate = #{isUpdate,jdbcType=VARCHAR}
+		</if>
+  	where 
+  	batch_no = #{batchNo,jdbcType=VARCHAR} 
+  	  and isUpdate = #{isUpdateRequest,jdbcType=VARCHAR}
+  	<if test="borrowPushsId!=null and borrowPushsId!=''">
+  	  and id in
+  	 <foreach collection="borrowPushsId" item="item" index="index" open="(" separator="," close=")">  
+  	#{item,jdbcType=VARCHAR}
+  	</foreach>
+  
+  	</if>
+  </update>
+  <update id="updateBorrowPushBatchNo" parameterType="java.util.Map">
+  	update tz.t_tz_borrow_push a
+	set 
+	batch_no = #{batchNo},
+	push_plat_form='DJR'
+  	where id in (
+  	<foreach collection="borrowPushs" item="item" index="index" separator="," >  
+  	#{item}
+  	</foreach>
+  	)
+  	</update>
+  
+    <!--查询总金额数  每条四舍五入在累加  -->
+  <select id="findAllMoneyOneByOne" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+  	SELECT SUM(ROUND(cast(loan_credit_value as numeric),2)) as loan_credit_value 
+  	FROM tz.t_tz_borrow a
+  	left join (select credit_value_id,sum(release_credit_value) as borrow_release_credit_value from tz.t_tz_creditor_release where is_release = '0' and release_state in ('0') group by credit_value_id) bcr on bcr.credit_value_id = a.credit_value_id
+  	left join (select credit_value_id,sum(release_money) release_money
+			from (
+					SELECT
+						lp.loan_code as credit_value_id,
+						case when c.matching_pay_status = '0'
+						then (lp.phase_principal_cur+lp.phase_principal_surplus)
+						else lp.phase_principal_surplus
+						end release_money
+					FROM  
+						tz.t_tz_loan_apply a 
+						join tz.t_tz_matching_creditor c on a.lend_code = c.lend_code
+						join tz.t_tz_loanphase lp on c.matching_id = lp.matching_id
+					where a.status 			  != '2' --提前赎回
+						and a.lend_status 		   = '11'  
+						and a.product_code 		  != '86'
+						and c.matching_status      = '160'
+						and c.matching_expire_day >= a.apply_expire_day
+						
+						and lp.phase_discard_status = '0' --未废弃
+						and lp.phase_release_status = '0' --没释放
+						
+						and a.apply_expire_day > sysdate
+			) group by credit_value_id	) rcr on rcr.credit_value_id = a.credit_value_id
+  	<include refid="qurySql"></include>
+  </select>
+  
+  <select id="getBorrowMoneyAndCountContractNoIsNull" parameterType="java.util.Map" resultType="java.util.Map">
+  	SELECT 
+  	count(a.credit_value_id) checkCountIsNull,
+  	ROUND(sum(a.loan_credit_value),2) checkMoneyIsNull,
+  	SUM(ROUND(a.loan_credit_value,2)) checkMoneyOneByOneIsNull
+    FROM tz.t_tz_borrow a
+    left join t_tz_borrow_month b on a.credit_value_id = b.credit_value_id 
+    <where>
+   		a.loan_months_surplus >0
+ 	    and a.dict_loan_free_flag = #{borrowFreeFlag}
+ 	    and not (a.loan_contract_no is not null
+ 	    and ROUND(a.loan_credit_value,2)>0 )
+ 	   	<include refid="borrowMoneyAndCount"/>
+ 	 </where>
+  </select>
+  
+  <select id="getBorrowMoneyAndCountContractNoIsNotNull" parameterType="java.util.Map" resultType="java.util.Map">
+  	SELECT 
+  	count(a.credit_value_id) checkCountIsNotNull,
+  	ROUND(sum(a.loan_credit_value),2) checkMoneyIsNotNull,
+  	SUM(ROUND(a.loan_credit_value,2)) checkMoneyOneByOneIsNotNull
+    FROM tz.t_tz_borrow a
+    left join t_tz_borrow_month b on a.credit_value_id = b.credit_value_id 
+    <where>
+   		a.loan_months_surplus >0
+   		and a.loan_credit_value>0
+ 	    and a.dict_loan_free_flag = #{borrowFreeFlag}
+ 	    and ROUND(a.loan_credit_value,2) >0
+ 	    and a.loan_contract_no is not null
+ 	   	<include refid="borrowMoneyAndCount"/>
+ 	 </where>
+  </select>
+  
+  
+  <select id="getBorrowMoneyAndCount" parameterType="java.util.Map" resultType="java.util.Map">
+  	SELECT 
+  	count(a.credit_value_id) checkCount,
+  	ROUND(sum(a.loan_credit_value),2) checkMoney,
+  	SUM(ROUND(a.loan_credit_value,2)) checkMoneyOneByOne
+    FROM tz.t_tz_borrow a
+    left join t_tz_borrow_month b on a.credit_value_id = b.credit_value_id 
+    <where>
+   		a.loan_months_surplus >0
+ 	    and a.dict_loan_free_flag = #{borrowFreeFlag}
+ 	    and a.loan_credit_value >=0
+ 	   	<include refid="borrowMoneyAndCount"/>
+ 	 </where>
+  </select>
+  <select id="getBorrowPushMoneyAndCountNot" parameterType="java.util.Map" resultType="java.util.Map">
+  	SELECT 
+  	count(a.id) checkcountnot,
+  	ROUND(sum(a.loan_credit_value),2) checkmoneynot,
+  	SUM(ROUND(a.loan_credit_value,2)) checkmoneyonebyonenot
+    FROM tz.t_tz_borrow_push a
+    left join tz.t_tz_borrow b on a.borrow_id = b.credit_value_id
+    <where>
+    		
+    	   status in ('1','3','4')
+ 	   	<include refid="pushBorrow"/>
+ 	 </where>
+  </select>
+  <select id="getBorrowPushMoneyAndCount" parameterType="java.util.Map" resultType="java.util.Map">
+  	SELECT 
+  	count(a.id) checkcount,
+  	ROUND(sum(a.loan_credit_value),2) checkmoney,
+  	SUM(ROUND(a.loan_credit_value,2)) checkmoneyonebyone
+    FROM tz.t_tz_borrow_push a
+    left join tz.t_tz_borrow b on a.borrow_id = b.credit_value_id
+    <where>
+ 	   	<include refid="pushBorrow"/>
+ 	 </where>
+  </select>
+  <select id="getBorrowPushMoneyAndCountIs" parameterType="java.util.Map" resultType="java.util.Map">
+  	SELECT 
+  	count(a.id) checkcountis,
+  	ROUND(sum(a.loan_credit_value),2) checkmoneyis,
+  	SUM(ROUND(a.loan_credit_value,2)) checkmoneyonebyoneis
+    FROM tz.t_tz_borrow_push a
+    left join tz.t_tz_borrow b on a.borrow_id = b.credit_value_id
+    <where>
+    	
+    	  status in ('0','2')
+ 	   	<include refid="pushBorrow"/>
+ 	 </where>
+  </select>
+  
+  
+  
+  <select id="findBorrowByDjr" parameterType="java.util.Map" resultMap="BaseResultMap">
+  select
+  	 a.credit_value_id,
+ 	 a.loan_name,
+ 	 a.loan_id,
+ 	 a.loan_code,
+ 	 a.loan_idcard,
+ 	 a.dict_loan_type,
+ 	 a.loan_trustee_flag,
+ 	 a.loan_product,
+ 	 a.loan_purpose,
+ 	 a.loan_outmoney_day,
+ 	 a.loan_job,
+ 	 a.loan_backmoney_firday,
+ 	 a.loan_backmoney_day,
+ 	 a.loan_months,
+ 	 a.loan_months_surplus,
+ 	 a.loan_backmoney_lastday,
+ 	 a.loan_month_rate,
+ 	 a.loan_value_year,
+ 	 a.dict_loan_free_flag,
+ 	 a.loan_quota,
+ 	 a.loan_middle_man,
+ 	 a.dic_loan_distinguish,
+ 	 a.loan_credit_value,
+ 	 a.loan_contract_no,
+ 	 extract(epoch from a.modify_time) as "verTime"
+    FROM tz.t_tz_borrow a
+    left join tz.t_tz_borrow_month b on a.credit_value_id = b.credit_value_id 
+    <where>
+ 	 	a.loan_months_surplus >0
+ 	    and a.dict_loan_free_flag = #{borrowFreeFlag}
+ 	    and a.loan_credit_value>=0
+ 	    and ROUND(a.loan_credit_value,2) >0
+ 	    and a.loan_contract_no is not null
+ 	    <include refid="borrowMoneyAndCount"/>
+ 	</where>
+  </select>
+  <select id="findBorrowByDjrByMap" parameterType="java.util.Map" resultMap="BaseResultMap">
+  select
+     a.id borrow_push_id,
+  	 b.credit_value_id,
+ 	 b.loan_name,
+ 	 b.loan_id,
+ 	 b.loan_code,
+ 	 b.loan_idcard,
+ 	 b.dict_loan_type,
+ 	 b.loan_trustee_flag,
+ 	 b.loan_product,
+ 	 b.loan_purpose,
+ 	 b.loan_outmoney_day,
+ 	 b.loan_job,
+ 	 b.loan_backmoney_firday,
+ 	 b.loan_backmoney_day,
+ 	 b.loan_months,
+ 	 b.loan_months_surplus,
+ 	 b.loan_backmoney_lastday,
+ 	 b.loan_month_rate,
+ 	 b.loan_value_year,
+ 	 b.dict_loan_free_flag,
+ 	 a.loan_quota,
+ 	 b.loan_middle_man,
+ 	 b.dic_loan_distinguish,
+ 	 a.loan_credit_value,
+ 	 b.loan_contract_no,
+ 	 extract(epoch from b.modify_time) as "verTime"
+    FROM tz.t_tz_borrow_push a
+    left join tz.t_tz_borrow b on b.credit_value_id = a.borrow_id 
+    <where>
+ 	 	a.loan_credit_value<![CDATA[>]]>0
+    	and  status in ('0','2')
+ 	   	<include refid="pushBorrow"/>
+ 	</where>
+  </select>
+  <sql id="borrowMoneyAndCount">
+  	 <if test="creditValueIdList !=null and creditValueIdList != '' ">
+ 	    and a.credit_value_id in <foreach collection="creditValueIdList" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	    </if>
+ 	 	<if test="borrowerName != null and borrowerName != '' ">
+ 	 	AND a.loan_name like '%${borrowerName}%'
+ 	 	</if>
+ 	 	<if test="borrowerJob != null and borrowerJob != '' ">
+ 	 	 AND a.loan_job in <foreach collection="borrowerJob" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowType != null and borrowType != '' ">
+ 	 	 AND a.dict_loan_type in <foreach collection="borrowType" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowCreditValueFrom != null and borrowCreditValueFrom != '' ">
+ 	 	AND a.loan_credit_value <![CDATA[>=]]>${borrowCreditValueFrom}
+ 	 	</if>
+ 	 	<if test="borrowCreditValueTo != null and borrowCreditValueTo != '' ">
+ 	 	AND a.loan_credit_value <![CDATA[<=]]>${borrowCreditValueTo}
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusFrom != null">
+		AND a.loan_months_surplus <![CDATA[>=]]> ${borrowMonthsSurplusFrom} 	 	
+ 	 	</if>
+ 	 	<if test="borrowMonthsSurplusTo != null">
+		AND a.loan_months_surplus <![CDATA[<=]]> ${borrowMonthsSurplusTo} 	 	
+ 	 	</if>
+ 	 	<if test="borrowBakcmoneyDay != null and borrowBakcmoneyDay != '' ">
+ 	 	AND a.loan_backmoney_day  in <foreach collection="borrowBakcmoneyDay" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<if test="borrowMonthRate != null and borrowMonthRate != '' ">
+ 	 	AND a.loan_month_rate <![CDATA[=]]> ${borrowMonthRate}
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayFrom !=null and borrowBackmoneyFirdayFrom != '' ">
+ 	 	    <!-- AND loan_backmoney_firday <![CDATA[>=]]>  #{borrowBackmoneyFirdayFrom} -->
+ 	 	    <![CDATA[ AND a.loan_backmoney_firday >=to_timestamp(#{borrowBackmoneyFirdayFrom},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="borrowBackmoneyFirdayTo !=null and borrowBackmoneyFirdayTo != '' ">
+ 	 	    <!--  AND loan_backmoney_firday <![CDATA[<=]]>  #{borrowBackmoneyFirdayTo} -->
+ 	 	    <![CDATA[ AND a.loan_backmoney_firday <=to_timestamp(#{borrowBackmoneyFirdayTo},'YYYY-MM-DD')]]>
+ 	 	</if>
+ 	 	<if test="loanBackmoneyDay !=null and loanBackmoneyDay != '' ">
+ 	 	AND a.loan_backmoney_lastday = #{loanBackmoneyDay}
+ 	 	</if>
+ 	 	<if test="borrowTrusteeFlag !=null and borrowTrusteeFlag!= '' ">
+ 	 	AND a.loan_trustee_flag in <foreach collection="borrowTrusteeFlag" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+ 	 	<!--债权区分  -->
+ 	 	<if test="dicLoanDistinguish !=null and dicLoanDistinguish != '' ">
+ 	 	AND a.dic_loan_distinguish in <foreach collection="dicLoanDistinguish" index="index" item="item" open="(" separator="," close=")">  
+            #{item}   
+    	</foreach> 
+ 	 	</if>
+  		<!--最后还款日-->
+ 	 	<if test="loanBackmoneyLastdayFrom !=null and loanBackmoneyLastdayFrom != '' ">
+ 	 	    AND a.loan_backmoney_lastday <![CDATA[>=]]>#{loanBackmoneyLastdayFrom}
+ 	 	</if>
+ 	 	<if test="loanBackmoneyLastdayTo !=null and loanBackmoneyLastdayTo != '' ">
+ 	 	    AND a.loan_backmoney_lastday <![CDATA[  <=]]>#{loanBackmoneyLastdayTo}
+ 	 	</if>
+  </sql>
+  <select id="insertBorrowPushMap" parameterType="java.util.Map" >
+  insert into tz.t_tz_borrow_push (
+	  
+	  id,borrow_id, loan_code, loan_id, 
+      loan_name,dict_loan_type,loan_trustee_flag, loan_job, 
+      
+      loan_product, loan_backmoney_firday, loan_backmoney_day,loan_backmoney_lastday,
+      loan_month_rate,loan_months,loan_months_surplus, 
+      
+      loan_quota, loan_credit_value,loan_value_year,dic_loan_distinguish,
+      create_time, push_plat_form,create_by,batch_no,push_time,
+      
+      status,oneOrBeath,isUpdate
+      
+  	  )
+  select
+ 	 getuuid32(),a.credit_value_id, a.loan_code,a.loan_id,
+ 	 a.loan_name,a.dict_loan_type,a.loan_trustee_flag,a.loan_job,
+ 	 a.loan_product,a.loan_backmoney_firday, a.loan_backmoney_day, a.loan_backmoney_lastday,
+ 	 a.loan_month_rate,a.loan_months,a.loan_months_surplus,ROUND(a.loan_quota,2),ROUND(a.loan_credit_value,2),
+ 	 a.loan_value_year,a.dic_loan_distinguish,
+ 	 #{date,jdbcType=TIMESTAMP},null, #{createBy,jdbcType=VARCHAR},#{batchNo,jdbcType=VARCHAR},null,
+ 	 #{status,jdbcType=VARCHAR}, #{oneOrBeath,jdbcType=VARCHAR},#{IsUpdate,jdbcType=VARCHAR}
+    FROM tz.t_tz_borrow a
+    left join tz.t_tz_borrow_month b on a.credit_value_id = b.credit_value_id 
+    <where>
+ 	 	a.loan_months_surplus >0
+ 	    and a.dict_loan_free_flag = #{borrowFreeFlag}
+ 	    and a.loan_credit_value>=0
+ 	    and ROUND(a.loan_credit_value,2) >0
+ 	    and a.loan_contract_no is not null
+ 	    <include refid="borrowMoneyAndCount"/>
+ 	</where>
+  </select>
+  
+  
+  <update id="updateBorrowAdd" parameterType="java.util.Map">
+  <!-- 	update t_tz_borrow d
+  	set
+  	loan_credit_value = 
+	(
+	SELECT (d.loan_credit_value+cast(nvl(b.loan_credit_value,0) as numeric)) from 
+				(SELECT borrow_id,suM(loan_credit_value) loan_credit_value FROM tz.t_tz_borrow_push  a
+				where 
+				 a.status in('0','2') and isUpdate = '1'
+   				<include refid="pushBorrow"/>
+				  GROUP BY a.borrow_id ) b
+				WHERE  d.credit_value_id = b.borrow_id
+	)
+	,
+	modify_time = #{createTime,jdbcType=TIMESTAMP},
+	modify_by = #{modifyBy}
+	where exists 
+  	(
+  	SELECT 1 from 
+		(SELECT borrow_id,suM(loan_credit_value) loan_credit_value FROM tz.t_tz_borrow_push  a
+		where 
+		 a.status in('0','2') and isUpdate = '1'
+			<include refid="pushBorrow"/>
+		  GROUP BY a.borrow_id ) b
+		WHERE  d.credit_value_id = b.borrow_id
+    ) -->
+    
+    update t_tz_borrow d
+  	set
+  	loan_credit_value = 
+	(	
+	SELECT (d.loan_credit_value+cast(nvl(a.loan_credit_value,0) as numeric)) from tz.t_tz_borrow_push  a
+				where 
+				 d.credit_value_id = a.borrow_id
+				 and
+				 a.status in('0','2') and a.isUpdate = '1'
+   				<include refid="pushBorrow"/>			
+	)
+	,
+	modify_time = #{createTime,jdbcType=TIMESTAMP},
+	modify_by = #{modifyBy}
+	where exists 
+  	(
+  	SELECT 1 from tz.t_tz_borrow_push  a
+				where 
+				 d.credit_value_id = a.borrow_id
+				 and
+				 a.status in('0','2') and a.isUpdate = '1'
+   				<include refid="pushBorrow"/>	
+    )
+    
+    
+    
+  </update>
+  
+  
+  <update id="updatePushBorrowAddIsUpdate" parameterType="java.util.Map">
+  	update t_tz_borrow_push d
+  	set
+  	isUpdate = '2',
+  	status = '3',
+  	create_time = #{date,jdbcType=TIMESTAMP}
+	where id in(
+	SELECT id FROM tz.t_tz_borrow_push  a
+		where 
+		a.status in('0','2') and a.isUpdate = '1'
+		<include refid="pushBorrow"/>	
+	)
+  </update>
+  
+   <select id="getPushBorrowAddIsUpdate" parameterType="java.util.Map"  resultType="java.util.Map">
+  	select sum(loan_credit_value) loan_credit_value,count(id) count from tz.t_tz_borrow_push
+	where id in(
+	SELECT id FROM tz.t_tz_borrow_push  a
+		where 
+		a.status in('0','3') and a.isUpdate = '2'
+		<include refid="pushBorrow"/>	
+	)
+  </select>
+  
+  <update id="updatePushBorrowEarly" parameterType="java.util.Map">
+  	update tz.t_tz_borrow_push d
+  	set
+  	status = '4',
+  	create_time = #{date,jdbcType=TIMESTAMP}
+	where loan_code =  #{loanCode}
+	and status in ('0','2')
+  </update>
+  
+  
+  <select id="findPushBorrowRelease" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	SELECT 
+  	 a.id borrow_push_id,
+  	 a.borrow_id credit_value_id,
+ 	 a.loan_credit_value
+    FROM tz.t_tz_borrow_push a
+    left join tz.t_tz_borrow b on a.borrow_id = b.credit_value_id
+    <where>
+    	a.status in('0','2') and a.isUpdate = '1'
+   	<include refid="pushBorrow"/>
+   	</where>
+  	order by a.create_time desc
+  </select>
+  
+  
+</mapper>
